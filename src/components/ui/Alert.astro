@@ -1,0 +1,28 @@
+---
+type Variant = 'success' | 'error' | 'warning' | 'info'
+
+interface Props {
+  variant?: Variant
+  class?: string
+}
+
+const { variant = 'info', class: className = '' } = Astro.props
+
+const variantClasses: Record<Variant, string> = {
+  success: 'border-canopy   bg-canopy-soft   text-canopy-ink',
+  error:   'border-clay     bg-clay-soft     text-clay',
+  warning: 'border-[#C58A1E] bg-[#FEF3C7]  text-[#78490A]',
+  info:    'border-rule     bg-surface-alt   text-ink-2',
+}
+---
+
+<div
+  class:list={[
+    'rounded-civic border p-4 text-sm',
+    variantClasses[variant],
+    className,
+  ]}
+  role={variant === 'error' ? 'alert' : 'status'}
+>
+  <slot />
+</div>

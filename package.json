@@ -19,6 +19,7 @@
     "@tailwindcss/postcss": "^4.2.4",
     "alpinejs": "^3.14.1",
     "astro": "^6.2.2",
+    "daisyui": "^5.5.19",
     "postcss": "^8.5.14",
     "tailwindcss": "^4.2.4"
   },

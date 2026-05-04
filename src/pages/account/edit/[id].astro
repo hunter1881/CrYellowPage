@@ -1,5 +1,10 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro'
+import Alert from '@components/ui/Alert.astro'
+import Button from '@components/ui/Button.astro'
+import Checkbox from '@components/ui/Checkbox.astro'
+import Input from '@components/ui/Input.astro'
+import Textarea from '@components/ui/Textarea.astro'
 import { createSupabaseServerClient } from '@lib/supabaseServer'
 import { getCategories } from '@lib/queries/categories'
 import { absoluteUrl } from '@lib/site'
@@ -120,116 +125,56 @@ if (Astro.request.method === 'POST') {
 
   <section class="mx-auto max-w-3xl px-4 py-8 md:px-6">
     {successMessage && (
-      <div class="mb-5 rounded-civic border border-canopy bg-canopy-soft p-4 text-sm text-canopy-ink">
-        {t('edit.saved')}
-      </div>
+      <Alert variant="success" class="mb-5">{t('edit.saved')}</Alert>
     )}
     {errorMessage && (
-      <div class="mb-5 rounded-civic border border-red-200 bg-red-50 p-4 text-sm text-red-800">
-        {errorMessage}
-      </div>
+      <Alert variant="error" class="mb-5">{errorMessage}</Alert>
     )}
 
     <form class="civic-card grid gap-6 p-6" method="POST">
 
       <div class="grid gap-4 sm:grid-cols-2">
-        <label class="grid gap-1.5 text-sm font-semibold text-ink">
-          <span>{t('edit.phone')} <span class="text-red-500">*</span></span>
-          <input
-            class="rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-normal outline-none focus:border-canopy"
-            name="phone"
-            required
-            inputmode="tel"
-            value={provider.phone}
-          />
-        </label>
-
-        <label class="grid gap-1.5 text-sm font-semibold text-ink">
-          <span>WhatsApp <span class="font-normal text-ink-3">{t('common.optional')}</span></span>
-          <input
-            class="rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-normal outline-none focus:border-canopy"
-            name="whatsapp"
-            inputmode="tel"
-            value={provider.whatsapp ?? ''}
-          />
-        </label>
+        <Input label={t('edit.phone')} name="phone" type="tel" required value={provider.phone} />
+        <Input label="WhatsApp" name="whatsapp" type="tel" hint={t('common.optional')} value={provider.whatsapp ?? ''} />
       </div>
 
-      <label class="grid gap-1.5 text-sm font-semibold text-ink">
-        <span>{t('edit.description')}</span>
-        <textarea
-          class="rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-normal outline-none focus:border-canopy"
-          name="description"
-          rows="4"
-          maxlength="500"
-        >{provider.description ?? ''}</textarea>
-        <span class="text-xs font-normal text-ink-3">{t('edit.descriptionHint')}</span>
-      </label>
+      <Textarea
+        label={t('edit.description')}
+        name="description"
+        rows={4}
+        maxlength={500}
+        value={provider.description}
+        hint={t('edit.descriptionHint')}
+      />
 
       <div class="grid gap-4 sm:grid-cols-2">
-        <label class="grid gap-1.5 text-sm font-semibold text-ink">
-          <span>{t('edit.yearsActive')}</span>
-          <input
-            class="rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-normal outline-none focus:border-canopy"
-            name="yearsActive"
-            type="number"
-            min="0"
-            max="80"
-            value={provider.years_active}
-          />
-        </label>
-
-        <label class="grid gap-1.5 text-sm font-semibold text-ink">
-          <span>{t('edit.responseTime')}</span>
-          <input
-            class="rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-normal outline-none focus:border-canopy"
-            name="responseTimeMinutes"
-            type="number"
-            min="1"
-            placeholder="ej. 30"
-            value={provider.response_time_minutes ?? ''}
-          />
-        </label>
+        <Input label={t('edit.yearsActive')} name="yearsActive" type="number" value={provider.years_active ?? ''} />
+        <Input label={t('edit.responseTime')} name="responseTimeMinutes" type="number" placeholder="ej. 30" value={provider.response_time_minutes ?? ''} />
       </div>
 
       <fieldset class="grid gap-2">
-        <legend class="text-sm font-semibold text-ink">
-          {t('edit.categories')}
-        </legend>
+        <legend class="text-sm font-semibold text-ink">{t('edit.categories')}</legend>
         <div class="grid gap-2 sm:grid-cols-2">
           {allCategories.map((category) => (
-            <label class="flex cursor-pointer items-center gap-2.5 rounded-civic border border-rule bg-surface p-3 text-sm hover:border-canopy has-[:checked]:border-canopy has-[:checked]:bg-canopy-soft">
-              <input
-                type="checkbox"
-                name="categoryIds"
-                value={category.id}
-                checked={currentCategoryIds.has(category.id)}
-              />
-              <span>{category.icon_emoji ? `${category.icon_emoji} ` : ''}{category.name}</span>
-            </label>
+            <Checkbox
+              name="categoryIds"
+              value={category.id}
+              label={`${category.icon_emoji ? `${category.icon_emoji} ` : ''}${category.name}`}
+              checked={currentCategoryIds.has(category.id)}
+            />
           ))}
         </div>
       </fieldset>
 
       <fieldset class="grid gap-2">
         <legend class="text-sm font-semibold text-ink">{t('edit.options')}</legend>
-        <label class="flex cursor-pointer items-center gap-2 text-sm text-ink">
-          <input type="checkbox" name="acceptsSinpe" checked={provider.accepts_sinpe} />
-          {t('edit.acceptsSinpe')}
-        </label>
-        <label class="flex cursor-pointer items-center gap-2 text-sm text-ink">
-          <input type="checkbox" name="worksWeekends" checked={provider.works_weekends} />
-          {t('edit.worksWeekends')}
-        </label>
+        <Checkbox name="acceptsSinpe" value="on" label={t('edit.acceptsSinpe')} variant="plain" checked={provider.accepts_sinpe ?? false} />
+        <Checkbox name="worksWeekends" value="on" label={t('edit.worksWeekends')} variant="plain" checked={provider.works_weekends ?? false} />
       </fieldset>
 
       <div class="flex gap-3">
-        <button class="civic-button bg-canopy px-6 text-white" type="submit">
-          {t('edit.save')}
-        </button>
-        <a class="civic-button border border-rule bg-surface text-ink" href="/account/">
-          {t('edit.cancel')}
-        </a>
+        <Button type="submit">{t('edit.save')}</Button>
+        <Button variant="outline" href="/account/">{t('edit.cancel')}</Button>
       </div>
 
     </form>

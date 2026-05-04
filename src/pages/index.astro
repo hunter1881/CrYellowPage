@@ -61,7 +61,7 @@ const districtsLabelEs = (count: number) =>
             {t('home.directory')}
           </p>
           <h1 class="text-3xl font-semibold leading-tight tracking-[-0.6px] text-ink md:text-[42px]">
-            Encuentre servicios locales verificados por distrito
+            {t('home.tagline')}
           </h1>
         </div>
         <div class="hidden text-right font-mono text-[12px] leading-5 text-ink-3 md:block">
@@ -76,15 +76,15 @@ const districtsLabelEs = (count: number) =>
         transition:persist
       />
       <p class="mt-4 max-w-3xl text-sm leading-6 text-ink-2">
-        Busque fontaneros, personal de limpieza, especialistas en reparaciones y otros proveedores por cantón, distrito y categoría.
+        {t('home.description')}
       </p>
       <div class="mt-5">
         <StatsStrip
           items={[
-            { label: `Proveedores en ${currentDistrict?.name ?? 'la red'}`, value: currentCategories.reduce((sum, cat) => sum + (cat.count ?? 0), 0) },
-            { label: 'Categorías disponibles', value: currentCategories.length },
-            { label: 'Cantones activos', value: cantons.length },
-            { label: 'Contacto directo', value: 'WhatsApp' },
+            { label: `${t('home.providersIn')} ${currentDistrict?.name ?? 'la red'}`, value: currentCategories.reduce((sum, cat) => sum + (cat.count ?? 0), 0) },
+            { label: t('home.statsCategories'), value: currentCategories.length },
+            { label: t('home.statsCantons'), value: cantons.length },
+            { label: t('home.statsWhatsapp'), value: 'WhatsApp' },
           ]}
         />
       </div>

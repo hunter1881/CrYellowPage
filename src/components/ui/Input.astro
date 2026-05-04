@@ -1,0 +1,58 @@
+---
+interface Props {
+  label?: string
+  name: string
+  type?: 'text' | 'email' | 'password' | 'search' | 'tel' | 'url' | 'number' | 'date' | 'time' | 'hidden'
+  placeholder?: string
+  value?: string | number | null
+  required?: boolean
+  error?: string
+  hint?: string
+  class?: string
+  [key: string]: unknown
+}
+
+const {
+  label,
+  name,
+  type = 'text',
+  placeholder,
+  value,
+  required = false,
+  error,
+  hint,
+  class: className = '',
+  ...rest
+} = Astro.props
+---
+
+<div class:list={['form-control w-full', className]}>
+  {label && (
+    <label class="label pb-1" for={name}>
+      <span class="label-text text-sm font-semibold text-ink">{label}</span>
+    </label>
+  )}
+  <input
+    class:list={[
+      'input input-bordered w-full rounded-civic border-rule bg-surface text-sm font-normal text-ink placeholder:text-ink-3 focus:border-canopy focus:outline-none',
+      error && 'input-error border-clay',
+    ]}
+    id={name}
+    name={name}
+    type={type}
+    placeholder={placeholder}
+    value={value ?? undefined}
+    required={required || undefined}
+    {...rest}
+  />
+  {hint && !error && (
+    <div class="label pt-1">
+      <span class="label-text-alt text-ink-3">{hint}</span>
+    </div>
+  )}
+  {error && (
+    <div class="label pt-1">
+      <span class="label-text-alt font-medium text-clay">{error}</span>
+    </div>
+  )}
+</div>

@@ -3,8 +3,8 @@ import { ClientRouter } from 'astro:transitions'
 import '@styles/global.css'
 import Footer from '@components/directory/Footer.astro'
 import MobileDrawer from '@components/directory/MobileDrawer.astro'
+import Navbar from '@components/directory/Navbar.astro'
 import { defaultDescription, siteName } from '@lib/site'
-import { t } from '@lib/i18n'
 
 interface Props {
   title?: string
@@ -52,58 +52,56 @@ const jsonLdItems = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : []
     }
   </head>
   <body class="min-h-screen">
-    <header class="sticky top-0 z-50 border-b border-rule bg-surface">
-      <div class="hidden bg-canopy-ink px-6 py-1 text-[11px] text-white/75 md:block">
-        <div class="mx-auto flex max-w-6xl justify-between font-mono tracking-[0.3px]">
-          <span class="uppercase">Directorio local · Costa Rica</span>
-          <span class="flex gap-4">
-            <a class="text-white/75 no-underline hover:text-white" href="/#provider-signup">
-              {t('nav.provider')}
-            </a>
-            <span>+506 0000-0000</span>
-          </span>
-        </div>
-      </div>
-      <div class="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3 md:px-6">
-        <a class="flex items-center gap-3 text-ink no-underline" href="/">
-          <span class="flex h-8 w-8 items-center justify-center rounded-civic bg-canopy text-sm font-bold text-white">DL</span>
-          <span class="leading-tight">
-            <span class="block text-base font-semibold tracking-[-0.3px]">DirectorioLocal<span class="text-canopy">.cr</span></span>
-            <span class="hidden font-mono text-[11px] uppercase tracking-[0.5px] text-ink-3 md:block">
-              {t('layout.tagline')}
-            </span>
-          </span>
-        </a>
-        <nav class="ml-auto hidden items-center gap-5 text-sm font-medium md:flex" aria-label="Primary">
-          <a class="text-ink-2 no-underline hover:text-canopy" href="/#cantones">
-            {t('nav.cantons')}
-          </a>
-          <a class="text-ink-2 no-underline hover:text-canopy" href="/#categories">
-            {t('nav.categories')}
-          </a>
-          <a class="text-ink-2 no-underline hover:text-canopy" href="/#provider-signup">
-            {t('nav.provider')}
-          </a>
-          <a class="text-ink-2 no-underline hover:text-canopy" href="/account/">
-            {t('nav.account')}
-          </a>
-        </nav>
-
-        <button
-          class="inline-flex h-9 w-9 items-center justify-center rounded-civic border border-rule text-ink md:hidden"
-          type="button"
-          data-open-mobile-menu
-          aria-label="Abrir menu"
-        >
-          <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" width="18" height="18" aria-hidden="true"><path d="M3 5h12M3 9h12M3 13h12"/></svg>
-        </button>
-      </div>
-    </header>
+    <div id="page-progress" aria-hidden="true"></div>
+    <Navbar />
     <main>
       <slot />
     </main>
     <Footer />
     <MobileDrawer />
+    <script is:inline>
+      // ── Page progress bar ──────────────────────────────────────────────────
+      ;(function () {
+        var bar = document.getElementById('page-progress')
+        if (!bar) return
+
+        function start() {
+          bar.className = ''
+          // Force reflow so the transition from 0% triggers
+          bar.getBoundingClientRect()
+          bar.classList.add('is-loading')
+        }
+
+        function finish() {
+          bar.classList.remove('is-loading')
+          bar.classList.add('is-done')
+          bar.addEventListener('transitionend', function reset() {
+            bar.className = ''
+            bar.removeEventListener('transitionend', reset)
+          })
+        }
+
+        // Astro View Transition events
+        document.addEventListener('astro:before-preparation', start)
+        document.addEventListener('astro:page-load', finish)
+
+        // Form submits (Astro Actions POST)
+        document.addEventListener('submit', function (event) {
+          var form = event.target
+          if (!form || form.method?.toLowerCase() === 'get') return
+          start()
+          // Add spinner to submit button
+          var btn = form.querySelector('[type="submit"]')
+          if (btn && !btn.classList.contains('btn-loading')) {
+            btn.classList.add('btn-loading')
+            var spinner = document.createElement('span')
+            spinner.className = 'btn-spinner'
+            spinner.setAttribute('aria-hidden', 'true')
+            btn.appendChild(spinner)
+          }
+        })
+      })()
+    </script>
     <script is:inline>
       function setLayerOpen(element, open) {
         if (!element) return

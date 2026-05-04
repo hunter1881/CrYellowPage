@@ -1,0 +1,57 @@
+---
+type Variant = 'primary' | 'outline' | 'ghost' | 'whatsapp' | 'danger' | 'icon'
+type Size = 'sm' | 'md' | 'lg'
+
+interface Props {
+  variant?: Variant
+  size?: Size
+  href?: string
+  type?: 'button' | 'submit' | 'reset'
+  full?: boolean
+  class?: string
+  [key: string]: unknown
+}
+
+const {
+  variant = 'primary',
+  size = 'md',
+  href,
+  type = 'button',
+  full = false,
+  class: className = '',
+  ...rest
+} = Astro.props
+
+const variantClasses: Record<Variant, string> = {
+  primary:  'civic-button bg-canopy text-white hover:bg-canopy-ink focus-visible:outline-canopy',
+  outline:  'civic-button border-2 border-ink bg-surface text-ink hover:border-canopy hover:text-canopy focus-visible:outline-canopy',
+  ghost:    'civic-button text-ink-2 hover:text-canopy focus-visible:outline-canopy',
+  whatsapp: 'civic-button bg-whatsapp text-white hover:opacity-90 focus-visible:outline-whatsapp',
+  danger:   'civic-button bg-clay text-white hover:opacity-90 focus-visible:outline-clay',
+  icon:     'flex h-8 w-8 items-center justify-center rounded-civic border border-rule text-ink-2 hover:text-ink focus-visible:outline-canopy',
+}
+
+const sizeClasses: Record<Size, string> = {
+  sm: 'px-3 py-1.5 text-xs',
+  md: '',
+  lg: 'px-6 py-3 text-base',
+}
+---
+
+{href ? (
+  <a
+    class:list={[variantClasses[variant], sizeClasses[size], { 'w-full': full }, className]}
+    href={href}
+    {...rest}
+  >
+    <slot />
+  </a>
+) : (
+  <button
+    class:list={[variantClasses[variant], sizeClasses[size], { 'w-full': full }, className]}
+    type={type}
+    {...rest}
+  >
+    <slot />
+  </button>
+)}

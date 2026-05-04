@@ -41,14 +41,14 @@ const districtOptions = cantons.flatMap((canton) =>
           class="block w-full border-none bg-transparent text-sm font-semibold text-ink outline-none placeholder:font-normal placeholder:text-ink-3"
           type="text"
           autocomplete="off"
-          placeholder="Buscar distrito o cantón…"
+          placeholder={t('search.locationPlaceholder')}
           data-location-input
           aria-label="Ubicación"
           aria-autocomplete="list"
           aria-haspopup="listbox"
         />
       </span>
-      <button type="button" class="hidden shrink-0 text-ink-3 hover:text-ink" data-location-clear aria-label="Limpiar ubicación">
+      <button type="button" class="hidden shrink-0 text-ink-3 hover:text-ink" data-location-clear aria-label={t('nav.closeMenu')}>
         <Icon name="close" size={14} />
       </button>
     </label>
@@ -65,7 +65,7 @@ const districtOptions = cantons.flatMap((canton) =>
       class="min-w-0 flex-1 border-none bg-transparent px-4 py-3 text-sm font-semibold text-ink outline-none placeholder:text-ink-3"
       type="search"
       name="q"
-      placeholder="¿Qué necesitás? Ej: fontanero"
+      placeholder={t('search.inputPlaceholder')}
     />
     <button class="flex items-center bg-canopy px-4 text-white hover:bg-canopy-ink" type="submit" aria-label="Buscar">
       <Icon name="arrow" size={18} />
@@ -86,7 +86,7 @@ const districtOptions = cantons.flatMap((canton) =>
       class="min-w-0 border-none bg-transparent text-sm font-semibold text-ink outline-none placeholder:text-ink-3"
       type="search"
       name="q"
-      placeholder="¿Qué necesitás? Ej: fontanero"
+      placeholder={t('search.inputPlaceholder')}
     />
   </label>
   <div class="relative border-r border-rule" data-location-autocomplete>
@@ -97,14 +97,14 @@ const districtOptions = cantons.flatMap((canton) =>
           class="block w-full border-none bg-transparent text-sm font-semibold text-ink outline-none placeholder:font-normal placeholder:text-ink-3"
           type="text"
           autocomplete="off"
-          placeholder="Buscar distrito o cantón…"
+          placeholder={t('search.locationPlaceholder')}
           data-location-input
           aria-label="Ubicación"
           aria-autocomplete="list"
           aria-haspopup="listbox"
         />
       </span>
-      <button type="button" class="hidden shrink-0 text-ink-3 hover:text-ink" data-location-clear aria-label="Limpiar ubicación">
+      <button type="button" class="hidden shrink-0 text-ink-3 hover:text-ink" data-location-clear aria-label={t('nav.closeMenu')}>
         <Icon name="close" size={14} />
       </button>
     </label>

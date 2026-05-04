@@ -1,4 +1,5 @@
 ---
+import Button from '@components/ui/Button.astro'
 import { t } from '@lib/i18n'
 
 interface Props {
@@ -15,8 +16,8 @@ const { compact = false } = Astro.props
     <p class="mt-2 text-sm leading-6 text-ink-2">
       {t('signup.description')}
     </p>
-    <a class="civic-button mt-4 bg-canopy text-white" href="/register-provider/">
+    <Button variant="primary" href="/register-provider/" class="mt-4">
       {t('signup.cta')}
-    </a>
+    </Button>
   </div>
 </aside>

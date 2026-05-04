@@ -1,4 +1,5 @@
 ---
+import Button from '@components/ui/Button.astro'
 import Icon from '@components/ui/Icon.astro'
 import { t } from '@lib/i18n'
 import type { CantonWithDistricts } from '@lib/queries/geography'
@@ -35,9 +36,9 @@ const provinceGroups = [...cantonsByProvince.values()].sort((a, b) => a.name.loc
           {t('location.heading')}
         </h2>
       </div>
-      <button class="flex h-8 w-8 items-center justify-center rounded-civic border border-rule text-ink-2 hover:text-ink" type="button" data-close-location aria-label="Cerrar selector">
+      <Button variant="icon" type="button" data-close-location aria-label="Cerrar selector">
         <Icon name="close" size={16} />
-      </button>
+      </Button>
     </div>
 
     <label class="mb-4 flex items-center gap-2 rounded-civic border border-rule px-3 py-2">

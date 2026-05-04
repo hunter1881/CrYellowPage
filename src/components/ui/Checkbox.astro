@@ -1,0 +1,46 @@
+---
+/**
+ * Card-style checkbox — the label renders as a bordered card that highlights
+ * when checked. Used for category selection in forms.
+ *
+ * Variant "plain" is a simpler inline checkbox + label row.
+ */
+type Variant = 'card' | 'plain'
+
+interface Props {
+  name: string
+  value: string
+  label: string
+  checked?: boolean
+  variant?: Variant
+  class?: string
+  [key: string]: unknown
+}
+
+const {
+  name,
+  value,
+  label,
+  checked = false,
+  variant = 'card',
+  class: className = '',
+  ...rest
+} = Astro.props
+---
+
+{variant === 'card' ? (
+  <label
+    class:list={[
+      'flex cursor-pointer items-center gap-2.5 rounded-civic border border-rule bg-surface p-3 text-sm hover:border-canopy has-[:checked]:border-canopy has-[:checked]:bg-canopy-soft',
+      className,
+    ]}
+  >
+    <input type="checkbox" name={name} value={value} checked={checked || undefined} {...rest} />
+    <span>{label}</span>
+  </label>
+) : (
+  <label class:list={['flex cursor-pointer items-center gap-2 text-sm text-ink', className]}>
+    <input type="checkbox" name={name} value={value} checked={checked || undefined} {...rest} />
+    <span>{label}</span>
+  </label>
+)}

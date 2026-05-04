@@ -1,6 +1,63 @@
 @import "tailwindcss";
 @config "../../tailwind.config.mjs";
 
+@plugin "daisyui";
+@plugin "daisyui/theme" {
+  name: "directorio";
+  default: true;
+  color-scheme: light;
+
+  /* ── Base surfaces (mapped from Tailwind tokens) ── */
+  --color-base-100: oklch(100% 0 0);           /* surface     #FFFFFF */
+  --color-base-200: oklch(98.5% 0.004 120);    /* surface-alt #FAFBF8 */
+  --color-base-300: oklch(87% 0.006 140);      /* rule        #D9DCD6 */
+  --color-base-content: oklch(12% 0.01 150);   /* ink         #1A1F1B */
+
+  /* ── Primary — canopy green ── */
+  --color-primary: oklch(34% 0.12 162);        /* canopy      #0E5A3F */
+  --color-primary-content: oklch(100% 0 0);
+
+  /* ── Secondary — ink-2 ── */
+  --color-secondary: oklch(34% 0.01 150);      /* ink-2       #4A524C */
+  --color-secondary-content: oklch(100% 0 0);
+
+  /* ── Accent — canopy-soft ── */
+  --color-accent: oklch(93% 0.015 162);        /* canopy-soft #E3EDE7 */
+  --color-accent-content: oklch(22% 0.09 162); /* canopy-ink  #063B28 */
+
+  /* ── Neutral — ink (for outline/border buttons) ── */
+  --color-neutral: oklch(12% 0.01 150);        /* ink         #1A1F1B */
+  --color-neutral-content: oklch(100% 0 0);
+
+  /* ── Success — WhatsApp green ── */
+  --color-success: oklch(59% 0.17 148);        /* whatsapp    #16A34A */
+  --color-success-content: oklch(100% 0 0);
+
+  /* ── Warning — amber/star ── */
+  --color-warning: oklch(62% 0.13 78);         /* star        #C58A1E */
+  --color-warning-content: oklch(20% 0.05 78);
+
+  /* ── Error — clay red ── */
+  --color-error: oklch(44% 0.14 32);           /* clay        #B8462E */
+  --color-error-content: oklch(100% 0 0);
+
+  /* ── Info ── */
+  --color-info: oklch(65% 0.15 220);
+  --color-info-content: oklch(100% 0 0);
+
+  /* ── Border radius — civic angular style ── */
+  --radius-selector: 2px;
+  --radius-field: 2px;
+  --radius-box: 2px;
+
+  /* ── Border ── */
+  --border: 1px;
+
+  /* ── Flat design — no depth, no noise ── */
+  --depth: 0;
+  --noise: 0;
+}
+
 @layer base {
   *,
   ::before,
@@ -63,6 +120,70 @@
   .civic-card-hover:hover {
     border-color: #0e5a3f;
     box-shadow: 0 1px 3px rgb(0 0 0 / 0.06);
+  }
+
+  /* ── Page progress bar ── */
+  #page-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    height: 2px;
+    width: 0%;
+    background: #0e5a3f;
+    transition:
+      width 200ms ease,
+      opacity 300ms ease;
+    pointer-events: none;
+  }
+
+  #page-progress.is-loading {
+    opacity: 1;
+    width: 85%;
+    transition: width 8s cubic-bezier(0.1, 0.05, 0, 1);
+  }
+
+  #page-progress.is-done {
+    opacity: 0;
+    width: 100%;
+    transition:
+      width 100ms ease,
+      opacity 400ms ease 150ms;
+  }
+
+  /* ── Button loading spinner ── */
+  .btn-loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.75;
+  }
+
+  .btn-loading > *:not(.btn-spinner) {
+    visibility: hidden;
+  }
+
+  .btn-spinner {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    visibility: visible !important;
+  }
+
+  .btn-spinner::after {
+    content: '';
+    width: 14px;
+    height: 14px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 600ms linear infinite;
+    opacity: 0.9;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
   }
 
   .civic-button {

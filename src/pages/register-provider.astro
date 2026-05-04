@@ -1,5 +1,6 @@
 ---
 import { actions, isInputError } from 'astro:actions'
+import Alert from '@components/ui/Alert.astro'
 import ProviderRegistrationForm from '@components/directory/ProviderRegistrationForm.astro'
 import BaseLayout from '@layouts/BaseLayout.astro'
 import { getCategories } from '@lib/queries/categories'
@@ -34,23 +35,15 @@ const inputErrors = isInputError(result?.error) ? result.error.fields : {}
 
   <section class="mx-auto grid max-w-6xl gap-6 px-4 py-8 md:grid-cols-[1fr_320px] md:px-6">
     <div>
-      {
-        result && !result.error && (
-          <div class="mb-4 rounded-civic border border-canopy bg-canopy-soft p-4 text-sm leading-6 text-canopy-ink">
-            <p class="font-semibold">{t('register.sent')}</p>
-            <p>
-              Recibimos la información. Revisaremos el proveedor antes de publicarlo.
-            </p>
-          </div>
-        )
-      }
-      {
-        result?.error && !isInputError(result.error) && (
-          <div class="mb-4 rounded-civic border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-800">
-            {result.error.message}
-          </div>
-        )
-      }
+      {result && !result.error && (
+        <Alert variant="success" class="mb-4">
+          <p class="font-semibold">{t('register.sent')}</p>
+          <p>Recibimos la información. Revisaremos el proveedor antes de publicarlo.</p>
+        </Alert>
+      )}
+      {result?.error && !isInputError(result.error) && (
+        <Alert variant="error" class="mb-4">{result.error.message}</Alert>
+      )}
       <ProviderRegistrationForm cantons={cantons} categories={categories} inputErrors={inputErrors} />
     </div>
 

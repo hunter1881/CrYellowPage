@@ -1,14 +1,26 @@
 ---
+type Variant = 'verified' | 'pending' | 'category'
+
 interface Props {
   label: string
+  variant?: Variant
 }
 
-const { label } = Astro.props
+const { label, variant = 'verified' } = Astro.props
+
+const variantClasses: Record<Variant, string> = {
+  verified: 'bg-canopy-soft text-canopy',
+  pending:  'bg-clay-soft text-clay',
+  category: 'bg-surface text-ink-2 border border-rule',
+}
 ---
 
 <span
-  class="inline-flex items-center gap-1 rounded-civic bg-canopy-soft px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.5px] text-canopy"
+  class:list={[
+    'inline-flex items-center gap-1 rounded-civic px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.5px]',
+    variantClasses[variant],
+  ]}
 >
-  <span aria-hidden="true">✓</span>
+  {variant === 'verified' && <span aria-hidden="true">✓</span>}
   {label}
 </span>

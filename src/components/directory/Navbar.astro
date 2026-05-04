@@ -1,0 +1,51 @@
+---
+import Icon from '@components/ui/Icon.astro'
+import { t } from '@lib/i18n'
+---
+
+<header class="sticky top-0 z-50 border-b border-rule bg-surface">
+  <div class="hidden bg-canopy-ink px-6 py-1 text-[11px] text-white/75 md:block">
+    <div class="mx-auto flex max-w-6xl justify-between font-mono tracking-[0.3px]">
+      <span class="uppercase">Directorio local · Costa Rica</span>
+      <span class="flex gap-4">
+        <a class="text-white/75 no-underline hover:text-white" href="/#provider-signup">
+          {t('nav.provider')}
+        </a>
+        <span>+506 0000-0000</span>
+      </span>
+    </div>
+  </div>
+  <div class="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3 md:px-6">
+    <a class="flex items-center gap-3 text-ink no-underline" href="/">
+      <span class="flex h-8 w-8 items-center justify-center rounded-civic bg-canopy text-sm font-bold text-white">DL</span>
+      <span class="leading-tight">
+        <span class="block text-base font-semibold tracking-[-0.3px]">DirectorioLocal<span class="text-canopy">.cr</span></span>
+        <span class="hidden font-mono text-[11px] uppercase tracking-[0.5px] text-ink-3 md:block">
+          {t('layout.tagline')}
+        </span>
+      </span>
+    </a>
+    <nav class="ml-auto hidden items-center gap-5 text-sm font-medium md:flex" aria-label="Primary">
+      <a class="text-ink-2 no-underline hover:text-canopy" href="/#cantones">
+        {t('nav.cantons')}
+      </a>
+      <a class="text-ink-2 no-underline hover:text-canopy" href="/#categories">
+        {t('nav.categories')}
+      </a>
+      <a class="text-ink-2 no-underline hover:text-canopy" href="/#provider-signup">
+        {t('nav.provider')}
+      </a>
+      <a class="text-ink-2 no-underline hover:text-canopy" href="/account/">
+        {t('nav.account')}
+      </a>
+    </nav>
+    <button
+      class="inline-flex h-9 w-9 items-center justify-center rounded-civic border border-rule text-ink md:hidden"
+      type="button"
+      data-open-mobile-menu
+      aria-label={t('nav.openMenu')}
+    >
+      <Icon name="menu" size={18} />
+    </button>
+  </div>
+</header>

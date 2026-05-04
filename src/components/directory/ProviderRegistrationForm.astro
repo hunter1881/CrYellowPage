@@ -3,6 +3,11 @@ import { actions } from 'astro:actions'
 import { t } from '@lib/i18n'
 import type { Category } from '@lib/queries/categories'
 import type { CantonWithDistricts } from '@lib/queries/geography'
+import Button from '@components/ui/Button.astro'
+import Checkbox from '@components/ui/Checkbox.astro'
+import Input from '@components/ui/Input.astro'
+import Select from '@components/ui/Select.astro'
+import Textarea from '@components/ui/Textarea.astro'
 
 interface Props {
   cantons: CantonWithDistricts[]
@@ -23,92 +28,58 @@ const errorFor = (name: string) => inputErrors[name]?.join(', ')
   </div>
 
   <div class="grid gap-4 md:grid-cols-2">
-    <label class="grid gap-1.5 text-sm font-semibold text-ink">
-      <span>{t('form.businessName')}</span>
-      <input class="rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-normal outline-none focus:border-canopy" name="businessName" required minlength="3" maxlength="120" />
-      {errorFor('businessName') && <span class="text-xs font-medium text-red-700">{errorFor('businessName')}</span>}
-    </label>
-
-    <label class="grid gap-1.5 text-sm font-semibold text-ink">
-      <span>{t('form.contactPerson')}</span>
-      <input class="rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-normal outline-none focus:border-canopy" name="contactName" required minlength="3" maxlength="120" />
-      {errorFor('contactName') && <span class="text-xs font-medium text-red-700">{errorFor('contactName')}</span>}
-    </label>
-
-    <label class="grid gap-1.5 text-sm font-semibold text-ink">
-      <span>Email</span>
-      <input class="rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-normal outline-none focus:border-canopy" name="email" required type="email" maxlength="160" />
-      {errorFor('email') && <span class="text-xs font-medium text-red-700">{errorFor('email')}</span>}
-    </label>
-
-    <label class="grid gap-1.5 text-sm font-semibold text-ink">
-      <span>{t('form.phone')}</span>
-      <input class="rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-normal outline-none focus:border-canopy" name="phone" required inputmode="tel" placeholder="8888-8888" pattern="(?:\+506\s?)?\d{4}-?\d{4}" />
-      {errorFor('phone') && <span class="text-xs font-medium text-red-700">{errorFor('phone')}</span>}
-    </label>
-
-    <label class="grid gap-1.5 text-sm font-semibold text-ink md:col-span-2">
-      <span>WhatsApp <span class="font-normal text-ink-3">{t('common.optional')}</span></span>
-      <input class="rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-normal outline-none focus:border-canopy" name="whatsapp" inputmode="tel" placeholder="+506 8888-8888" />
-      {errorFor('whatsapp') && <span class="text-xs font-medium text-red-700">{errorFor('whatsapp')}</span>}
-    </label>
+    <Input label={t('form.businessName')} name="businessName" required minlength="3" maxlength="120" error={errorFor('businessName')} />
+    <Input label={t('form.contactPerson')} name="contactName" required minlength="3" maxlength="120" error={errorFor('contactName')} />
+    <Input label="Email" name="email" type="email" required maxlength="160" error={errorFor('email')} />
+    <Input label={t('form.phone')} name="phone" required type="tel" placeholder="8888-8888" error={errorFor('phone')} />
+    <Input
+      label={`WhatsApp`}
+      name="whatsapp"
+      type="tel"
+      placeholder="+506 8888-8888"
+      hint={t('common.optional')}
+      error={errorFor('whatsapp')}
+      class="md:col-span-2"
+    />
   </div>
 
   <div class="grid gap-4">
-    <label class="grid gap-1.5 text-sm font-semibold text-ink">
-      <span>{t('form.district')}</span>
-      <select class="rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-normal outline-none focus:border-canopy" name="districtId" required>
-        <option value="">Seleccione un distrito</option>
-        {
-          cantons.map((canton) => (
-            <optgroup label={`${canton.province?.name ?? 'Costa Rica'} · ${canton.name}`}>
-              {canton.districts.map((district) => (
-                <option value={district.id}>{district.name}</option>
-              ))}
-            </optgroup>
-          ))
-        }
-      </select>
-      {errorFor('districtId') && <span class="text-xs font-medium text-red-700">{errorFor('districtId')}</span>}
-    </label>
+    <Select label={t('form.district')} name="districtId" required error={errorFor('districtId')}>
+      <option value="">{t('form.selectDistrict')}</option>
+      {cantons.map((canton) => (
+        <optgroup label={`${canton.province?.name ?? 'Costa Rica'} · ${canton.name}`}>
+          {canton.districts.map((district) => (
+            <option value={district.id}>{district.name}</option>
+          ))}
+        </optgroup>
+      ))}
+    </Select>
 
     <fieldset class="grid gap-2">
-      <legend class="text-sm font-semibold text-ink">
-        {t('form.serviceCategories')}
-      </legend>
+      <legend class="text-sm font-semibold text-ink">{t('form.serviceCategories')}</legend>
       <div class="grid gap-2 sm:grid-cols-2">
-        {
-          categories.map((category) => (
-            <label class="flex items-center gap-2 rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-semibold text-ink-2">
-              <input name="categoryIds" type="checkbox" value={category.id} />
-              <span>{category.icon_emoji ?? '#'} {category.name}</span>
-            </label>
-          ))
-        }
+        {categories.map((category) => (
+          <Checkbox name="categoryIds" value={category.id} label={`${category.icon_emoji ?? '#'} ${category.name}`} />
+        ))}
       </div>
-      {errorFor('categoryIds') && <span class="text-xs font-medium text-red-700">{errorFor('categoryIds')}</span>}
+      {errorFor('categoryIds') && <span class="text-xs font-medium text-clay">{errorFor('categoryIds')}</span>}
     </fieldset>
 
-    <label class="grid gap-1.5 text-sm font-semibold text-ink">
-      <span>{t('form.serviceDescription')}</span>
-      <textarea class="min-h-32 rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-normal leading-6 outline-none focus:border-canopy" name="description" required minlength="30" maxlength="500"></textarea>
-      {errorFor('description') && <span class="text-xs font-medium text-red-700">{errorFor('description')}</span>}
-    </label>
+    <Textarea
+      label={t('form.serviceDescription')}
+      name="description"
+      required
+      minlength={30}
+      maxlength={500}
+      rows={5}
+      error={errorFor('description')}
+    />
   </div>
 
   <div class="grid gap-4 rounded-civic border border-rule bg-surface-alt p-4 md:grid-cols-3">
-    <label class="grid gap-1.5 text-sm font-semibold text-ink">
-      <span>{t('form.yearsActive')}</span>
-      <input class="rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-normal outline-none focus:border-canopy" name="yearsActive" type="number" min="0" max="80" value="1" />
-    </label>
-    <label class="flex items-center gap-2 text-sm font-semibold text-ink-2">
-      <input name="acceptsSinpe" type="checkbox" />
-      {t('form.acceptsSinpe')}
-    </label>
-    <label class="flex items-center gap-2 text-sm font-semibold text-ink-2">
-      <input name="worksWeekends" type="checkbox" />
-      {t('form.worksWeekends')}
-    </label>
+    <Input label={t('form.yearsActive')} name="yearsActive" type="number" value="1" />
+    <Checkbox name="acceptsSinpe" value="true" label={t('form.acceptsSinpe')} variant="plain" class="self-end pb-2" />
+    <Checkbox name="worksWeekends" value="true" label={t('form.worksWeekends')} variant="plain" class="self-end pb-2" />
   </div>
 
   <input name="sourceLocale" type="hidden" value="es" />
@@ -117,7 +88,7 @@ const errorFor = (name: string) => inputErrors[name]?.join(', ')
     <input name="website" tabindex="-1" autocomplete="off" />
   </label>
 
-  <button class="civic-button justify-center bg-canopy text-white" type="submit">
+  <Button variant="primary" type="submit" full>
     {t('form.submit')}
-  </button>
+  </Button>
 </form>

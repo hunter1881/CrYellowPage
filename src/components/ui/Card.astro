@@ -1,0 +1,17 @@
+---
+interface Props {
+  hover?: boolean
+  tag?: 'div' | 'article' | 'section' | 'aside'
+  class?: string
+  [key: string]: unknown
+}
+
+const { hover = false, tag: Tag = 'div', class: className = '', ...rest } = Astro.props
+---
+
+<Tag
+  class:list={['civic-card', hover && 'civic-card-hover', className]}
+  {...rest}
+>
+  <slot />
+</Tag>

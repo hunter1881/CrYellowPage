@@ -1,4 +1,7 @@
 ---
+import Alert from '@components/ui/Alert.astro'
+import Button from '@components/ui/Button.astro'
+import Input from '@components/ui/Input.astro'
 import BaseLayout from '@layouts/BaseLayout.astro'
 import { createSupabaseServerClient } from '@lib/supabaseServer'
 import { absoluteUrl } from '@lib/site'
@@ -58,34 +61,20 @@ if (Astro.request.method === 'POST') {
       </div>
 
       {successMessage && (
-        <div class="mb-5 rounded-civic border border-canopy bg-canopy-soft p-4 text-sm leading-6 text-canopy-ink">
+        <Alert variant="success" class="mb-5">
           <p class="font-semibold">{t('login.checkEmail')}</p>
           {`Enviamos un enlace a ${successMessage}. Revisá tu correo.`}
-        </div>
+        </Alert>
       )}
 
       {errorMessage && (
-        <div class="mb-5 rounded-civic border border-red-200 bg-red-50 p-4 text-sm text-red-800">
-          {errorMessage}
-        </div>
+        <Alert variant="error" class="mb-5">{errorMessage}</Alert>
       )}
 
       {!successMessage && (
         <form class="civic-card grid gap-4 p-5" method="POST">
-          <label class="grid gap-1.5 text-sm font-semibold text-ink">
-            {t('login.emailLabel')}
-            <input
-              class="rounded-civic border border-rule bg-surface px-3 py-2.5 text-sm font-normal outline-none focus:border-canopy"
-              type="email"
-              name="email"
-              required
-              autofocus
-              placeholder="you@email.com"
-            />
-          </label>
-          <button class="civic-button bg-canopy py-3 text-white" type="submit">
-            {t('login.sendLink')}
-          </button>
+          <Input label={t('login.emailLabel')} name="email" type="email" required placeholder="you@email.com" />
+          <Button type="submit" full class="py-3">{t('login.sendLink')}</Button>
         </form>
       )}
 

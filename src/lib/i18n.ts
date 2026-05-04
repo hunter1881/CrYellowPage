@@ -11,6 +11,8 @@ export const ui = {
   'nav.provider': 'Sos proveedor',
   'nav.account': 'Mi cuenta',
   'nav.changeLocation': 'Cambiar ubicación',
+  'nav.openMenu': 'Abrir menú',
+  'nav.closeMenu': 'Cerrar menú',
 
   // ─── Layout ──────────────────────────────────────────────────────────────
   'layout.tagline': 'Servicios verificados por cantón',
@@ -86,6 +88,7 @@ export const ui = {
   // ─── Review preview ───────────────────────────────────────────────────────
   'reviews.seeAll': 'Ver todas',
   'reviews.placeholder': 'El módulo dinámico de reseñas usará Astro Server Islands cuando conectemos escrituras reales.',
+  'reviews.clientsHeading': 'Reseñas de clientes',
 
   // ─── Registration form ────────────────────────────────────────────────────
   'form.applicationMeta': 'Solicitud de proveedor',
@@ -113,6 +116,10 @@ export const ui = {
   'home.browseCanton': 'Explorar por cantón',
   'home.categoriesUnit': 'categorías',
   'home.cantonsUnit': 'cantones',
+  'home.statsCategories': 'Categorías disponibles',
+  'home.statsCantons': 'Cantones activos',
+  'home.statsWhatsapp': 'Contacto directo',
+  'home.providersIn': 'Proveedores en',
 
   // ─── Register provider page ───────────────────────────────────────────────
   'register.forProviders': 'Para proveedores',
@@ -127,6 +134,10 @@ export const ui = {
   'search.heading': 'Buscar',
   'search.minChars': 'Escribí al menos 2 caracteres para buscar.',
   'search.removeFilter': 'Quitar filtro',
+  'search.locationPlaceholder': 'Buscar distrito o cantón…',
+  'search.inputPlaceholder': '¿Qué necesitás? Ej: fontanero',
+  'search.filteringIn': 'Filtrando en',
+  'search.submit': 'Buscar',
 
   // ─── Account dashboard ────────────────────────────────────────────────────
   'account.meta': 'Panel de proveedor',
@@ -187,6 +198,8 @@ export const ui = {
   'footer.privacy': 'Privacidad',
   'footer.report': 'Reportar',
   'footer.madeIn': 'Hecho en Costa Rica',
+  'footer.tagline': 'El directorio de servicios verificados de Costa Rica, organizado por cantón y distrito.',
+  'footer.copyright': '© 2026 DirectorioLocal.cr',
 
   // ─── Badge ────────────────────────────────────────────────────────────────
   'badge.verified': 'Verificado',
