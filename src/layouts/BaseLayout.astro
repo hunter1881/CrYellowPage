@@ -2,10 +2,8 @@
 import { ClientRouter } from 'astro:transitions'
 import '@styles/global.css'
 import Footer from '@components/directory/Footer.astro'
-import LocationModal from '@components/directory/LocationModal.astro'
 import MobileDrawer from '@components/directory/MobileDrawer.astro'
 import { defaultDescription, siteName } from '@lib/site'
-import { getCantonsWithDistricts } from '@lib/queries/geography'
 import { t } from '@lib/i18n'
 
 interface Props {
@@ -29,7 +27,6 @@ const {
 } = Astro.props
 
 const jsonLdItems = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : []
-const cantons = await getCantonsWithDistricts()
 ---
 
 <!doctype html>
@@ -91,13 +88,7 @@ const cantons = await getCantonsWithDistricts()
             {t('nav.account')}
           </a>
         </nav>
-        <button
-          class="hidden rounded-civic border border-rule px-3 py-2 text-xs font-semibold text-ink-2 hover:text-canopy md:inline-flex"
-          type="button"
-          data-open-location
-        >
-          {t('nav.changeLocation')}
-        </button>
+
         <button
           class="inline-flex h-9 w-9 items-center justify-center rounded-civic border border-rule text-ink md:hidden"
           type="button"
@@ -113,19 +104,16 @@ const cantons = await getCantonsWithDistricts()
     </main>
     <Footer />
     <MobileDrawer />
-    <LocationModal cantons={cantons} />
     <script is:inline>
-      function setLayerOpen(element, open, displayClass) {
+      function setLayerOpen(element, open) {
         if (!element) return
         element.classList.toggle('hidden', !open)
-        if (displayClass) element.classList.toggle(displayClass, open)
         element.setAttribute('aria-hidden', open ? 'false' : 'true')
         document.body.classList.toggle('overflow-hidden', open)
       }
 
       function closeLayers() {
         setLayerOpen(document.querySelector('[data-mobile-drawer]'), false)
-        setLayerOpen(document.querySelector('[data-location-modal]'), false, 'flex')
       }
 
       document.addEventListener('change', (event) => {
@@ -144,85 +132,12 @@ const cantons = await getCantonsWithDistricts()
         button.addEventListener('click', closeLayers)
       })
 
-      document.querySelectorAll('[data-open-location]').forEach((button) => {
-        button.addEventListener('click', () => {
-          setLayerOpen(document.querySelector('[data-mobile-drawer]'), false)
-          setLayerOpen(document.querySelector('[data-location-modal]'), true, 'flex')
-        })
-      })
-
-      document.querySelectorAll('[data-close-location]').forEach((button) => {
-        button.addEventListener('click', closeLayers)
-      })
-
-      // Search bar location picker — opens modal in 'select' mode
-      document.querySelectorAll('[data-open-search-location]').forEach((button) => {
-        button.addEventListener('click', () => {
-          const modal = document.querySelector('[data-location-modal]')
-          if (modal) modal.dataset.searchMode = '1'
-          setLayerOpen(document.querySelector('[data-mobile-drawer]'), false)
-          setLayerOpen(document.querySelector('[data-location-modal]'), true, 'flex')
-        })
-      })
-
-      // Intercept district link clicks when modal is in search mode
-      document.querySelector('[data-location-modal]')?.addEventListener('click', (event) => {
-        const modal = document.querySelector('[data-location-modal]')
-        if (!modal?.dataset.searchMode) return
-        const link = event.target?.closest('[data-location-option]')
-        if (!link) return
-        event.preventDefault()
-        const href = link.getAttribute('href') ?? ''
-        const cleanPath = href.replace(/^\//,'').replace(/\/$/,'')
-        const districtText = link.querySelector('span')?.textContent?.trim() ?? cleanPath
-        const districtId = link.dataset.districtId ?? ''
-        document.querySelectorAll('[data-search-district-input]').forEach((input) => {
-          input.value = cleanPath
-        })
-        document.querySelectorAll('[data-search-district-id-input]').forEach((input) => {
-          input.value = districtId
-        })
-        document.querySelectorAll('[data-search-location-label]').forEach((label) => {
-          label.textContent = districtText
-        })
-        delete modal.dataset.searchMode
-        closeLayers()
-      })
-
-      document.querySelectorAll('[data-mobile-drawer], [data-location-modal]').forEach((layer) => {
-        layer.addEventListener('click', (event) => {
-          if (event.target === layer) {
-            const modal = document.querySelector('[data-location-modal]')
-            if (modal) delete modal.dataset.searchMode
-            closeLayers()
-          }
-        })
+      document.querySelector('[data-mobile-drawer]')?.addEventListener('click', (event) => {
+        if (event.target === event.currentTarget) closeLayers()
       })
 
       document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape') closeLayers()
-      })
-
-      document.querySelectorAll('[data-location-filter]').forEach((input) => {
-        input.addEventListener('input', () => {
-          const query = input.value.toLowerCase().trim()
-          document.querySelectorAll('[data-location-option]').forEach((option) => {
-            const matches = option.dataset.locationText?.toLowerCase().includes(query) ?? true
-            option.hidden = !matches
-          })
-          document.querySelectorAll('[data-location-group]').forEach((group) => {
-            group.querySelectorAll('[data-location-subgroup]').forEach((subgroup) => {
-              const hasVisibleOption = [...subgroup.querySelectorAll('[data-location-option]')].some(
-                (option) => !option.hidden,
-              )
-              subgroup.hidden = !hasVisibleOption
-            })
-            const hasVisibleOption = [...group.querySelectorAll('[data-location-option]')].some(
-              (option) => !option.hidden,
-            )
-            group.hidden = !hasVisibleOption
-          })
-        })
       })
     </script>
   </body>
