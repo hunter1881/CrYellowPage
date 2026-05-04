@@ -13,3 +13,16 @@
 [2mΓöâ[22m Local    [36mhttp://127.0.0.1:4321/[39m
 
 [2m10:58:41[22m [32mwatching for file changes...[39m
+[2m10:58:52[22m [34m[200][39m / [2m154ms[22m
+[2m10:59:00[22m [34m[200][39m /aserri/ [2m4ms[22m
+[2m10:59:00[22m [34m[200][39m /aserri/vuelta-de-jorco/fontaneria/ [2m4ms[22m
+[2m10:59:01[22m [34m[200][39m /proveedor/00000000-0000-4000-8000-000000000301-don-rafa-fontaneria/ [2m4ms[22m
+[2m11:28:10[22m Configuration file updated. Restarting...
+[2m11:28:10[22m [34m[vite][39m Re-optimizing dependencies because vite config has changed
+[2m11:28:10[22m [34m[content][39m Syncing content
+[2m11:28:10[22m [34m[content][39m Astro config changed
+[2m11:28:10[22m [34m[content][39m Clearing content store
+[2m11:28:10[22m [34m[content][39m Synced content
+[2m11:28:10[22m [34m[types][39m Generated [2m142ms[22m
+[2m11:28:10[22m [34m[vite][39m Re-optimizing dependencies because vite config has changed
+[2m12:03:34[22m [34m[200][39m / [2m147ms[22m

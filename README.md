@@ -1,239 +1,325 @@
-# DirectorioLocal CR
+# CrYellowPage / DirectorioLocal CR
 
-> Hyperlocal services directory for Costa Rica — find verified local providers by canton, district, and category.
+Hyperlocal services directory for Costa Rica, built to index providers by province, canton, district, and service category.
 
-[![Astro](https://img.shields.io/badge/Astro-5.x-BC52EE?logo=astro)](https://astro.build)
-[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript)](https://www.typescriptlang.org)
-[![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?logo=supabase)](https://supabase.com)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.x-38BDF8?logo=tailwindcss)](https://tailwindcss.com)
-[![Vercel](https://img.shields.io/badge/Deploy-Vercel-000000?logo=vercel)](https://vercel.com)
+The product starts with Aserri / Vuelta de Jorco as the first usable district, but the data model and static route strategy are designed for all of Costa Rica from day one.
 
----
-
-## What is this?
-
-**DirectorioLocal CR** is a hyperlocal "yellow pages" directory for Costa Rica. It lets residents find verified local service providers — plumbers, electricians, restaurants, and more — organized by canton, district, and category.
-
-The site launches with a single district but is architected from day one to serve every canton and district in the country without any code changes: just add data.
-
-**Live URL:** [https://directoriolocal.cr](https://directoriolocal.cr)
-
----
-
-## Tech Stack
+## Stack
 
 | Layer | Technology |
-|---|---|
-| Frontend | [Astro 5](https://astro.build) + [Alpine.js](https://alpinejs.dev) |
-| Styling | [Tailwind CSS](https://tailwindcss.com) |
-| Database | [Supabase](https://supabase.com) (PostgreSQL + Auth + Storage) |
-| Hosting | [Vercel](https://vercel.com) (static deploy via git push) |
-| Language | TypeScript (strict mode) |
+| --- | --- |
+| Frontend | Astro 5 + Alpine.js |
+| Styling | Tailwind CSS |
+| Language | TypeScript strict |
+| Database | Supabase PostgreSQL |
+| Auth / Storage | Supabase Auth + Supabase Storage |
+| Hosting | Vercel |
+| Rendering | SSG-first, SEO-first |
 
----
+No React/Vue/Svelte runtime is used in the app. The React files in `Template/` are visual reference only.
 
-## Key Architecture Decisions
+## Product Direction
 
-- **SSG-first**: `output: 'static'` — every directory page is pre-rendered at build time for maximum SEO impact.
-- **URL hierarchy**: `/{canton}/{district}/{category}` → e.g., `/cartago/san-nicolas/fontaneria`
-- **Multi-tenancy by data, not code**: a single deploy serves all of Costa Rica, filtered by `canton_id` / `district_id`.
-- **No custom backend**: typed Supabase JS client for reads; mutations via Astro Actions.
-- **LocalBusiness JSON-LD** with `areaServed` for hyperlocal AI overview matching (2026 best practice).
+The UI direction comes from the Claude Design prototype in `Template/`.
 
----
+- `Template/tokens.jsx`: visual themes. Theme A "Civic" is the base direction.
+- `Template/components.jsx`: reference components such as Header, MobileDrawer, SearchModule, LocationModal, ProviderCard, StickyContact, Footer.
+- `Template/pages.jsx`: reference page layouts for Home, Canton, District, Category, and Provider pages.
+- `Template/data.js`: demo data used by the prototype.
+
+Astro components should port the intent of the template, not copy React/Babel code.
+
+## URL Model
+
+Directory URLs are local-first:
+
+```text
+/{canton}/{district}/{category}
+```
+
+Examples:
+
+```text
+/aserri/vuelta-de-jorco/fontaneria/
+/proveedor/00000000-0000-4000-8000-000000000301-don-rafa-fontaneria/
+```
+
+Provider URLs use `id-name-slug`. The UUID is the stable lookup key; the readable slug is decorative.
+
+## Geography Model
+
+The backend uses Costa Rica's official administrative hierarchy:
+
+```text
+countries -> provinces -> cantons -> districts
+```
+
+For global terminology, this maps to:
+
+```text
+country -> region -> subregion -> locality
+```
+
+The geography seed is generated from INEC's official **Unidad Geoestadistica Distrital 2024** DBF source.
+
+Validated seed counts:
+
+- 7 provinces
+- 84 cantons
+- 492 districts
+
+The generated seed includes:
+
+- Official district code
+- Postal/district code
+- Province, canton, and district names
+- Kebab-case slugs without accents
+- Area in square meters
+- INEC source update date
+- Seed categories
+- Demo providers and reviews for Vuelta de Jorco
 
 ## Project Structure
 
-```
+```text
 src/
-├── pages/                      # Routes — kebab-case, [param].astro for dynamic
-│   ├── index.astro             # Home with search
-│   ├── [canton]/
-│   │   ├── index.astro         # Canton landing — list of districts
-│   │   └── [distrito]/
-│   │       ├── index.astro     # District landing — list of categories
-│   │       └── [categoria].astro  # Filtered provider listing
-│   ├── proveedor/[id].astro    # Provider profile
-│   └── robots.txt.ts
-├── components/
-│   ├── ui/                     # Generic primitives (Badge, etc.)
-│   ├── directory/              # Domain components (ProviderCard, CategoryGrid, SearchBar…)
-│   └── seo/                    # Breadcrumbs
-├── layouts/
-│   └── BaseLayout.astro
-├── lib/                        # ALL business logic + DB access
-│   ├── supabase.ts             # Singleton typed client
-│   ├── queries/                # Pure data-fetching functions, one file per domain
-│   │   ├── providers.ts
-│   │   ├── categories.ts
-│   │   ├── geography.ts
-│   │   └── reviews.ts
-│   ├── seo/                    # JSON-LD generators
-│   ├── slug.ts                 # toSlug / fromSlug helpers
-│   └── logger.ts
-├── actions/                    # Astro Actions — server-side mutations with Zod validation
-├── types/
-│   └── database.types.ts       # Generated by Supabase CLI — never hand-edit
-└── env.d.ts                    # Typed import.meta.env
+  pages/
+    index.astro
+    [canton]/
+      index.astro
+      [distrito]/
+        index.astro
+        [categoria].astro
+    proveedor/[id].astro
+    registrar-proveedor.astro
+    robots.txt.ts
+  components/
+    directory/
+    i18n/
+    seo/
+    ui/
+  layouts/
+    BaseLayout.astro
+  lib/
+    queries/
+    seo/
+    logger.ts
+    mockData.ts
+    providerPresentation.ts
+    site.ts
+    slug.ts
+    supabase.ts
+  actions/
+  styles/
+  types/
+
 supabase/
-├── migrations/                 # SQL migration files
-└── seed.sql                    # Initial seed data (geography, categories)
+  migrations/
+  sources/
+  seed.sql
+
 scripts/
-├── generate-db-types.mjs       # Generates src/types/database.types.ts from live schema
-└── generate-geography-seed.mjs # Generates seed SQL from INEC UGED 2024 data
+  generate-db-types.mjs
+  generate-geography-seed.mjs
 ```
 
----
+## Database Tables
 
-## Data Model
+Core geography:
 
-```
-countries → provinces → cantons → districts
-                                       │
-                                   providers ──── provider_categories ──── categories
-                                       │
-                                    reviews
-```
-
-| Table | Key columns |
-|---|---|
-| `countries` | `id`, `iso2`, `iso3`, `name`, `slug` |
-| `provinces` | `id`, `country_id`, `code`, `name`, `slug` |
-| `cantons` | `id`, `province_id`, `code`, `name`, `slug` |
-| `districts` | `id`, `canton_id`, `code`, `postal_code`, `name`, `slug` |
-| `categories` | `id`, `name`, `slug`, `icon_emoji`, `description` |
-| `providers` | `id`, `name`, `phone`, `whatsapp`, `email`, `description`, `photo_url`, `district_id`, `owner_id`, `verified`, `created_at` |
-| `provider_categories` | `provider_id`, `category_id` — N:N |
-| `reviews` | `id`, `provider_id`, `author_id`, `rating`, `comment`, `created_at` |
-
-All tables have **Row Level Security (RLS)** enabled. Providers are publicly readable when `verified = true`; writes are gated to `auth.uid() = owner_id`.
-
----
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+
-- A [Supabase](https://supabase.com) project (free tier works)
-
-### 1. Clone & install
-
-```bash
-git clone https://github.com/hunter1881/CrYellowPage.git
-cd CrYellowPage
-npm install
+```text
+countries
+provinces
+cantons
+districts
 ```
 
-### 2. Configure environment variables
+Directory:
+
+```text
+categories
+providers
+provider_categories
+reviews
+```
+
+Important provider fields:
+
+```text
+district_id
+owner_id
+verified
+accepts_sinpe
+works_weekends
+years_active
+completed_jobs
+response_time_minutes
+photo_url
+phone
+whatsapp
+```
+
+All tables use Row Level Security. Public reads are allowed for geography, categories, reviews, and verified providers. Provider writes are gated by `auth.uid() = owner_id`.
+
+## Environment Variables
+
+Copy `.env.example` to `.env.local`:
 
 ```bash
 cp .env.example .env.local
 ```
 
-Edit `.env.local`:
+Required values:
 
 ```env
 PUBLIC_SITE_URL=http://localhost:4321
 PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_PROJECT_REF=your-project-ref
+SUPABASE_SERVICE_ROLE_KEY=server-only-service-role-key
 ```
 
-> `SUPABASE_SERVICE_ROLE_KEY` is only needed for admin scripts and must **never** be committed or used in frontend code.
+`SUPABASE_SERVICE_ROLE_KEY` is server-only. Never expose it through `PUBLIC_*` variables and never use it in frontend code.
 
-### 3. Set up the database
+## Getting Started
 
-Run the migration against your Supabase project:
+Install dependencies:
 
 ```bash
-# From the Supabase dashboard SQL editor, or via Supabase CLI:
-npx supabase db push
+npm install
 ```
 
-Then seed with Costa Rica geography data (provinces, cantons, districts from INEC UGED 2024):
-
-```bash
-# In the Supabase SQL editor, paste the contents of supabase/seed.sql
-```
-
-### 4. Generate TypeScript types
-
-Whenever the schema changes, regenerate the typed client:
-
-```bash
-npm run db:types
-```
-
-### 5. Start the dev server
+Run the dev server:
 
 ```bash
 npm run dev
 ```
 
-Visit [http://localhost:4321](http://localhost:4321).
+Open:
 
----
+```text
+http://127.0.0.1:4321/
+```
 
-## Available Scripts
+Useful local demo routes:
 
-| Command | Description |
-|---|---|
-| `npm run dev` | Start local dev server at `localhost:4321` |
-| `npm run build` | Type-check + build for production |
-| `npm run preview` | Preview the production build locally |
+```text
+/
+/aserri/
+/aserri/vuelta-de-jorco/
+/aserri/vuelta-de-jorco/fontaneria/
+/proveedor/00000000-0000-4000-8000-000000000301-don-rafa-fontaneria/
+/registrar-proveedor/
+```
+
+The app has fallback mock data so the UI can run before a real Supabase project is connected.
+
+## Supabase Setup
+
+Generate the geography seed from the INEC DBF source:
+
+```bash
+npm run db:seed:generate
+```
+
+Apply the migration:
+
+```bash
+npx supabase db push
+```
+
+Then run `supabase/seed.sql` in Supabase SQL editor or through your preferred Supabase workflow.
+
+After schema changes, regenerate database types:
+
+```bash
+npm run db:types
+```
+
+## Scripts
+
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start Astro dev server |
 | `npm run check` | Run Astro type checks |
-| `npm run db:types` | Regenerate `src/types/database.types.ts` from live Supabase schema |
-| `npm run db:seed:generate` | Regenerate geography seed SQL from INEC 2024 source data |
+| `npx tsc --noEmit` | Run TypeScript checks |
+| `npm run build` | Run checks and build static site |
+| `npm run preview` | Preview production build |
+| `npm run db:seed:generate` | Generate `supabase/seed.sql` from INEC DBF |
+| `npm run db:types` | Generate Supabase TypeScript types |
 
----
+## Architecture Rules
+
+- SSG-first. Directory pages must render indexable HTML.
+- Data access belongs in `src/lib/queries/*`, not inline in `.astro` frontmatter.
+- No `select('*')` in production queries.
+- No hardcoded canton, district, or category IDs.
+- Provider queries must filter by `district_id` at minimum.
+- Mutations go through Astro Actions, not API routes.
+- Components stay presentational; business logic lives in `src/lib`.
+- Slugs are kebab-case and unaccented.
+- Spanish is the default visible language. English is optional through `TranslatedText.astro`.
 
 ## SEO
 
-Every page generates:
-- Unique `<title>` and `<meta name="description">` with local keywords
-- `<link rel="canonical">`
+Every public page should include:
+
+- Unique title and meta description
+- Canonical URL
 - Open Graph tags
-- JSON-LD structured data per page type:
-  - Home → `WebSite` + `SearchAction`
-  - Canton/District → `Place` + `BreadcrumbList`
-  - Category listing → `ItemList` + `BreadcrumbList`
-  - Provider profile → `LocalBusiness` with `areaServed`, `aggregateRating`, `geo`
+- Structured data
 
-An auto-generated sitemap (`/sitemap-index.xml`) and `robots.txt` are included.
+Structured data targets:
 
----
+| Page | JSON-LD |
+| --- | --- |
+| Home | `WebSite` |
+| Canton | `Place` + `BreadcrumbList` |
+| District | `Place` + `BreadcrumbList` |
+| Category listing | `ItemList` + `BreadcrumbList` |
+| Provider profile | `LocalBusiness` with `areaServed` |
+
+## Current Status
+
+Implemented:
+
+- Astro shell and global layout
+- Civic visual direction from the template
+- ES/EN language switcher
+- Header, footer, mobile drawer, location modal
+- Search bar
+- Home, canton, district, category listing, provider profile
+- Provider sticky mobile contact bar
+- Register provider placeholder page
+- Supabase schema migration
+- INEC-based geography seed generator
+
+Next backend steps:
+
+- Apply the migration to Supabase
+- Run the generated seed
+- Regenerate DB types
+- Update queries for the new `provinces` relation
+- Replace demo provider presentation fields with real DB fields
+- Implement provider registration with Astro Actions
+- Implement reviews with Supabase writes and Server Islands where needed
 
 ## Deployment
 
-The project deploys to Vercel as a fully static site.
+The intended deployment target is Vercel.
 
-1. Connect the GitHub repository to a Vercel project.
-2. Add the environment variables in Vercel's dashboard:
-   - `PUBLIC_SITE_URL`
-   - `PUBLIC_SUPABASE_URL`
-   - `PUBLIC_SUPABASE_ANON_KEY`
-3. Vercel will run `npm run build` on every push to `main`.
+Build command:
 
-> `SUPABASE_SERVICE_ROLE_KEY` should only ever be added as a Vercel-only environment variable and never committed to the repository.
+```bash
+npm run build
+```
 
----
+Environment variables needed in Vercel:
 
-## Contributing
+```text
+PUBLIC_SITE_URL
+PUBLIC_SUPABASE_URL
+PUBLIC_SUPABASE_ANON_KEY
+```
 
-1. Fork the repository.
-2. Create a feature branch: `git checkout -b feat/my-feature`
-3. Commit your changes following the project conventions (see `AGENTS.md` and `.github/instructions/`).
-4. Open a pull request.
-
-Before committing, make sure:
-- `npm run build` passes with no errors
-- No `console.log` in production code (use `logger` from `@lib/logger`)
-- No hardcoded canton/district IDs — always derive from URL slugs
-- All new Supabase queries live in `src/lib/queries/<domain>.ts`
-
----
-
-## License
-
-MIT — see [LICENSE](LICENSE) for details.
+Add `SUPABASE_SERVICE_ROLE_KEY` only if server-side admin actions are deployed, and keep it server-only.
