@@ -4,3 +4,12 @@ dist
 .env
 .env.local
 .vercel
+
+# Logs de dev server
+.astro-dev.log
+
+# Caché local del CLI de Supabase
+supabase/.temp/
+
+# Lock de skills de agentes IA (personal, no del proyecto)
+skills-lock.json
