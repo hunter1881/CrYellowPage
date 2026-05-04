@@ -2,30 +2,31 @@
 import TranslatedText from '@components/i18n/TranslatedText.astro'
 import CategoryGrid from '@components/directory/CategoryGrid.astro'
 import DistrictLinkList from '@components/directory/DistrictLinkList.astro'
+import ProviderCard from '@components/directory/ProviderCard.astro'
 import ProviderSignupCard from '@components/directory/ProviderSignupCard.astro'
 import SearchBar from '@components/directory/SearchBar.astro'
 import StatsStrip from '@components/directory/StatsStrip.astro'
 import BaseLayout from '@layouts/BaseLayout.astro'
-import { getCategories, getCategoriesByDistrictId } from '@lib/queries/categories'
+import { getCategoriesWithCountsByDistrictId } from '@lib/queries/categories'
 import { getCantonsWithDistricts } from '@lib/queries/geography'
-import { getListingStaticPaths } from '@lib/queries/providers'
+import { getListingStaticPaths, getRecentProviders } from '@lib/queries/providers'
+import { getReviewSummariesByProviderIds } from '@lib/queries/reviews'
 import { absoluteUrl, defaultDescription, defaultDescriptionEn, siteName } from '@lib/site'
 import { websiteJsonLd } from '@lib/seo/website'
 
 export const prerender = true
 
 const cantons = await getCantonsWithDistricts()
-const allCategories = await getCategories()
 const publishedListings = (await getListingStaticPaths()).map(
   (path) => `${path.params.canton}/${path.params.distrito}/${path.params.categoria}`,
 )
 let currentCanton = cantons[0] ?? null
 let currentDistrict = currentCanton?.districts[0] ?? null
-let currentCategories = currentDistrict ? await getCategoriesByDistrictId(currentDistrict.id) : []
+let currentCategories = currentDistrict ? await getCategoriesWithCountsByDistrictId(currentDistrict.id) : []
 
 for (const canton of cantons) {
   for (const district of canton.districts) {
-    const categories = await getCategoriesByDistrictId(district.id)
+    const categories = await getCategoriesWithCountsByDistrictId(district.id)
     if (categories.length === 0) continue
     currentCanton = canton
     currentDistrict = district
@@ -34,6 +35,12 @@ for (const canton of cantons) {
   }
   if (currentCategories.length > 0) break
 }
+
+const recentProviders = await getRecentProviders(3)
+const reviewSummaries = recentProviders.length > 0
+  ? await getReviewSummariesByProviderIds(recentProviders.map((p) => p.id))
+  : new Map()
+
 const canonical = absoluteUrl('/', Astro.site)
 const jsonLd = websiteJsonLd({ name: siteName, url: canonical })
 const districtsLabelEs = (count: number) =>
@@ -69,8 +76,7 @@ const districtsLabelEn = (count: number) => `${count} district${count === 1 ? ''
         </div>
       </div>
       <SearchBar
-        cantons={cantons}
-        categories={allCategories}
+        categories={currentCategories}
         publishedListings={publishedListings}
         transition:persist
       />
@@ -120,10 +126,30 @@ const districtsLabelEn = (count: number) => `${count} district${count === 1 ? ''
               </h2>
               <span class="civic-meta">{currentCategories.length} <TranslatedText es="categorías" en="categories" /></span>
             </div>
-            <CategoryGrid categories={currentCategories} basePath={`/${currentCanton.slug}/${currentDistrict.slug}`} />
+            <CategoryGrid categories={currentCategories} basePath={`/${currentCanton!.slug}/${currentDistrict.slug}`} />
           </section>
         )
       }
+
+      {recentProviders.length > 0 && (
+        <section class="mt-10">
+          <div class="mb-4 flex items-baseline justify-between">
+            <h2 class="text-xl font-semibold tracking-[-0.3px] text-ink">
+              <TranslatedText es="Últimos verificados" en="Recently verified" />
+            </h2>
+            {currentCanton && currentDistrict && (
+              <a class="civic-meta text-canopy no-underline hover:underline" href={`/${currentCanton.slug}/${currentDistrict.slug}/`}>
+                <TranslatedText es="Ver todos →" en="See all →" />
+              </a>
+            )}
+          </div>
+          <div class="grid gap-4">
+            {recentProviders.map((provider) => (
+              <ProviderCard provider={provider} reviewSummary={reviewSummaries.get(provider.id)} />
+            ))}
+          </div>
+        </section>
+      )}
 
       <section class="mt-10">
         <div class="mb-4 flex items-baseline justify-between">

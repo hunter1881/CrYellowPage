@@ -1,0 +1,47 @@
+---
+type IconName =
+  | 'search'
+  | 'pin'
+  | 'check'
+  | 'shield'
+  | 'phone'
+  | 'wa'
+  | 'star'
+  | 'clock'
+  | 'menu'
+  | 'close'
+  | 'arrow'
+  | 'filter'
+  | 'chevronDown'
+
+interface Props {
+  name: IconName
+  size?: number
+  class?: string
+}
+
+const { name, size = 16, class: className = '' } = Astro.props
+
+const icons: Record<IconName, string> = {
+  search: `<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="7.5" cy="7.5" r="5"/><path d="M11 11l4 4"/></svg>`,
+  pin: `<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M9 2C6.24 2 4 4.24 4 7c0 3.75 5 9 5 9s5-5.25 5-9c0-2.76-2.24-5-5-5z"/><circle cx="9" cy="7" r="1.5"/></svg>`,
+  check: `<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l4 4 8-8"/></svg>`,
+  shield: `<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M9 2L3.5 4.5v4C3.5 12 6 15 9 16c3-1 5.5-4 5.5-7.5v-4L9 2z"/><path d="M6 9l2 2 4-4"/></svg>`,
+  phone: `<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M3 3.5C3 3.5 5 2 6 4l1 2.5-1.5 1C6.5 9.5 8.5 11.5 10.5 12.5l1-1.5L14 12c2 1 .5 3 .5 3C6 13 2.5 5 3 3.5z"/></svg>`,
+  wa: `<svg viewBox="0 0 18 18" fill="currentColor"><path d="M9 1C4.58 1 1 4.58 1 9c0 1.4.37 2.72 1.02 3.86L1 17l4.27-1.11A8 8 0 1 0 9 1zm0 14.4A6.4 6.4 0 1 1 9 2.6a6.4 6.4 0 0 1 0 12.8zm3.5-4.65c-.2-.1-1.15-.57-1.33-.63-.18-.07-.3-.1-.43.1-.13.2-.5.63-.6.76-.11.13-.22.14-.41.05-.2-.1-.83-.31-1.58-.99-.59-.52-.98-1.17-1.1-1.36-.11-.2-.01-.3.09-.4l.37-.44c.12-.14.15-.24.22-.4.08-.16.04-.3-.02-.41-.06-.1-.43-1.04-.59-1.43-.15-.37-.31-.32-.43-.33h-.37c-.13 0-.33.05-.5.24-.17.2-.66.65-.66 1.58s.68 1.84.77 1.97c.1.13 1.33 2.04 3.24 2.86.45.19.8.31 1.08.4.45.14.87.12 1.19.07.36-.05 1.13-.46 1.28-.91.16-.45.16-.83.12-.91-.05-.07-.18-.12-.38-.22z"/></svg>`,
+  star: `<svg viewBox="0 0 18 18" fill="currentColor"><path d="M9 1.5L11.09 6.26L16.18 6.99L12.59 10.47L13.46 15.5L9 13.02L4.54 15.5L5.41 10.47L1.82 6.99L6.91 6.26L9 1.5Z"/></svg>`,
+  clock: `<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="9" cy="9" r="7"/><path d="M9 5v4l2.5 2.5"/></svg>`,
+  menu: `<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 5h12M3 9h12M3 13h12"/></svg>`,
+  close: `<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 4l10 10M14 4L4 14"/></svg>`,
+  arrow: `<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9h12M10 5l5 4-5 4"/></svg>`,
+  filter: `<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M2 4h14M5 9h8M8 14h2"/></svg>`,
+  chevronDown: `<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7l5 5 5-5"/></svg>`,
+}
+---
+
+<span
+  class:list={['inline-flex shrink-0 items-center justify-center', className]}
+  style={`width:${size}px;height:${size}px`}
+  aria-hidden="true"
+  set:html={icons[name]}
+/>

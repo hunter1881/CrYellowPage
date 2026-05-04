@@ -1,4 +1,5 @@
 ---
+import Icon from '@components/ui/Icon.astro'
 import TranslatedText from '@components/i18n/TranslatedText.astro'
 
 interface Props {
@@ -34,7 +35,10 @@ const {
       <span class="text-sm font-semibold text-ink">{authorName ?? 'Cliente local'}</span>
       <span class="font-mono text-[11px] uppercase tracking-[0.5px] text-ink-3">{districtName}</span>
     </div>
-    <div class="mb-3 text-sm text-star">★★★★★ <span class="text-ink">{rating}</span></div>
+    <div class="mb-3 flex items-center gap-0.5 text-star text-sm">
+      <Icon name="star" size={12} /><Icon name="star" size={12} /><Icon name="star" size={12} /><Icon name="star" size={12} /><Icon name="star" size={12} />
+      <span class="ml-1 font-semibold text-ink">{rating}</span>
+    </div>
     <p class="text-sm leading-6 text-ink-2">
       {
         comment ? (

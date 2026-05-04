@@ -6,7 +6,7 @@ import StatsStrip from '@components/directory/StatsStrip.astro'
 import TranslatedText from '@components/i18n/TranslatedText.astro'
 import Breadcrumbs from '@components/seo/Breadcrumbs.astro'
 import BaseLayout from '@layouts/BaseLayout.astro'
-import { getCategoriesByDistrictId } from '@lib/queries/categories'
+import { getCategoriesWithCountsByDistrictId } from '@lib/queries/categories'
 import { getDistrictBySlugs, getDistrictsByCantonId, getDistrictStaticPaths } from '@lib/queries/geography'
 import { absoluteUrl } from '@lib/site'
 import { breadcrumbJsonLd } from '@lib/seo/breadcrumb'
@@ -26,7 +26,7 @@ if (!district) {
   return Astro.redirect('/404')
 }
 
-const categories = await getCategoriesByDistrictId(district.id)
+const categories = await getCategoriesWithCountsByDistrictId(district.id)
 const cantonDistricts = await getDistrictsByCantonId(district.canton.id)
 const nearbyDistricts = cantonDistricts.filter((item) => item.id !== district.id).slice(0, 5)
 const canonical = absoluteUrl(`/${district.canton.slug}/${district.slug}/`, Astro.site)

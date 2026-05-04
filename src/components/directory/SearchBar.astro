@@ -1,34 +1,66 @@
 ---
+import Icon from '@components/ui/Icon.astro'
 import TranslatedText from '@components/i18n/TranslatedText.astro'
 import type { Category } from '@lib/queries/categories'
 import type { CantonWithDistricts } from '@lib/queries/geography'
 
 interface Props {
-  cantons: CantonWithDistricts[]
+  cantons?: CantonWithDistricts[]
   categories?: Category[]
   publishedListings?: string[]
 }
 
-const { cantons, categories = [], publishedListings = [] } = Astro.props
-const cantonsByProvince = cantons.reduce(
-  (groups, canton) => {
-    const provinceName = canton.province?.name ?? 'Costa Rica'
-    const current = groups.get(provinceName) ?? [] as CantonWithDistricts[]
-    current.push(canton)
-    groups.set(provinceName, current)
-    return groups
-  },
-  new Map<string, CantonWithDistricts[]>(),
-)
-const provinceGroups = [...cantonsByProvince.entries()].sort(([a], [b]) => a.localeCompare(b, 'es'))
+const { categories = [], publishedListings = [] } = Astro.props
 const categoryLookup = categories.map((category) => ({
   name: category.name,
   slug: category.slug,
 }))
 ---
 
-<form class="grid gap-0 overflow-hidden rounded-civic border-2 border-ink bg-surface md:grid-cols-[1.4fr_1.1fr_auto]" action="/" method="get" data-directory-search>
-  <label class="grid gap-1 border-b border-rule p-3 md:border-b-0 md:border-r">
+<!-- Mobile: stacked layout -->
+<div class="md:hidden">
+  <button
+    type="button"
+    class="flex w-full items-center gap-3 rounded-civic border-2 border-ink bg-surface px-4 py-3 text-left"
+    data-open-search-location
+    aria-label="Seleccionar ubicación"
+  >
+    <Icon name="pin" size={16} class="shrink-0 text-canopy" />
+    <span class="min-w-0 flex-1">
+      <span class="block font-mono text-[10px] uppercase tracking-[0.5px] text-ink-3">
+        <TranslatedText es="Ubicación" en="Location" />
+      </span>
+      <span class="block text-sm font-semibold text-ink" data-search-location-label
+        data-label-es="Seleccionar distrito" data-label-en="Select district">
+        Seleccionar distrito
+      </span>
+    </span>
+    <Icon name="chevronDown" size={14} class="shrink-0 text-ink-3" />
+  </button>
+  <form class="mt-2 flex overflow-hidden rounded-civic border-2 border-ink bg-surface" action="/" method="get" data-directory-search>
+    <input type="hidden" name="district" data-search-district-input />
+    <input
+      class="min-w-0 flex-1 border-none bg-transparent px-4 py-3 text-sm font-semibold text-ink outline-none placeholder:text-ink-3"
+      type="search"
+      name="q"
+      placeholder="¿Qué necesitás? Ej: fontanero"
+      data-placeholder-es="¿Qué necesitás? Ej: fontanero"
+      data-placeholder-en="What do you need? e.g. plumber"
+    />
+    <button class="flex items-center bg-canopy px-4 text-white hover:bg-canopy-ink" type="submit" aria-label="Buscar">
+      <Icon name="arrow" size={18} />
+    </button>
+  </form>
+</div>
+
+<!-- Desktop: 3-column grid -->
+<form
+  class="hidden overflow-hidden rounded-civic border-2 border-ink bg-surface md:grid md:grid-cols-[1.4fr_1.1fr_auto]"
+  action="/"
+  method="get"
+  data-directory-search
+>
+  <label class="grid gap-1 border-r border-rule p-3">
     <span class="civic-meta"><TranslatedText es="Buscar" en="Search" /></span>
     <input
       class="min-w-0 border-none bg-transparent text-sm font-semibold text-ink outline-none placeholder:text-ink-3"
@@ -39,24 +71,22 @@ const categoryLookup = categories.map((category) => ({
       data-placeholder-en="What do you need? e.g. plumber"
     />
   </label>
-  <label class="grid gap-1 border-b border-rule p-3 md:border-b-0 md:border-r">
+  <button
+    type="button"
+    class="grid gap-1 border-r border-rule p-3 text-left hover:bg-mist"
+    data-open-search-location
+  >
     <span class="civic-meta"><TranslatedText es="Ubicación" en="Location" /></span>
-    <select class="min-w-0 border-none bg-transparent text-sm font-semibold text-ink outline-none" name="district">
-      <option value="" data-label-es="Todos los distritos" data-label-en="All districts">Todos los distritos</option>
-      {
-        provinceGroups.map(([provinceName, provinceCantons]) => (
-          <optgroup label={provinceName}>
-            {provinceCantons.flatMap((canton) =>
-              canton.districts.map((district) => (
-                <option value={`${canton.slug}/${district.slug}`}>{district.name} · {canton.name}</option>
-              )),
-            )}
-          </optgroup>
-        ))
-      }
-    </select>
-  </label>
-  <button class="bg-canopy px-5 py-3 text-sm font-semibold text-white hover:bg-canopy-ink md:px-6" type="submit">
+    <span class="flex items-center gap-2 text-sm font-semibold text-ink">
+      <span data-search-location-label
+        data-label-es="Seleccionar distrito" data-label-en="Select district">
+        Seleccionar distrito
+      </span>
+      <Icon name="chevronDown" size={12} class="ml-auto text-ink-3" />
+    </span>
+  </button>
+  <input type="hidden" name="district" data-search-district-input />
+  <button class="bg-canopy px-6 text-sm font-semibold text-white hover:bg-canopy-ink" type="submit">
     <TranslatedText es="Encontrar" en="Find" />
   </button>
 </form>

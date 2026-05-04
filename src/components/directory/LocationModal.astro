@@ -1,4 +1,5 @@
 ---
+import Icon from '@components/ui/Icon.astro'
 import TranslatedText from '@components/i18n/TranslatedText.astro'
 import type { CantonWithDistricts } from '@lib/queries/geography'
 
@@ -34,13 +35,13 @@ const provinceGroups = [...cantonsByProvince.values()].sort((a, b) => a.name.loc
           <TranslatedText es="¿Dónde necesitás el servicio?" en="Where do you need service?" />
         </h2>
       </div>
-      <button class="rounded-civic border border-rule px-2 py-1 text-sm text-ink-2" type="button" data-close-location aria-label="Cerrar selector">
-        X
+      <button class="flex h-8 w-8 items-center justify-center rounded-civic border border-rule text-ink-2 hover:text-ink" type="button" data-close-location aria-label="Cerrar selector">
+        <Icon name="close" size={16} />
       </button>
     </div>
 
     <label class="mb-4 flex items-center gap-2 rounded-civic border border-rule px-3 py-2">
-      <span class="text-ink-3">⌕</span>
+      <Icon name="search" size={15} class="shrink-0 text-ink-3" />
       <input
         class="min-w-0 flex-1 border-none bg-transparent text-sm text-ink outline-none placeholder:text-ink-3"
         type="search"

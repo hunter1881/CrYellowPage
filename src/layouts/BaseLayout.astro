@@ -106,12 +106,12 @@ const cantons = await getCantonsWithDistricts()
           <button class="px-3 py-1.5 text-ink-2 data-[active=true]:bg-ink data-[active=true]:text-white" type="button" data-language-option="en">EN</button>
         </div>
         <button
-          class="inline-flex h-9 w-9 items-center justify-center rounded-civic border border-rule text-sm font-semibold text-ink md:hidden"
+          class="inline-flex h-9 w-9 items-center justify-center rounded-civic border border-rule text-ink md:hidden"
           type="button"
           data-open-mobile-menu
           aria-label="Abrir menu"
         >
-          =
+          <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" width="18" height="18" aria-hidden="true"><path d="M3 5h12M3 9h12M3 13h12"/></svg>
         </button>
       </div>
     </header>
@@ -203,9 +203,45 @@ const cantons = await getCantonsWithDistricts()
         button.addEventListener('click', closeLayers)
       })
 
+      // Search bar location picker — opens modal in 'select' mode
+      document.querySelectorAll('[data-open-search-location]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const modal = document.querySelector('[data-location-modal]')
+          if (modal) modal.dataset.searchMode = '1'
+          setLayerOpen(document.querySelector('[data-mobile-drawer]'), false)
+          setLayerOpen(document.querySelector('[data-location-modal]'), true, 'flex')
+        })
+      })
+
+      // Intercept district link clicks when modal is in search mode
+      document.querySelector('[data-location-modal]')?.addEventListener('click', (event) => {
+        const modal = document.querySelector('[data-location-modal]')
+        if (!modal?.dataset.searchMode) return
+        const link = event.target?.closest('[data-location-option]')
+        if (!link) return
+        event.preventDefault()
+        const href = link.getAttribute('href') ?? ''
+        // href is like /canton/district/ — extract path without leading/trailing slashes
+
+        const cleanPath = href.replace(/^\//,'').replace(/\/$/,'')
+        const districtText = link.querySelector('span')?.textContent?.trim() ?? cleanPath
+        document.querySelectorAll('[data-search-district-input]').forEach((input) => {
+          input.value = cleanPath
+        })
+        document.querySelectorAll('[data-search-location-label]').forEach((label) => {
+          label.textContent = districtText
+        })
+        delete modal.dataset.searchMode
+        closeLayers()
+      })
+
       document.querySelectorAll('[data-mobile-drawer], [data-location-modal]').forEach((layer) => {
         layer.addEventListener('click', (event) => {
-          if (event.target === layer) closeLayers()
+          if (event.target === layer) {
+            const modal = document.querySelector('[data-location-modal]')
+            if (modal) delete modal.dataset.searchMode
+            closeLayers()
+          }
         })
       })
 

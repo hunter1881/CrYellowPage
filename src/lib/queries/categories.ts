@@ -42,6 +42,8 @@ export async function getCategoryBySlug(categorySlug: string): Promise<Category 
   return data
 }
 
+export type CategoryWithCount = Category & { count: number }
+
 export async function getCategoriesByDistrictId(districtId: string): Promise<Category[]> {
   if (!isSupabaseConfigured) return mockCategories
 
@@ -87,4 +89,54 @@ export async function getCategoriesByDistrictId(districtId: string): Promise<Cat
   }
 
   return data ?? []
+}
+
+export async function getCategoriesWithCountsByDistrictId(districtId: string): Promise<CategoryWithCount[]> {
+  if (!isSupabaseConfigured) return mockCategories.map((c) => ({ ...c, count: 2 }))
+
+  const { data: providers, error: providersError } = await supabase
+    .from('providers')
+    .select('id')
+    .eq('district_id', districtId)
+    .eq('verified', true)
+
+  if (providersError) {
+    logger.error('getCategoriesWithCountsByDistrictId.providers', { districtId, error: providersError })
+    return []
+  }
+
+  const providerIds = (providers ?? []).map((p) => p.id)
+  if (providerIds.length === 0) return []
+
+  const { data: providerCategories, error: pcError } = await supabase
+    .from('provider_categories')
+    .select('provider_id, category_id')
+    .in('provider_id', providerIds)
+
+  if (pcError) {
+    logger.error('getCategoriesWithCountsByDistrictId.providerCategories', { districtId, error: pcError })
+    return []
+  }
+
+  // Count providers per category
+  const countByCategory = new Map<string, number>()
+  for (const row of providerCategories ?? []) {
+    countByCategory.set(row.category_id, (countByCategory.get(row.category_id) ?? 0) + 1)
+  }
+
+  const categoryIds = [...countByCategory.keys()]
+  if (categoryIds.length === 0) return []
+
+  const { data, error } = await supabase
+    .from('categories')
+    .select('id, name, slug, icon_emoji')
+    .in('id', categoryIds)
+    .order('name')
+
+  if (error) {
+    logger.error('getCategoriesWithCountsByDistrictId.categories', { districtId, error })
+    return []
+  }
+
+  return (data ?? []).map((cat) => ({ ...cat, count: countByCategory.get(cat.id) ?? 0 }))
 }

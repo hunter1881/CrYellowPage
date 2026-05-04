@@ -241,3 +241,23 @@ export async function getListingStaticPaths(): Promise<
     return [{ params: { canton, distrito, categoria } }]
   })
 }
+
+export async function getRecentProviders(limit: number = 3): Promise<ProviderListItem[]> {
+  if (!isSupabaseConfigured) return mockProviders.slice(0, limit)
+
+  const { data, error } = await supabase
+    .from('providers')
+    .select(
+      'id, name, phone, whatsapp, description, photo_url, created_at, accepts_sinpe, works_weekends, years_active, completed_jobs, response_time_minutes',
+    )
+    .eq('verified', true)
+    .order('created_at', { ascending: false })
+    .limit(limit)
+
+  if (error) {
+    logger.error('getRecentProviders', { limit, error })
+    return []
+  }
+
+  return data ?? []
+}

@@ -1,4 +1,5 @@
 ---
+import Icon from '@components/ui/Icon.astro'
 import TranslatedText from '@components/i18n/TranslatedText.astro'
 ---
 
@@ -10,8 +11,8 @@ import TranslatedText from '@components/i18n/TranslatedText.astro'
   <aside class="ml-auto flex h-full w-[min(86vw,340px)] flex-col bg-surface p-5 shadow-xl">
     <div class="mb-4 flex items-center justify-between">
       <p class="text-sm font-semibold text-ink"><TranslatedText es="Menú" en="Menu" /></p>
-      <button class="rounded-civic border border-rule px-2 py-1 text-sm text-ink-2" type="button" data-close-mobile-menu aria-label="Cerrar menu">
-        X
+      <button class="flex h-8 w-8 items-center justify-center rounded-civic border border-rule text-ink-2 hover:text-ink" type="button" data-close-mobile-menu aria-label="Cerrar menu">
+        <Icon name="close" size={16} />
       </button>
     </div>
 

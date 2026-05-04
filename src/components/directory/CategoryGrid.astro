@@ -3,7 +3,7 @@ import TranslatedText from '@components/i18n/TranslatedText.astro'
 import type { Category } from '@lib/queries/categories'
 
 interface Props {
-  categories: Category[]
+  categories: (Category & { count?: number })[]
   basePath: string
 }
 
@@ -17,12 +17,18 @@ const { categories, basePath } = Astro.props
         class="civic-card civic-card-hover flex items-center gap-3 p-4 text-ink no-underline"
         href={`${basePath}/${category.slug}`}
       >
-        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-civic bg-canopy-soft text-xl text-canopy" aria-hidden="true">
+        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-civic bg-canopy-soft text-xl" aria-hidden="true">
           {category.icon_emoji ?? '#'}
         </span>
         <span class="min-w-0">
           <span class="block text-[15px] font-semibold tracking-[-0.1px]">{category.name}</span>
-          <span class="civic-meta mt-1 block"><TranslatedText es="Ver proveedores" en="View providers" /></span>
+          {category.count != null ? (
+            <span class="civic-meta mt-1 block">
+              {category.count} <TranslatedText es="proveedores" en="providers" />
+            </span>
+          ) : (
+            <span class="civic-meta mt-1 block"><TranslatedText es="Ver proveedores" en="View providers" /></span>
+          )}
         </span>
       </a>
     ))
