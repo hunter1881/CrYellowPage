@@ -1,0 +1,25 @@
+---
+import TranslatedText from '@components/i18n/TranslatedText.astro'
+
+interface Props {
+  compact?: boolean
+}
+
+const { compact = false } = Astro.props
+---
+
+<aside id="provider-signup" class={compact ? '' : 'order-2 md:order-1'}>
+  <div class="civic-meta border-b border-rule pb-2"><TranslatedText es="Para proveedores" en="For providers" /></div>
+  <div class="mt-4 rounded-civic border border-canopy bg-canopy-soft p-4">
+    <p class="civic-meta text-canopy-ink"><TranslatedText es="¿Sos proveedor?" en="Are you a provider?" /></p>
+    <p class="mt-2 text-sm leading-6 text-ink-2">
+      <TranslatedText
+        es="Registrá tu negocio para aparecer en búsquedas por cantón, distrito y categoría."
+        en="Register your business to appear in searches by canton, district, and category."
+      />
+    </p>
+    <a class="civic-button mt-4 bg-canopy text-white" href="/registrar-proveedor/">
+      <TranslatedText es="Registrarme" en="Register" />
+    </a>
+  </div>
+</aside>

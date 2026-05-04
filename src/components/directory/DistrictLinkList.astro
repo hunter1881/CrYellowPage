@@ -1,0 +1,36 @@
+---
+import TranslatedText from '@components/i18n/TranslatedText.astro'
+import type { District } from '@lib/queries/geography'
+
+interface Props {
+  cantonSlug: string
+  districts: District[]
+  activeDistrictSlug?: string
+}
+
+const { cantonSlug, districts, activeDistrictSlug } = Astro.props
+---
+
+<div>
+  <div class="civic-meta border-b border-rule pb-2">
+    <TranslatedText es="Distritos del cantón" en="Canton districts" />
+  </div>
+  <div class="divide-y divide-rule-soft">
+    {
+      districts.map((district) => (
+        <a
+          class:list={[
+            'flex items-center justify-between gap-3 py-3 text-sm no-underline',
+            district.slug === activeDistrictSlug ? 'font-semibold text-canopy' : 'text-ink hover:text-canopy',
+          ]}
+          href={`/${cantonSlug}/${district.slug}/`}
+        >
+          <span>{district.name}</span>
+          <span class="font-mono text-[11px] uppercase tracking-[0.5px] text-ink-3">
+            <TranslatedText es="Ver" en="View" />
+          </span>
+        </a>
+      ))
+    }
+  </div>
+</div>

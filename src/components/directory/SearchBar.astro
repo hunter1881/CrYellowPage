@@ -1,0 +1,42 @@
+---
+import TranslatedText from '@components/i18n/TranslatedText.astro'
+import type { CantonWithDistricts } from '@lib/queries/geography'
+
+interface Props {
+  cantons: CantonWithDistricts[]
+}
+
+const { cantons } = Astro.props
+---
+
+<form class="grid gap-0 overflow-hidden rounded-civic border-2 border-ink bg-surface md:grid-cols-[1.4fr_1fr_auto]" action="/" method="get">
+  <label class="grid gap-1 border-b border-rule p-3 md:border-b-0 md:border-r">
+    <span class="civic-meta"><TranslatedText es="Buscar" en="Search" /></span>
+    <input
+      class="min-w-0 border-none bg-transparent text-sm font-semibold text-ink outline-none placeholder:text-ink-3"
+      type="search"
+      name="q"
+      placeholder="¿Qué necesitás? Ej: fontanero"
+      data-placeholder-es="¿Qué necesitás? Ej: fontanero"
+      data-placeholder-en="What do you need? e.g. plumber"
+    />
+  </label>
+  <label class="grid gap-1 border-b border-rule p-3 md:border-b-0 md:border-r">
+    <span class="civic-meta"><TranslatedText es="Distrito" en="District" /></span>
+    <select class="min-w-0 border-none bg-transparent text-sm font-semibold text-ink outline-none" name="district">
+      <option value="" data-label-es="Todos los distritos" data-label-en="All districts">Todos los distritos</option>
+      {
+        cantons.map((canton) => (
+          <optgroup label={canton.name}>
+            {canton.districts.map((district) => (
+              <option value={`${canton.slug}/${district.slug}`}>{district.name}</option>
+            ))}
+          </optgroup>
+        ))
+      }
+    </select>
+  </label>
+  <button class="bg-canopy px-5 py-3 text-sm font-semibold text-white hover:bg-canopy-ink md:px-6" type="submit">
+    <TranslatedText es="Encontrar" en="Find" />
+  </button>
+</form>

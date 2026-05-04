@@ -1,0 +1,57 @@
+---
+import TranslatedText from '@components/i18n/TranslatedText.astro'
+import BaseLayout from '@layouts/BaseLayout.astro'
+import { absoluteUrl } from '@lib/site'
+
+const canonical = absoluteUrl('/registrar-proveedor/', Astro.site)
+---
+
+<BaseLayout
+  title="Registrar proveedor | DirectorioLocal CR"
+  titleEn="Register Provider | DirectorioLocal CR"
+  description="Registre su negocio local para aparecer en DirectorioLocal CR por cantón, distrito y categoría."
+  descriptionEn="Register your local business to appear in DirectorioLocal CR by canton, district, and category."
+  canonical={canonical}
+>
+  <section class="border-b border-rule bg-surface">
+    <div class="mx-auto max-w-6xl px-4 py-8 md:px-6">
+      <p class="civic-meta"><TranslatedText es="Para proveedores" en="For providers" /></p>
+      <h1 class="mt-2 max-w-3xl text-3xl font-semibold leading-tight tracking-[-0.6px] text-ink md:text-[40px]">
+        <TranslatedText es="Registrá tu servicio local" en="Register your local service" />
+      </h1>
+      <p class="mt-3 max-w-2xl text-sm leading-6 text-ink-2">
+        <TranslatedText
+          es="El formulario completo usará Astro Actions para validar datos, subir fotos a Supabase Storage y guardar el proveedor con revisión pendiente."
+          en="The full form will use Astro Actions to validate data, upload photos to Supabase Storage, and save the provider for review."
+        />
+      </p>
+    </div>
+  </section>
+
+  <section class="mx-auto grid max-w-6xl gap-6 px-4 py-8 md:grid-cols-[1fr_320px] md:px-6">
+    <div class="civic-card p-5">
+      <p class="civic-meta mb-4"><TranslatedText es="Datos que vamos a pedir" en="Information we will ask for" /></p>
+      <div class="grid gap-3 text-sm text-ink-2 sm:grid-cols-2">
+        <div class="rounded-civic border border-rule-soft bg-surface-alt p-3"><TranslatedText es="Nombre del negocio" en="Business name" /></div>
+        <div class="rounded-civic border border-rule-soft bg-surface-alt p-3"><TranslatedText es="Cantón y distrito" en="Canton and district" /></div>
+        <div class="rounded-civic border border-rule-soft bg-surface-alt p-3"><TranslatedText es="Categorías de servicio" en="Service categories" /></div>
+        <div class="rounded-civic border border-rule-soft bg-surface-alt p-3"><TranslatedText es="Teléfono y WhatsApp" en="Phone and WhatsApp" /></div>
+        <div class="rounded-civic border border-rule-soft bg-surface-alt p-3"><TranslatedText es="Descripción corta" en="Short description" /></div>
+        <div class="rounded-civic border border-rule-soft bg-surface-alt p-3"><TranslatedText es="Foto del proveedor" en="Provider photo" /></div>
+      </div>
+    </div>
+
+    <aside class="civic-card h-fit p-5">
+      <p class="civic-meta mb-3"><TranslatedText es="Estado" en="Status" /></p>
+      <p class="text-sm leading-6 text-ink-2">
+        <TranslatedText
+          es="Placeholder listo. La siguiente etapa es conectar el formulario con autenticación y Astro Actions."
+          en="Placeholder ready. The next stage is connecting the form with auth and Astro Actions."
+        />
+      </p>
+      <a class="civic-button mt-4 w-full bg-canopy text-white" href="/">
+        <TranslatedText es="Volver al directorio" en="Back to directory" />
+      </a>
+    </aside>
+  </section>
+</BaseLayout>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DirectorioLocal CR — Servicios verificados por cantón</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: #F4F5F2; color: #1A1F1B; -webkit-font-smoothing: antialiased; }
+  #root { min-height: 100vh; }
+  button { font-family: inherit; }
+  @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slidein { from { transform: translateX(100%); } to { transform: translateX(0); } }
+  @keyframes slideup { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(0,0,0,.15); border-radius: 4px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script src="data.js"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="tokens.jsx"></script>
+<script type="text/babel" src="components.jsx"></script>
+<script type="text/babel" src="pages.jsx"></script>
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "direction": "A",
+  "lang": "es",
+  "density": "normal"
+}/*EDITMODE-END*/;
+
+function App() {
+  const [tweaks, setTweak] = window.useTweaks(TWEAK_DEFAULTS);
+  const theme = window.THEMES[tweaks.direction] || window.THEMES.A;
+  const t = window.CR_DATA.i18n[tweaks.lang];
+
+  const [route, setRoute] = useState({ page: 'home' });
+  const [drawer, setDrawer] = useState(false);
+  const [locOpen, setLocOpen] = useState(false);
+  const [toast, setToast] = useState(null);
+  const [vw, setVw] = useState(typeof window !== 'undefined' ? window.innerWidth : 1280);
+
+  useEffect(() => {
+    const r = () => setVw(window.innerWidth);
+    window.addEventListener('resize', r);
+    return () => window.removeEventListener('resize', r);
+  }, []);
+  const isMobile = vw < 760;
+
+  useEffect(() => { window.scrollTo(0, 0); }, [route]);
+
+  const onNav = (page, params = {}) => setRoute({ page, ...params });
+  const onContact = (p, kind) => {
+    const msg = kind === 'wa'
+      ? (tweaks.lang === 'es' ? `Abriendo WhatsApp con ${p.nombre}…` : `Opening WhatsApp with ${p.nombre}…`)
+      : (tweaks.lang === 'es' ? `Llamando ${p.tel}…` : `Calling ${p.tel}…`);
+    setToast(msg);
+    setTimeout(() => setToast(null), 2200);
+  };
+
+  let content;
+  if (route.page === 'home') content = <window.HomePage theme={theme} t={t} lang={tweaks.lang} isMobile={isMobile} density={tweaks.density} onNav={onNav} onLocationOpen={() => setLocOpen(true)} onContact={onContact} />;
+  else if (route.page === 'canton') content = <window.CantonPage theme={theme} t={t} lang={tweaks.lang} isMobile={isMobile} density={tweaks.density} onNav={onNav} />;
+  else if (route.page === 'district') content = <window.DistrictPage theme={theme} t={t} lang={tweaks.lang} isMobile={isMobile} density={tweaks.density} onNav={onNav} />;
+  else if (route.page === 'category') content = <window.CategoryPage theme={theme} t={t} lang={tweaks.lang} isMobile={isMobile} density={tweaks.density} cat={route.cat || window.CR_DATA.categorias[0]} onNav={onNav} onContact={onContact} />;
+  else if (route.page === 'provider') content = <window.ProviderPage theme={theme} t={t} lang={tweaks.lang} isMobile={isMobile} p={route.provider || window.CR_DATA.proveedores[0]} onNav={onNav} onContact={onContact} />;
+  else if (route.page === 'register') content = (
+    <div style={{ maxWidth: 600, margin: '0 auto', padding: 40, textAlign: 'center' }}>
+      <h1 style={{ fontFamily: theme.fontDisplay || theme.font, fontSize: 28, color: theme.ink, letterSpacing: -0.5 }}>{tweaks.lang === 'es' ? 'Registrate como proveedor' : 'Register as a provider'}</h1>
+      <p style={{ color: theme.ink2, fontSize: 14, lineHeight: 1.6 }}>{tweaks.lang === 'es' ? 'En la versión final, este formulario captura nombre, cédula, categorías, áreas de servicio y WhatsApp.' : 'In the final version, this form captures name, ID, categories, service areas and WhatsApp.'}</p>
+      <button onClick={() => onNav('home')} style={{ marginTop: 16, padding: '10px 20px', background: theme.brand, color: '#fff', border: 'none', borderRadius: theme.radius, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>← {tweaks.lang === 'es' ? 'Volver' : 'Back'}</button>
+    </div>
+  );
+
+  return (
+    <div data-screen-label={`01 ${route.page}`} style={{
+      background: theme.bg,
+      minHeight: '100vh',
+      fontFamily: theme.fontBody || theme.font,
+      color: theme.ink,
+    }}>
+      <window.Header theme={theme} t={t} lang={tweaks.lang} onLang={(l) => setTweak('lang', l)} onNav={onNav} onMenuOpen={() => setDrawer(true)} current={route.page} isMobile={isMobile} />
+      {content}
+      {!isMobile && <window.Footer theme={theme} lang={tweaks.lang} />}
+      <window.MobileDrawer theme={theme} t={t} open={drawer} onClose={() => setDrawer(false)} onNav={onNav} lang={tweaks.lang} onLang={(l) => setTweak('lang', l)} />
+      <window.LocationModal theme={theme} t={t} open={locOpen} onClose={() => setLocOpen(false)} lang={tweaks.lang} />
+
+      {/* Sticky contact en mobile en página de proveedor */}
+      {isMobile && route.page === 'provider' && (
+        <window.StickyContact theme={theme} t={t} p={route.provider || window.CR_DATA.proveedores[0]} isMobile={isMobile} onContact={onContact} />
+      )}
+
+      {/* Toast */}
+      {toast && (
+        <div style={{
+          position: 'fixed', bottom: isMobile && route.page === 'provider' ? 80 : 24, left: '50%',
+          transform: 'translateX(-50%)', background: theme.ink, color: '#fff',
+          padding: '10px 16px', borderRadius: theme.radius, fontSize: 13,
+          zIndex: 200, fontWeight: 500,
+          boxShadow: '0 8px 32px rgba(0,0,0,.2)',
+        }}>{toast}</div>
+      )}
+
+      {/* Tweaks panel */}
+      <window.TweaksPanel title="Tweaks">
+        <window.TweakSection title="Dirección visual">
+          <window.TweakRadio
+            value={tweaks.direction}
+            onChange={(v) => setTweak('direction', v)}
+            options={[
+              { value: 'A', label: 'A · Civic' },
+              { value: 'B', label: 'B · Friendly' },
+              { value: 'C', label: 'C · Premium' },
+            ]}
+          />
+          <div style={{ fontSize: 11, color: 'rgba(0,0,0,.5)', marginTop: 6, lineHeight: 1.4 }}>
+            {tweaks.direction === 'A' && 'Verde institucional, mono uppercase, bordes nítidos. Sensación de página oficial.'}
+            {tweaks.direction === 'B' && 'Verde cálido + clay, esquinas suaves, foto protagonista. Marketplace amistoso.'}
+            {tweaks.direction === 'C' && 'Serif Fraunces, monocromo, espacio generoso. Sensación premium curada.'}
+          </div>
+        </window.TweakSection>
+        <window.TweakSection title="Idioma">
+          <window.TweakRadio
+            value={tweaks.lang}
+            onChange={(v) => setTweak('lang', v)}
+            options={[{ value: 'es', label: 'Español' }, { value: 'en', label: 'English' }]}
+          />
+        </window.TweakSection>
+        <window.TweakSection title="Densidad de tarjetas">
+          <window.TweakRadio
+            value={tweaks.density}
+            onChange={(v) => setTweak('density', v)}
+            options={[{ value: 'normal', label: 'Normal' }, { value: 'compact', label: 'Compacta' }]}
+          />
+        </window.TweakSection>
+        <window.TweakSection title="Navegar">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+            {[
+              ['home', 'Home'],
+              ['canton', 'Cantón'],
+              ['district', 'Distrito'],
+              ['category', 'Categoría'],
+              ['provider', 'Proveedor'],
+              ['register', 'Registro'],
+            ].map(([k, l]) => (
+              <button key={k} onClick={() => onNav(k, k === 'category' ? { cat: window.CR_DATA.categorias[0] } : k === 'provider' ? { provider: window.CR_DATA.proveedores[0] } : {})} style={{
+                padding: '6px 8px', fontSize: 12,
+                border: `1px solid ${route.page === k ? theme.brand : 'rgba(0,0,0,.15)'}`,
+                background: route.page === k ? theme.brand : '#fff',
+                color: route.page === k ? '#fff' : '#333',
+                borderRadius: 4, cursor: 'pointer', fontWeight: 500,
+              }}>{l}</button>
+            ))}
+          </div>
+        </window.TweakSection>
+      </window.TweaksPanel>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

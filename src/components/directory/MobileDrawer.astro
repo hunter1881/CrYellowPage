@@ -1,0 +1,36 @@
+---
+import TranslatedText from '@components/i18n/TranslatedText.astro'
+---
+
+<div
+  class="fixed inset-0 z-[100] hidden bg-ink/50"
+  data-mobile-drawer
+  aria-hidden="true"
+>
+  <aside class="ml-auto flex h-full w-[min(86vw,340px)] flex-col bg-surface p-5 shadow-xl">
+    <div class="mb-4 flex items-center justify-between">
+      <p class="text-sm font-semibold text-ink"><TranslatedText es="Menú" en="Menu" /></p>
+      <button class="rounded-civic border border-rule px-2 py-1 text-sm text-ink-2" type="button" data-close-mobile-menu aria-label="Cerrar menu">
+        X
+      </button>
+    </div>
+
+    <nav class="grid text-base font-medium" aria-label="Mobile primary">
+      <a class="border-b border-rule-soft py-4 text-ink no-underline" href="/"><TranslatedText es="Inicio" en="Home" /></a>
+      <a class="border-b border-rule-soft py-4 text-ink no-underline" href="/#districts"><TranslatedText es="Cantones" en="Cantons" /></a>
+      <a class="border-b border-rule-soft py-4 text-ink no-underline" href="/#categories"><TranslatedText es="Categorías" en="Categories" /></a>
+      <a class="border-b border-rule-soft py-4 text-ink no-underline" href="/registrar-proveedor/"><TranslatedText es="Sos proveedor" en="Are you a provider?" /></a>
+      <button class="border-b border-rule-soft py-4 text-left text-ink" type="button" data-open-location>
+        <TranslatedText es="Cambiar ubicación" en="Change location" />
+      </button>
+    </nav>
+
+    <div class="mt-auto flex items-center justify-between border-t border-rule pt-4">
+      <span class="civic-meta"><TranslatedText es="Idioma" en="Language" /></span>
+      <div class="inline-flex overflow-hidden rounded-civic border border-rule font-mono text-[11px] font-semibold uppercase" aria-label="Language">
+        <button class="px-3 py-1.5 text-ink-2 data-[active=true]:bg-ink data-[active=true]:text-white" type="button" data-language-option="es" data-active="true">ES</button>
+        <button class="px-3 py-1.5 text-ink-2 data-[active=true]:bg-ink data-[active=true]:text-white" type="button" data-language-option="en">EN</button>
+      </div>
+    </div>
+  </aside>
+</div>

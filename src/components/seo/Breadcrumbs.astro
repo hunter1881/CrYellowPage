@@ -1,0 +1,27 @@
+---
+import TranslatedText from '@components/i18n/TranslatedText.astro'
+import type { BreadcrumbItem } from '@lib/seo/breadcrumb'
+
+interface Props {
+  items: BreadcrumbItem[]
+}
+
+const { items } = Astro.props
+
+const labelEn = (name: string) => (name === 'Inicio' ? 'Home' : name)
+---
+
+<nav class="font-mono text-[11px] font-semibold uppercase tracking-[0.5px] text-ink-3" aria-label="Breadcrumb">
+  <ol class="flex flex-wrap items-center gap-1.5">
+    {
+      items.map((item, index) => (
+        <li class="flex items-center gap-2">
+          {index > 0 && <span class="opacity-50" aria-hidden="true">/</span>}
+          <a class={index === items.length - 1 ? 'text-ink no-underline' : 'text-ink-3 no-underline hover:text-canopy'} href={item.url}>
+            <TranslatedText es={item.name} en={labelEn(item.name)} />
+          </a>
+        </li>
+      ))
+    }
+  </ol>
+</nav>

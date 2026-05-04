@@ -1,0 +1,49 @@
+---
+import TranslatedText from '@components/i18n/TranslatedText.astro'
+
+interface FilterItem {
+  es: string
+  en: string
+  checked?: boolean
+}
+
+interface Props {
+  filters?: FilterItem[]
+  sortEs?: string
+  sortEn?: string
+}
+
+const {
+  filters = [
+    { es: 'Solo verificados', en: 'Verified only', checked: true },
+    { es: 'Disponible hoy', en: 'Available today' },
+    { es: 'Acepta SINPE', en: 'Accepts SINPE' },
+  ],
+  sortEs = 'Mejor calificados',
+  sortEn = 'Top rated',
+} = Astro.props
+---
+
+<aside class="hidden md:block">
+  <div class="civic-meta border-b border-rule pb-2">
+    <TranslatedText es="Filtros" en="Filters" />
+  </div>
+  <div class="mt-3 space-y-2 text-sm text-ink-2">
+    {
+      filters.map((filter) => (
+        <label class="flex items-center gap-2">
+          <input type="checkbox" checked={filter.checked} disabled />
+          <TranslatedText es={filter.es} en={filter.en} />
+        </label>
+      ))
+    }
+  </div>
+  <div class="mt-6 rounded-civic border border-rule bg-surface-alt p-4">
+    <p class="civic-meta">
+      <TranslatedText es="Ordenar" en="Sort" />
+    </p>
+    <p class="mt-2 text-sm text-ink-2">
+      <TranslatedText es={sortEs} en={sortEn} />
+    </p>
+  </div>
+</aside>

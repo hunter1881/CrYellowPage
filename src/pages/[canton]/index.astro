@@ -1,0 +1,119 @@
+---
+import TranslatedText from '@components/i18n/TranslatedText.astro'
+import ProviderSignupCard from '@components/directory/ProviderSignupCard.astro'
+import StatsStrip from '@components/directory/StatsStrip.astro'
+import Breadcrumbs from '@components/seo/Breadcrumbs.astro'
+import BaseLayout from '@layouts/BaseLayout.astro'
+import { getCategoriesByDistrictId } from '@lib/queries/categories'
+import { getCantonBySlug, getCantonStaticPaths, getDistrictsByCantonId } from '@lib/queries/geography'
+import { absoluteUrl } from '@lib/site'
+import { breadcrumbJsonLd } from '@lib/seo/breadcrumb'
+import { placeJsonLd } from '@lib/seo/place'
+
+export async function getStaticPaths() {
+  return getCantonStaticPaths()
+}
+
+const cantonSlug = Astro.params.canton ?? ''
+const canton = await getCantonBySlug(cantonSlug)
+
+if (!canton) {
+  return Astro.redirect('/404')
+}
+
+const districts = await getDistrictsByCantonId(canton.id)
+const districtSummaries = await Promise.all(
+  districts.map(async (district) => ({
+    district,
+    categoryCount: (await getCategoriesByDistrictId(district.id)).length,
+  })),
+)
+const canonical = absoluteUrl(`/${canton.slug}/`, Astro.site)
+const breadcrumbs = [
+  { name: 'Inicio', url: absoluteUrl('/', Astro.site) },
+  { name: canton.name, url: canonical },
+]
+const jsonLd = [placeJsonLd({ name: canton.name, url: canonical }), breadcrumbJsonLd(breadcrumbs)]
+const pageTitleEs = `Servicios locales en ${canton.name}, Costa Rica`
+const pageTitleEn = `Local Services in ${canton.name}, Costa Rica`
+const pageDescriptionEs = `Explore proveedores locales verificados por distrito en ${canton.name}, Costa Rica.`
+const pageDescriptionEn = `Browse verified local service providers by district in ${canton.name}, Costa Rica.`
+const headingEs = `Servicios locales en ${canton.name}`
+const headingEn = `Local services in ${canton.name}`
+const introEs = `Elija un distrito en ${canton.name} para encontrar proveedores verificados cerca de su comunidad.`
+const introEn = `Choose a district in ${canton.name} to find verified providers close to your community.`
+---
+
+<BaseLayout
+  title={pageTitleEs}
+  titleEn={pageTitleEn}
+  description={pageDescriptionEs}
+  descriptionEn={pageDescriptionEn}
+  canonical={canonical}
+  jsonLd={jsonLd}
+>
+  <section class="border-b border-rule bg-surface">
+    <div class="mx-auto max-w-6xl px-4 py-6 md:px-6">
+      <Breadcrumbs items={breadcrumbs} />
+      <p class="civic-meta mt-5"><TranslatedText es="Cantón" en="Canton" /></p>
+      <h1 class="mt-2 text-3xl font-semibold tracking-[-0.5px] text-ink md:text-4xl">
+        <TranslatedText es={headingEs} en={headingEn} />
+      </h1>
+      <p class="mt-3 max-w-3xl text-sm leading-6 text-ink-2">
+        <TranslatedText es={introEs} en={introEn} />
+      </p>
+      <div class="mt-5">
+        <StatsStrip
+          items={[
+            { labelEs: 'Distritos', labelEn: 'Districts', value: districts.length },
+            { labelEs: 'Categorías activas', labelEn: 'Active categories', value: districtSummaries.reduce((total, item) => total + item.categoryCount, 0) },
+            { labelEs: 'Cobertura', labelEn: 'Coverage', value: canton.name },
+            { labelEs: 'Contacto', labelEn: 'Contact', value: 'WhatsApp' },
+          ]}
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="mx-auto grid max-w-6xl gap-8 px-4 py-6 md:grid-cols-[1fr_280px] md:px-6">
+    <div>
+      <div class="mb-4 flex items-baseline justify-between">
+        <h2 class="text-xl font-semibold tracking-[-0.3px]"><TranslatedText es="Distritos del cantón" en="Canton districts" /></h2>
+        <span class="civic-meta">{districts.length} <TranslatedText es="distritos" en="districts" /></span>
+      </div>
+      <div class="grid gap-3 md:grid-cols-2">
+        {
+          districtSummaries.map(({ district, categoryCount }) => (
+            <a
+              class="civic-card civic-card-hover grid gap-3 p-4 text-ink no-underline"
+              href={`/${canton.slug}/${district.slug}/`}
+            >
+              <span>
+                <span class="block text-base font-semibold tracking-[-0.2px]">{district.name}</span>
+                <span class="mt-2 block text-sm leading-6 text-ink-2">
+                  <TranslatedText
+                    es={`${categoryCount} categorías disponibles para comparar proveedores locales.`}
+                    en={`${categoryCount} categories available to compare local providers.`}
+                  />
+                </span>
+              </span>
+              <span class="civic-meta block"><TranslatedText es="Ver distrito" en="View district" /></span>
+            </a>
+          ))
+        }
+      </div>
+
+      <div class="mt-8 rounded-civic border border-rule bg-surface-alt p-5">
+        <p class="civic-meta"><TranslatedText es={`Sobre ${canton.name}`} en={`About ${canton.name}`} /></p>
+        <p class="mt-3 text-sm leading-7 text-ink-2">
+          <TranslatedText
+            es={`${canton.name} agrupa comunidades con necesidades distintas de servicios del hogar y mantenimiento. DirectorioLocal organiza la búsqueda por distrito para que cada proveedor aparezca donde realmente atiende.`}
+            en={`${canton.name} groups communities with different home service and maintenance needs. DirectorioLocal organizes search by district so each provider appears where they actually serve.`}
+          />
+        </p>
+      </div>
+    </div>
+
+    <ProviderSignupCard compact />
+  </section>
+</BaseLayout>

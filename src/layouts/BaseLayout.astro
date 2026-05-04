@@ -1,0 +1,226 @@
+---
+import { ClientRouter } from 'astro:transitions'
+import '@styles/global.css'
+import Footer from '@components/directory/Footer.astro'
+import LocationModal from '@components/directory/LocationModal.astro'
+import MobileDrawer from '@components/directory/MobileDrawer.astro'
+import { defaultDescription, siteName } from '@lib/site'
+import { getCantonsWithDistricts } from '@lib/queries/geography'
+import TranslatedText from '@components/i18n/TranslatedText.astro'
+
+interface Props {
+  title?: string
+  titleEn?: string
+  description?: string
+  descriptionEn?: string
+  canonical?: string
+  image?: string
+  ogType?: 'website' | 'article'
+  jsonLd?: unknown | unknown[]
+}
+
+const {
+  title = siteName,
+  titleEn = title,
+  description = defaultDescription,
+  descriptionEn = description,
+  canonical = Astro.url.href,
+  image = new URL('/og-default.png', Astro.site ?? Astro.url).href,
+  ogType = 'website',
+  jsonLd,
+} = Astro.props
+
+const jsonLdItems = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : []
+const cantons = await getCantonsWithDistricts()
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <ClientRouter />
+    <title>{title}</title>
+    <meta
+      name="description"
+      content={description}
+      data-meta-description-en={descriptionEn}
+      data-meta-description-es={description}
+    />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={image} />
+    <meta property="og:type" content={ogType} />
+    <meta name="twitter:card" content="summary_large_image" />
+    {
+      jsonLdItems.map((item) => (
+        <script is:inline type="application/ld+json" set:html={JSON.stringify(item)} />
+      ))
+    }
+  </head>
+  <body class="min-h-screen" data-page-title-es={title} data-page-title-en={titleEn}>
+    <header class="sticky top-0 z-50 border-b border-rule bg-surface">
+      <div class="hidden bg-canopy-ink px-6 py-1 text-[11px] text-white/75 md:block">
+        <div class="mx-auto flex max-w-6xl justify-between font-mono tracking-[0.3px]">
+          <span class="uppercase">Directorio local · Costa Rica</span>
+          <span class="flex gap-4">
+            <a class="text-white/75 no-underline hover:text-white" href="/#provider-signup">
+              <TranslatedText es="Sos proveedor" en="Are you a provider?" />
+            </a>
+            <span>+506 0000-0000</span>
+          </span>
+        </div>
+      </div>
+      <div class="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3 md:px-6">
+        <a class="flex items-center gap-3 text-ink no-underline" href="/">
+          <span class="flex h-8 w-8 items-center justify-center rounded-civic bg-canopy text-sm font-bold text-white">DL</span>
+          <span class="leading-tight">
+            <span class="block text-base font-semibold tracking-[-0.3px]">DirectorioLocal<span class="text-canopy">.cr</span></span>
+            <span class="hidden font-mono text-[11px] uppercase tracking-[0.5px] text-ink-3 md:block">
+              <TranslatedText es="Servicios verificados por cantón" en="Verified services by canton" />
+            </span>
+          </span>
+        </a>
+        <nav class="ml-auto hidden items-center gap-5 text-sm font-medium md:flex" aria-label="Primary">
+          <a class="text-ink-2 no-underline hover:text-canopy" href="/#districts">
+            <TranslatedText es="Cantones" en="Cantons" />
+          </a>
+          <a class="text-ink-2 no-underline hover:text-canopy" href="/#categories">
+            <TranslatedText es="Categorías" en="Categories" />
+          </a>
+          <a class="text-ink-2 no-underline hover:text-canopy" href="/#provider-signup">
+            <TranslatedText es="Sos proveedor" en="Are you a provider?" />
+          </a>
+        </nav>
+        <button
+          class="hidden rounded-civic border border-rule px-3 py-2 text-xs font-semibold text-ink-2 hover:text-canopy md:inline-flex"
+          type="button"
+          data-open-location
+        >
+          <TranslatedText es="Cambiar ubicación" en="Change location" />
+        </button>
+        <div class="ml-auto inline-flex overflow-hidden rounded-civic border border-rule font-mono text-[11px] font-semibold uppercase md:ml-0" aria-label="Language">
+          <button class="px-3 py-1.5 text-ink-2 data-[active=true]:bg-ink data-[active=true]:text-white" type="button" data-language-option="es" data-active="true">ES</button>
+          <button class="px-3 py-1.5 text-ink-2 data-[active=true]:bg-ink data-[active=true]:text-white" type="button" data-language-option="en">EN</button>
+        </div>
+        <button
+          class="inline-flex h-9 w-9 items-center justify-center rounded-civic border border-rule text-sm font-semibold text-ink md:hidden"
+          type="button"
+          data-open-mobile-menu
+          aria-label="Abrir menu"
+        >
+          =
+        </button>
+      </div>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <Footer />
+    <MobileDrawer />
+    <LocationModal cantons={cantons} />
+    <script is:inline>
+      const languageKey = 'directorioLocalLanguage'
+
+      function applyLanguage(language) {
+        const nextLanguage = language === 'en' ? 'en' : 'es'
+        document.documentElement.lang = nextLanguage
+        document.querySelectorAll('[data-lang]').forEach((element) => {
+          element.hidden = element.dataset.lang !== nextLanguage
+        })
+        document
+          .querySelectorAll('[data-placeholder-es][data-placeholder-en]')
+          .forEach((element) => {
+            element.setAttribute(
+              'placeholder',
+              element.dataset[nextLanguage === 'en' ? 'placeholderEn' : 'placeholderEs'],
+            )
+          })
+        document.querySelectorAll('[data-label-es][data-label-en]').forEach((element) => {
+          element.textContent = element.dataset[nextLanguage === 'en' ? 'labelEn' : 'labelEs']
+        })
+
+        const title = document.body.dataset[nextLanguage === 'en' ? 'pageTitleEn' : 'pageTitleEs']
+        if (title) document.title = title
+
+        const metaDescription = document.querySelector('meta[name="description"]')
+        const description =
+          metaDescription?.dataset[nextLanguage === 'en' ? 'metaDescriptionEn' : 'metaDescriptionEs']
+        if (metaDescription && description) metaDescription.setAttribute('content', description)
+
+        document.querySelectorAll('[data-language-option]').forEach((button) => {
+          button.dataset.active = button.dataset.languageOption === nextLanguage ? 'true' : 'false'
+        })
+        localStorage.setItem(languageKey, nextLanguage)
+      }
+
+      function setLayerOpen(element, open, displayClass) {
+        if (!element) return
+        element.classList.toggle('hidden', !open)
+        if (displayClass) element.classList.toggle(displayClass, open)
+        element.setAttribute('aria-hidden', open ? 'false' : 'true')
+        document.body.classList.toggle('overflow-hidden', open)
+      }
+
+      function closeLayers() {
+        setLayerOpen(document.querySelector('[data-mobile-drawer]'), false)
+        setLayerOpen(document.querySelector('[data-location-modal]'), false, 'flex')
+      }
+
+      document.querySelectorAll('[data-language-option]').forEach((button) => {
+        button.addEventListener('click', () => applyLanguage(button.dataset.languageOption))
+      })
+
+      document.querySelectorAll('[data-open-mobile-menu]').forEach((button) => {
+        button.addEventListener('click', () => {
+          setLayerOpen(document.querySelector('[data-mobile-drawer]'), true)
+        })
+      })
+
+      document.querySelectorAll('[data-close-mobile-menu]').forEach((button) => {
+        button.addEventListener('click', closeLayers)
+      })
+
+      document.querySelectorAll('[data-open-location]').forEach((button) => {
+        button.addEventListener('click', () => {
+          setLayerOpen(document.querySelector('[data-mobile-drawer]'), false)
+          setLayerOpen(document.querySelector('[data-location-modal]'), true, 'flex')
+        })
+      })
+
+      document.querySelectorAll('[data-close-location]').forEach((button) => {
+        button.addEventListener('click', closeLayers)
+      })
+
+      document.querySelectorAll('[data-mobile-drawer], [data-location-modal]').forEach((layer) => {
+        layer.addEventListener('click', (event) => {
+          if (event.target === layer) closeLayers()
+        })
+      })
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') closeLayers()
+      })
+
+      document.querySelectorAll('[data-location-filter]').forEach((input) => {
+        input.addEventListener('input', () => {
+          const query = input.value.toLowerCase().trim()
+          document.querySelectorAll('[data-location-option]').forEach((option) => {
+            const matches = option.dataset.locationText?.toLowerCase().includes(query) ?? true
+            option.hidden = !matches
+          })
+          document.querySelectorAll('[data-location-group]').forEach((group) => {
+            const hasVisibleOption = [...group.querySelectorAll('[data-location-option]')].some(
+              (option) => !option.hidden,
+            )
+            group.hidden = !hasVisibleOption
+          })
+        })
+      })
+
+      applyLanguage(localStorage.getItem(languageKey) ?? 'es')
+    </script>
+  </body>
+</html>

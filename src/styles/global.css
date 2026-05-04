@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *,
+  ::before,
+  ::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    color-scheme: light;
+  }
+
+  body {
+    @apply bg-mist text-ink antialiased;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  }
+
+  a {
+    @apply text-canopy underline-offset-4 hover:underline;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+}
+
+@layer components {
+  .civic-meta {
+    @apply font-mono text-[11px] font-semibold uppercase tracking-[0.5px] text-ink-3;
+  }
+
+  .civic-card {
+    @apply rounded-civic border border-rule bg-surface shadow-none;
+  }
+
+  .civic-card-hover {
+    @apply transition hover:border-canopy hover:shadow-[0_1px_3px_rgba(0,0,0,0.06)];
+  }
+
+  .civic-button {
+    @apply inline-flex items-center justify-center rounded-civic px-4 py-2 text-sm font-semibold no-underline transition;
+  }
+}

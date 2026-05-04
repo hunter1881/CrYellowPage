@@ -1,0 +1,17 @@
+---
+import TranslatedText from '@components/i18n/TranslatedText.astro'
+
+interface Props {
+  label: string
+  labelEn?: string
+}
+
+const { label, labelEn = label } = Astro.props
+---
+
+<span
+  class="inline-flex items-center gap-1 rounded-civic bg-canopy-soft px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.5px] text-canopy"
+>
+  <span aria-hidden="true">✓</span>
+  <TranslatedText es={label} en={labelEn} />
+</span>

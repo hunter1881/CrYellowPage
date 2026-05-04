@@ -1,0 +1,65 @@
+---
+import TranslatedText from '@components/i18n/TranslatedText.astro'
+import type { CantonWithDistricts } from '@lib/queries/geography'
+
+interface Props {
+  cantons: CantonWithDistricts[]
+}
+
+const { cantons } = Astro.props
+---
+
+<div class="fixed inset-0 z-[110] hidden items-end justify-center bg-ink/55 md:items-center md:p-6" data-location-modal aria-hidden="true">
+  <section class="flex max-h-[85vh] w-full max-w-xl flex-col overflow-hidden rounded-t-civic-lg bg-surface p-5 shadow-xl md:rounded-civic-lg">
+    <div class="mb-4 flex items-start justify-between gap-4">
+      <div>
+        <p class="civic-meta"><TranslatedText es="Cambiar ubicación" en="Change location" /></p>
+        <h2 class="mt-1 text-xl font-semibold tracking-[-0.3px] text-ink">
+          <TranslatedText es="¿Dónde necesitás el servicio?" en="Where do you need service?" />
+        </h2>
+      </div>
+      <button class="rounded-civic border border-rule px-2 py-1 text-sm text-ink-2" type="button" data-close-location aria-label="Cerrar selector">
+        X
+      </button>
+    </div>
+
+    <label class="mb-4 flex items-center gap-2 rounded-civic border border-rule px-3 py-2">
+      <span class="text-ink-3">⌕</span>
+      <input
+        class="min-w-0 flex-1 border-none bg-transparent text-sm text-ink outline-none placeholder:text-ink-3"
+        type="search"
+        data-location-filter
+        placeholder="Buscar cantón o distrito"
+        data-placeholder-es="Buscar cantón o distrito"
+        data-placeholder-en="Search canton or district"
+      />
+    </label>
+
+    <div class="min-h-0 overflow-y-auto">
+      {
+        cantons.map((canton) => (
+          <div class="mb-5" data-location-group>
+            <p class="civic-meta mb-2" data-location-text={`${canton.name} ${canton.slug}`}>
+              {canton.name}
+            </p>
+            <div class="divide-y divide-rule-soft border-y border-rule-soft">
+              {canton.districts.map((district) => (
+                <a
+                  class="flex items-center justify-between gap-3 py-3 text-sm text-ink no-underline hover:text-canopy"
+                  href={`/${canton.slug}/${district.slug}/`}
+                  data-location-option
+                  data-location-text={`${canton.name} ${canton.slug} ${district.name} ${district.slug}`}
+                >
+                  <span>{district.name}</span>
+                  <span class="font-mono text-[11px] uppercase tracking-[0.5px] text-ink-3">
+                    <TranslatedText es="Ver distrito" en="View district" />
+                  </span>
+                </a>
+              ))}
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+</div>

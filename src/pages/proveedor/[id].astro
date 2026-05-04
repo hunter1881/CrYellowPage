@@ -1,0 +1,177 @@
+---
+import { Image } from 'astro:assets'
+import ProviderContactBox from '@components/directory/ProviderContactBox.astro'
+import ReviewPreview from '@components/directory/ReviewPreview.astro'
+import StickyContactBar from '@components/directory/StickyContactBar.astro'
+import TranslatedText from '@components/i18n/TranslatedText.astro'
+import Badge from '@components/ui/Badge.astro'
+import Breadcrumbs from '@components/seo/Breadcrumbs.astro'
+import BaseLayout from '@layouts/BaseLayout.astro'
+import { getProviderByRouteSlug, getProviderStaticPaths } from '@lib/queries/providers'
+import { providerDisplayMeta } from '@lib/providerPresentation'
+import { absoluteUrl } from '@lib/site'
+import { breadcrumbJsonLd } from '@lib/seo/breadcrumb'
+import { localBusinessJsonLd } from '@lib/seo/localBusiness'
+
+export async function getStaticPaths() {
+  return getProviderStaticPaths()
+}
+
+const routeId = Astro.params.id ?? ''
+const provider = await getProviderByRouteSlug(routeId)
+
+if (!provider) {
+  return Astro.redirect('/404')
+}
+
+const canonical = absoluteUrl(Astro.url.pathname, Astro.site)
+const breadcrumbs = [
+  { name: 'Inicio', url: absoluteUrl('/', Astro.site) },
+  { name: provider.district.canton.name, url: absoluteUrl(`/${provider.district.canton.slug}/`, Astro.site) },
+  {
+    name: provider.district.name,
+    url: absoluteUrl(`/${provider.district.canton.slug}/${provider.district.slug}/`, Astro.site),
+  },
+  { name: provider.name, url: canonical },
+]
+const jsonLd = [
+  localBusinessJsonLd({
+    name: provider.name,
+    phone: provider.phone,
+    description: provider.description ?? `Proveedor verificado que atiende ${provider.district.name}.`,
+    imageUrl: provider.photo_url,
+    pageUrl: canonical,
+    district: provider.district.name,
+    canton: provider.district.canton.name,
+    areaServed: [provider.district.name],
+  }),
+  breadcrumbJsonLd(breadcrumbs),
+]
+const pageTitleEs = `${provider.name} | Servicio local en ${provider.district.name}`
+const pageTitleEn = `${provider.name} | ${provider.district.name} Local Service`
+const pageDescriptionEs = `${provider.name} es un proveedor local verificado que atiende ${provider.district.name}, ${provider.district.canton.name}.`
+const pageDescriptionEn = `${provider.name} is a verified local provider serving ${provider.district.name}, ${provider.district.canton.name}.`
+const fallbackDescriptionEs = `Proveedor local que atiende ${provider.district.name}.`
+const fallbackDescriptionEn = `Local service provider serving ${provider.district.name}.`
+const displayMeta = providerDisplayMeta(provider)
+const categoryLabel = provider.categories.map((category) => category.name).join(', ') || 'Servicio local'
+const categoryLabelEn = provider.categories.map((category) => category.name).join(', ') || 'Local service'
+const serviceAreas = [provider.district.name, provider.district.canton.name]
+---
+
+<BaseLayout
+  title={pageTitleEs}
+  titleEn={pageTitleEn}
+  description={pageDescriptionEs}
+  descriptionEn={pageDescriptionEn}
+  canonical={canonical}
+  image={provider.photo_url ?? undefined}
+  jsonLd={jsonLd}
+>
+  <section class="border-b border-rule bg-surface">
+    <div class="mx-auto max-w-6xl px-4 py-3 md:px-6">
+      <Breadcrumbs items={breadcrumbs} />
+    </div>
+  </section>
+
+  <section class="mx-auto grid max-w-6xl gap-8 px-4 pb-24 pt-6 md:grid-cols-[1fr_320px] md:px-6 md:pb-6">
+    <div>
+      <div class="mb-6 flex gap-4 md:items-center">
+        <div class="h-24 w-24 shrink-0 overflow-hidden rounded-civic border border-rule bg-surface md:h-28 md:w-28">
+          {
+            provider.photo_url ? (
+              <Image
+                class="h-full w-full object-cover"
+                src={provider.photo_url}
+                alt={`Foto de ${provider.name}`}
+                width={320}
+                height={320}
+              />
+            ) : (
+              <div class="flex h-full w-full items-center justify-center bg-gradient-to-br from-canopy-ink to-canopy font-mono text-[10px] uppercase tracking-[0.5px] text-white/60">
+                Foto
+              </div>
+            )
+          }
+        </div>
+        <div class="min-w-0">
+          <p class="civic-meta">
+            <TranslatedText es={categoryLabel} en={categoryLabelEn} /> · {provider.district.canton.name} · {provider.district.name}
+          </p>
+          <h1 class="mt-1 text-3xl font-semibold leading-tight tracking-[-0.5px] text-ink md:text-4xl">{provider.name}</h1>
+          <div class="mt-3 flex flex-wrap items-center gap-3">
+            <Badge label="Verificado" labelEn="Verified" />
+            <span class="text-sm text-ink-2"><span class="text-star">★</span> {displayMeta.rating} · {displayMeta.reviewCount} <TranslatedText es="reseñas" en="reviews" /></span>
+          </div>
+        </div>
+      </div>
+
+      <article class="civic-card p-5">
+        <p class="civic-meta mb-3"><TranslatedText es="Acerca del proveedor" en="About the provider" /></p>
+        <p class="text-sm leading-7 text-ink-2">
+          {provider.description ?? <TranslatedText es={fallbackDescriptionEs} en={fallbackDescriptionEn} />}
+        </p>
+      </article>
+
+      <dl class="mt-4 grid overflow-hidden rounded-civic border border-rule bg-surface text-sm sm:grid-cols-2 lg:grid-cols-4">
+        <div class="border-b border-rule-soft p-4 sm:border-r lg:border-b-0">
+          <dt class="civic-meta"><TranslatedText es={`Años en ${provider.district.canton.name}`} en={`Years in ${provider.district.canton.name}`} /></dt>
+          <dd class="mt-1 text-xl font-bold tracking-[-0.3px] text-ink">{displayMeta.yearsActive}</dd>
+        </div>
+        <div class="border-b border-rule-soft p-4 sm:border-b-0 lg:border-r">
+          <dt class="civic-meta"><TranslatedText es="Trabajos" en="Jobs" /></dt>
+          <dd class="mt-1 text-xl font-bold tracking-[-0.3px] text-ink">{displayMeta.completedJobs}</dd>
+        </div>
+        <div class="border-b border-rule-soft p-4 sm:border-r lg:border-b-0">
+          <dt class="civic-meta"><TranslatedText es="Calificación" en="Rating" /></dt>
+          <dd class="mt-1 text-xl font-bold tracking-[-0.3px] text-ink">{displayMeta.rating}</dd>
+        </div>
+        <div class="p-4">
+          <dt class="civic-meta"><TranslatedText es="Responde en" en="Replies in" /></dt>
+          <dd class="mt-1 text-xl font-bold tracking-[-0.3px] text-ink">
+            <TranslatedText es={displayMeta.responseTimeEs} en={displayMeta.responseTimeEn} />
+          </dd>
+        </div>
+      </dl>
+
+      <section class="civic-card mt-4 p-5">
+        <p class="civic-meta mb-3"><TranslatedText es="Área de servicio" en="Service area" /></p>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div>
+            <p class="mb-2 text-xs font-semibold text-ink-3"><TranslatedText es="Ubicación principal" en="Primary location" /></p>
+            <div class="flex flex-wrap gap-2">
+              {serviceAreas.map((area) => <span class="rounded-full border border-rule bg-surface-alt px-3 py-1 text-xs font-semibold text-ink-2">{area}</span>)}
+            </div>
+          </div>
+          <div>
+            <p class="mb-2 text-xs font-semibold text-ink-3"><TranslatedText es="Servicios listados" en="Listed services" /></p>
+            <div class="flex flex-wrap gap-2">
+              {
+                provider.categories.map((category) => (
+                  <span class="rounded-full bg-canopy-soft px-3 py-1 text-xs font-semibold text-canopy">{category.name}</span>
+                ))
+              }
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <ReviewPreview
+        providerName={provider.name}
+        districtName={provider.district.name}
+        rating={displayMeta.rating}
+        reviewCount={displayMeta.reviewCount}
+      />
+    </div>
+
+    <ProviderContactBox
+      phone={provider.phone}
+      whatsapp={provider.whatsapp}
+      responseTimeEs={displayMeta.responseTimeEs}
+      responseTimeEn={displayMeta.responseTimeEn}
+      acceptsSinpe={displayMeta.acceptsSinpe}
+      worksWeekends={displayMeta.worksWeekends}
+    />
+  </section>
+  <StickyContactBar phone={provider.phone} whatsapp={provider.whatsapp} />
+</BaseLayout>
