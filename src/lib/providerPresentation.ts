@@ -1,12 +1,12 @@
 import type { ProviderListItem } from '@lib/queries/providers'
 
 export interface ProviderDisplayMeta {
-  rating: string
-  reviewCount: number
-  yearsActive: number
-  completedJobs: number
-  responseTimeEs: string
-  responseTimeEn: string
+  rating: string | null
+  reviewCount: number | null
+  yearsActive: number | null
+  completedJobs: number | null
+  responseTimeEs: string | null
+  responseTimeEn: string | null
   acceptsSinpe: boolean
   worksWeekends: boolean
 }
@@ -34,17 +34,19 @@ export function providerDisplayMeta(
   reviews?: ProviderReviewDisplay,
 ): ProviderDisplayMeta {
   const seed = numericSeed(provider.id)
-  const createdYear = provider.created_at ? new Date(provider.created_at).getUTCFullYear() : 2023
-  const yearsFromDate = Number.isFinite(createdYear) ? Math.max(1, new Date().getUTCFullYear() - createdYear + 1) : 2
-  const responseMinutes = provider.response_time_minutes ?? [20, 35, 45, 60][seed % 4]
+  const createdYear = provider.created_at ? new Date(provider.created_at).getUTCFullYear() : null
+  const yearsFromDate = createdYear !== null && Number.isFinite(createdYear)
+    ? Math.max(1, new Date().getUTCFullYear() - createdYear + 1)
+    : null
+  const responseMinutes = provider.response_time_minutes ?? null
 
   return {
-    rating: reviews?.rating ?? (4.5 + (seed % 5) / 10).toFixed(1),
-    reviewCount: reviews?.reviewCount ?? 12 + (seed % 37),
-    yearsActive: provider.years_active ?? Math.max(yearsFromDate, 2 + (seed % 8)),
-    completedJobs: provider.completed_jobs ?? 40 + (seed % 130),
-    responseTimeEs: responseMinutes < 60 ? `${responseMinutes} min` : '1 hora',
-    responseTimeEn: responseMinutes < 60 ? `${responseMinutes} min` : '1 hour',
+    rating: reviews?.rating ?? null,
+    reviewCount: reviews?.reviewCount ?? null,
+    yearsActive: provider.years_active ?? yearsFromDate,
+    completedJobs: provider.completed_jobs ?? null,
+    responseTimeEs: responseMinutes !== null ? (responseMinutes < 60 ? `${responseMinutes} min` : '1 hora') : null,
+    responseTimeEn: responseMinutes !== null ? (responseMinutes < 60 ? `${responseMinutes} min` : '1 hour') : null,
     acceptsSinpe: provider.accepts_sinpe ?? seed % 2 === 0,
     worksWeekends: provider.works_weekends ?? seed % 3 !== 0,
   }

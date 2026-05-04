@@ -89,10 +89,22 @@ const districtsLabelEn = (count: number) => `${count} district${count === 1 ? ''
       <div class="mt-5">
         <StatsStrip
           items={[
-            { labelEs: 'Cantones', labelEn: 'Cantons', value: cantons.length },
-            { labelEs: 'Distritos disponibles', labelEn: 'Available districts', value: cantons.reduce((total, canton) => total + canton.districts.length, 0) },
+            {
+              labelEs: 'Proveedores verificados',
+              labelEn: 'Verified providers',
+              value: currentCategories.reduce((sum, cat) => sum + (cat.count ?? 0), 0),
+            },
+            {
+              labelEs: 'Categorías activas',
+              labelEn: 'Active categories',
+              value: currentCategories.length,
+            },
+            {
+              labelEs: 'Distritos con proveedores',
+              labelEn: 'Districts with providers',
+              value: new Set(publishedListings.map((path) => path.split('/').slice(0, 2).join('/'))).size,
+            },
             { labelEs: 'Contacto directo', labelEn: 'Direct contact', value: 'WhatsApp' },
-            { labelEs: 'SEO local', labelEn: 'Local SEO', value: 'SSG' },
           ]}
         />
       </div>

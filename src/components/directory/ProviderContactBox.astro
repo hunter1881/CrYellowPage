@@ -5,8 +5,8 @@ import TranslatedText from '@components/i18n/TranslatedText.astro'
 interface Props {
   phone: string
   whatsapp?: string | null
-  responseTimeEs?: string
-  responseTimeEn?: string
+  responseTimeEs?: string | null
+  responseTimeEn?: string | null
   acceptsSinpe?: boolean
   worksWeekends?: boolean
 }
@@ -14,8 +14,8 @@ interface Props {
 const {
   phone,
   whatsapp,
-  responseTimeEs = '1 hora',
-  responseTimeEn = '1 hour',
+  responseTimeEs = null,
+  responseTimeEn = null,
   acceptsSinpe = true,
   worksWeekends = true,
 } = Astro.props
@@ -44,9 +44,11 @@ const whatsappUrl = whatsapp ? `https://wa.me/${whatsapp.replace(/\D/g, '')}` : 
       <div>
         ✓ <TranslatedText es="Atiende esta zona" en="Serves this area" />
       </div>
-      <div>
-        ✓ <TranslatedText es={`Responde en ${responseTimeEs}`} en={`Replies in ${responseTimeEn}`} />
-      </div>
+      {responseTimeEs !== null && (
+        <div>
+          ✓ <TranslatedText es={`Responde en ${responseTimeEs}`} en={`Replies in ${responseTimeEn!}`} />
+        </div>
+      )}
       {
         acceptsSinpe && (
           <div>

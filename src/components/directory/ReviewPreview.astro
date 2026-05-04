@@ -5,8 +5,8 @@ import TranslatedText from '@components/i18n/TranslatedText.astro'
 interface Props {
   providerName?: string
   districtName?: string
-  rating?: string
-  reviewCount?: number
+  rating?: string | null
+  reviewCount?: number | null
   authorName?: string | null
   comment?: string | null
 }
@@ -14,8 +14,8 @@ interface Props {
 const {
   providerName = 'este proveedor',
   districtName = 'este distrito',
-  rating = '4.8',
-  reviewCount = 0,
+  rating = null,
+  reviewCount = null,
   authorName = 'Cliente local',
   comment,
 } = Astro.props
@@ -24,7 +24,7 @@ const {
 <section class="civic-card mt-4 p-5">
   <div class="mb-3 flex items-center justify-between">
     <p class="civic-meta">
-      <TranslatedText es={`Reseñas de clientes · ${reviewCount}`} en={`Client reviews · ${reviewCount}`} />
+      <TranslatedText es={`Reseñas de clientes${reviewCount !== null ? ` · ${reviewCount}` : ''}`} en={`Client reviews${reviewCount !== null ? ` · ${reviewCount}` : ''}`} />
     </p>
     <button class="text-xs font-semibold text-canopy">
       <TranslatedText es="Ver todas" en="See all" />
@@ -37,7 +37,7 @@ const {
     </div>
     <div class="mb-3 flex items-center gap-0.5 text-star text-sm">
       <Icon name="star" size={12} /><Icon name="star" size={12} /><Icon name="star" size={12} /><Icon name="star" size={12} /><Icon name="star" size={12} />
-      <span class="ml-1 font-semibold text-ink">{rating}</span>
+      {rating !== null && <span class="ml-1 font-semibold text-ink">{rating}</span>}
     </div>
     <p class="text-sm leading-6 text-ink-2">
       {
