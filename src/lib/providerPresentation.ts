@@ -7,17 +7,13 @@ export interface ProviderDisplayMeta {
   completedJobs: number | null
   responseTimeEs: string | null
   responseTimeEn: string | null
-  acceptsSinpe: boolean
-  worksWeekends: boolean
+  acceptsSinpe: boolean | null
+  worksWeekends: boolean | null
 }
 
 export interface ProviderReviewDisplay {
   rating: string | null
   reviewCount: number
-}
-
-function numericSeed(value: string): number {
-  return [...value].reduce((total, char) => total + char.charCodeAt(0), 0)
 }
 
 export function providerDisplayMeta(
@@ -33,7 +29,6 @@ export function providerDisplayMeta(
   >,
   reviews?: ProviderReviewDisplay,
 ): ProviderDisplayMeta {
-  const seed = numericSeed(provider.id)
   const createdYear = provider.created_at ? new Date(provider.created_at).getUTCFullYear() : null
   const yearsFromDate = createdYear !== null && Number.isFinite(createdYear)
     ? Math.max(1, new Date().getUTCFullYear() - createdYear + 1)
@@ -47,7 +42,7 @@ export function providerDisplayMeta(
     completedJobs: provider.completed_jobs ?? null,
     responseTimeEs: responseMinutes !== null ? (responseMinutes < 60 ? `${responseMinutes} min` : '1 hora') : null,
     responseTimeEn: responseMinutes !== null ? (responseMinutes < 60 ? `${responseMinutes} min` : '1 hour') : null,
-    acceptsSinpe: provider.accepts_sinpe ?? seed % 2 === 0,
-    worksWeekends: provider.works_weekends ?? seed % 3 !== 0,
+    acceptsSinpe: provider.accepts_sinpe ?? null,
+    worksWeekends: provider.works_weekends ?? null,
   }
 }

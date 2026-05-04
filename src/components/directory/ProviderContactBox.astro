@@ -7,8 +7,8 @@ interface Props {
   whatsapp?: string | null
   responseTimeEs?: string | null
   responseTimeEn?: string | null
-  acceptsSinpe?: boolean
-  worksWeekends?: boolean
+  acceptsSinpe?: boolean | null
+  worksWeekends?: boolean | null
 }
 
 const {
@@ -16,8 +16,8 @@ const {
   whatsapp,
   responseTimeEs = null,
   responseTimeEn = null,
-  acceptsSinpe = true,
-  worksWeekends = true,
+  acceptsSinpe = null,
+  worksWeekends = null,
 } = Astro.props
 const whatsappUrl = whatsapp ? `https://wa.me/${whatsapp.replace(/\D/g, '')}` : null
 ---
