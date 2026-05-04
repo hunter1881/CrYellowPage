@@ -1,0 +1,14 @@
+---
+import { createSupabaseServerClient } from '@lib/supabaseServer'
+
+export const prerender = false
+
+if (Astro.request.method !== 'POST') {
+  return Astro.redirect('/account/')
+}
+
+const supabase = createSupabaseServerClient(Astro.request, Astro.response.headers)
+await supabase.auth.signOut()
+
+return Astro.redirect('/account/login/')
+---

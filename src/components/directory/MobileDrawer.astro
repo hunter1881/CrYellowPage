@@ -1,6 +1,6 @@
 ---
 import Icon from '@components/ui/Icon.astro'
-import TranslatedText from '@components/i18n/TranslatedText.astro'
+import { t } from '@lib/i18n'
 ---
 
 <div
@@ -10,28 +10,20 @@ import TranslatedText from '@components/i18n/TranslatedText.astro'
 >
   <aside class="ml-auto flex h-full w-[min(86vw,340px)] flex-col bg-surface p-5 shadow-xl">
     <div class="mb-4 flex items-center justify-between">
-      <p class="text-sm font-semibold text-ink"><TranslatedText es="Menú" en="Menu" /></p>
+      <p class="text-sm font-semibold text-ink">{t('mobile.menu')}</p>
       <button class="flex h-8 w-8 items-center justify-center rounded-civic border border-rule text-ink-2 hover:text-ink" type="button" data-close-mobile-menu aria-label="Cerrar menu">
         <Icon name="close" size={16} />
       </button>
     </div>
 
     <nav class="grid text-base font-medium" aria-label="Mobile primary">
-      <a class="border-b border-rule-soft py-4 text-ink no-underline" href="/"><TranslatedText es="Inicio" en="Home" /></a>
-      <a class="border-b border-rule-soft py-4 text-ink no-underline" href="/#districts"><TranslatedText es="Cantones" en="Cantons" /></a>
-      <a class="border-b border-rule-soft py-4 text-ink no-underline" href="/#categories"><TranslatedText es="Categorías" en="Categories" /></a>
-      <a class="border-b border-rule-soft py-4 text-ink no-underline" href="/registrar-proveedor/"><TranslatedText es="Sos proveedor" en="Are you a provider?" /></a>
+      <a class="border-b border-rule-soft py-4 text-ink no-underline" href="/">{t('mobile.home')}</a>
+      <a class="border-b border-rule-soft py-4 text-ink no-underline" href="/#cantones">{t('nav.cantons')}</a>
+      <a class="border-b border-rule-soft py-4 text-ink no-underline" href="/#categories">{t('nav.categories')}</a>
+      <a class="border-b border-rule-soft py-4 text-ink no-underline" href="/register-provider/">{t('nav.provider')}</a>
       <button class="border-b border-rule-soft py-4 text-left text-ink" type="button" data-open-location>
-        <TranslatedText es="Cambiar ubicación" en="Change location" />
+        {t('nav.changeLocation')}
       </button>
     </nav>
-
-    <div class="mt-auto flex items-center justify-between border-t border-rule pt-4">
-      <span class="civic-meta"><TranslatedText es="Idioma" en="Language" /></span>
-      <div class="inline-flex overflow-hidden rounded-civic border border-rule font-mono text-[11px] font-semibold uppercase" aria-label="Language">
-        <button class="px-3 py-1.5 text-ink-2 data-[active=true]:bg-ink data-[active=true]:text-white" type="button" data-language-option="es" data-active="true">ES</button>
-        <button class="px-3 py-1.5 text-ink-2 data-[active=true]:bg-ink data-[active=true]:text-white" type="button" data-language-option="en">EN</button>
-      </div>
-    </div>
   </aside>
 </div>

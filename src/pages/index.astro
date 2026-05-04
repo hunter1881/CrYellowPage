@@ -1,5 +1,4 @@
 ---
-import TranslatedText from '@components/i18n/TranslatedText.astro'
 import CategoryGrid from '@components/directory/CategoryGrid.astro'
 import DistrictLinkList from '@components/directory/DistrictLinkList.astro'
 import ProviderCard from '@components/directory/ProviderCard.astro'
@@ -11,8 +10,9 @@ import { getCategoriesWithCountsByDistrictId } from '@lib/queries/categories'
 import { getCantonsWithDistricts } from '@lib/queries/geography'
 import { getListingStaticPaths, getRecentProviders } from '@lib/queries/providers'
 import { getReviewSummariesByProviderIds } from '@lib/queries/reviews'
-import { absoluteUrl, defaultDescription, defaultDescriptionEn, siteName } from '@lib/site'
+import { absoluteUrl, defaultDescription, siteName } from '@lib/site'
 import { websiteJsonLd } from '@lib/seo/website'
+import { t } from '@lib/i18n'
 
 export const prerender = true
 
@@ -45,14 +45,11 @@ const canonical = absoluteUrl('/', Astro.site)
 const jsonLd = websiteJsonLd({ name: siteName, url: canonical })
 const districtsLabelEs = (count: number) =>
   `${count} distrito${count === 1 ? '' : 's'} disponible${count === 1 ? '' : 's'}`
-const districtsLabelEn = (count: number) => `${count} district${count === 1 ? '' : 's'} available`
 ---
 
 <BaseLayout
   title="Servicios Locales en Costa Rica | DirectorioLocal CR"
-  titleEn="Find Local Services in Costa Rica | DirectorioLocal CR"
   description={defaultDescription}
-  descriptionEn={defaultDescriptionEn}
   canonical={canonical}
   jsonLd={jsonLd}
 >
@@ -61,50 +58,33 @@ const districtsLabelEn = (count: number) => `${count} district${count === 1 ? ''
       <div class="mb-4 flex flex-col justify-between gap-3 md:flex-row md:items-end">
         <div>
           <p class="civic-meta mb-2">
-          <TranslatedText es="Directorio de servicios de Costa Rica" en="Costa Rica service directory" />
+            {t('home.directory')}
           </p>
           <h1 class="text-3xl font-semibold leading-tight tracking-[-0.6px] text-ink md:text-[42px]">
-          <TranslatedText
-            es="Encuentre servicios locales verificados por distrito"
-            en="Find verified local services by district"
-          />
+            Encuentre servicios locales verificados por distrito
           </h1>
         </div>
         <div class="hidden text-right font-mono text-[12px] leading-5 text-ink-3 md:block">
-          <div><TranslatedText es="Cobertura por cantón y distrito" en="Coverage by canton and district" /></div>
-          <div><TranslatedText es="Contacto directo por WhatsApp" en="Direct WhatsApp contact" /></div>
+          <div>{t('home.coverage')}</div>
+          <div>{t('home.whatsapp')}</div>
         </div>
       </div>
       <SearchBar
+        cantons={cantons}
         categories={currentCategories}
         publishedListings={publishedListings}
         transition:persist
       />
       <p class="mt-4 max-w-3xl text-sm leading-6 text-ink-2">
-          <TranslatedText
-            es="Busque fontaneros, personal de limpieza, especialistas en reparaciones y otros proveedores por cantón, distrito y categoría."
-            en="Search plumbers, cleaners, repair specialists, and other providers by canton, district, and category."
-          />
+        Busque fontaneros, personal de limpieza, especialistas en reparaciones y otros proveedores por cantón, distrito y categoría.
       </p>
       <div class="mt-5">
         <StatsStrip
           items={[
-            {
-              labelEs: 'Proveedores verificados',
-              labelEn: 'Verified providers',
-              value: currentCategories.reduce((sum, cat) => sum + (cat.count ?? 0), 0),
-            },
-            {
-              labelEs: 'Categorías activas',
-              labelEn: 'Active categories',
-              value: currentCategories.length,
-            },
-            {
-              labelEs: 'Distritos con proveedores',
-              labelEn: 'Districts with providers',
-              value: new Set(publishedListings.map((path) => path.split('/').slice(0, 2).join('/'))).size,
-            },
-            { labelEs: 'Contacto directo', labelEn: 'Direct contact', value: 'WhatsApp' },
+            { label: `Proveedores en ${currentDistrict?.name ?? 'la red'}`, value: currentCategories.reduce((sum, cat) => sum + (cat.count ?? 0), 0) },
+            { label: 'Categorías disponibles', value: currentCategories.length },
+            { label: 'Cantones activos', value: cantons.length },
+            { label: 'Contacto directo', value: 'WhatsApp' },
           ]}
         />
       </div>
@@ -112,18 +92,56 @@ const districtsLabelEn = (count: number) => `${count} district${count === 1 ? ''
   </section>
 
   <section class="mx-auto grid max-w-6xl gap-8 px-4 py-8 md:grid-cols-[240px_1fr] md:px-6">
-    <aside class="order-2 grid gap-6 md:order-1">
+    <aside class="order-2 grid gap-6 md:order-1" id="home-district-aside"
+      data-canton-slug={currentCanton?.slug ?? ''}
+      data-district-slug={currentDistrict?.slug ?? ''}>
       {
         currentCanton && (
-          <DistrictLinkList
-            cantonSlug={currentCanton.slug}
-            districts={currentCanton.districts}
-            activeDistrictSlug={currentDistrict?.slug}
-          />
+          <div id="home-district-list">
+            <DistrictLinkList
+              cantonSlug={currentCanton.slug}
+              districts={currentCanton.districts}
+              activeDistrictSlug={currentDistrict?.slug}
+            />
+          </div>
         )
       }
       <ProviderSignupCard compact />
     </aside>
+
+    <script is:inline type="application/json" data-home-cantons set:html={JSON.stringify(cantons.map((c) => ({ slug: c.slug, name: c.name, districts: c.districts.map((d) => ({ slug: d.slug, name: d.name, id: d.id })) })))} />
+
+    <script is:inline>
+      document.addEventListener('districtSelected', (event) => {
+        const opt = event.detail
+        const listContainer = document.getElementById('home-district-list')
+        if (!listContainer) return
+
+        if (!opt) {
+          // cleared — restore default view link
+          listContainer.innerHTML = ''
+          return
+        }
+
+        const allCantons = JSON.parse(document.querySelector('[data-home-cantons]')?.textContent ?? '[]')
+        const canton = allCantons.find((c) => c.slug === opt.cs)
+        if (!canton) return
+
+        // Re-render district list for the selected canton
+        const heading = `<div class="civic-meta border-b border-rule pb-2">Distritos del cantón</div>`
+        const links = canton.districts.map((d) => {
+          const active = d.slug === opt.ds
+          const cls = active
+            ? 'flex items-center justify-between gap-3 py-3 text-sm no-underline font-semibold text-canopy'
+            : 'flex items-center justify-between gap-3 py-3 text-sm no-underline text-ink hover:text-canopy'
+          return `<a class="${cls}" href="/${canton.slug}/${d.slug}/">
+            <span>${d.name}</span>
+            <span class="font-mono text-[11px] uppercase tracking-[0.5px] text-ink-3">Ver</span>
+          </a>`
+        }).join('')
+        listContainer.innerHTML = `<div>${heading}<div class="divide-y divide-rule-soft">${links}</div></div>`
+      })
+    </script>
 
     <div id="districts" class="order-1 md:order-2">
       {
@@ -131,12 +149,9 @@ const districtsLabelEn = (count: number) => `${count} district${count === 1 ? ''
           <section id="categories">
             <div class="mb-4 flex items-baseline justify-between">
               <h2 class="text-xl font-semibold tracking-[-0.3px] text-ink">
-                <TranslatedText
-                  es={`Categorías en ${currentDistrict.name}`}
-                  en={`Categories in ${currentDistrict.name}`}
-                />
+                {`Categorías en ${currentDistrict.name}`}
               </h2>
-              <span class="civic-meta">{currentCategories.length} <TranslatedText es="categorías" en="categories" /></span>
+              <span class="civic-meta">{currentCategories.length} {t('home.categoriesUnit')}</span>
             </div>
             <CategoryGrid categories={currentCategories} basePath={`/${currentCanton!.slug}/${currentDistrict.slug}`} />
           </section>
@@ -147,11 +162,11 @@ const districtsLabelEn = (count: number) => `${count} district${count === 1 ? ''
         <section class="mt-10">
           <div class="mb-4 flex items-baseline justify-between">
             <h2 class="text-xl font-semibold tracking-[-0.3px] text-ink">
-              <TranslatedText es="Últimos verificados" en="Recently verified" />
+              {t('home.lastVerified')}
             </h2>
             {currentCanton && currentDistrict && (
               <a class="civic-meta text-canopy no-underline hover:underline" href={`/${currentCanton.slug}/${currentDistrict.slug}/`}>
-                <TranslatedText es="Ver todos →" en="See all →" />
+                {t('home.seeAll')}
               </a>
             )}
           </div>
@@ -163,12 +178,12 @@ const districtsLabelEn = (count: number) => `${count} district${count === 1 ? ''
         </section>
       )}
 
-      <section class="mt-10">
+      <section id="cantones" class="mt-10 hidden" aria-hidden="true">
         <div class="mb-4 flex items-baseline justify-between">
           <h2 class="text-xl font-semibold tracking-[-0.3px] text-ink">
-            <TranslatedText es="Explorar por cantón" en="Browse by canton" />
+            {t('home.browseCanton')}
           </h2>
-          <span class="civic-meta">{cantons.length} <TranslatedText es="cantones" en="cantons" /></span>
+          <span class="civic-meta">{cantons.length} {t('home.cantonsUnit')}</span>
         </div>
         <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           {
@@ -180,7 +195,7 @@ const districtsLabelEn = (count: number) => `${count} district${count === 1 ? ''
                   </a>
                 </h3>
                 <p class="civic-meta mt-2">
-                  <TranslatedText es={districtsLabelEs(canton.districts.length)} en={districtsLabelEn(canton.districts.length)} />
+                  {districtsLabelEs(canton.districts.length)}
                 </p>
               </article>
             ))
@@ -189,4 +204,19 @@ const districtsLabelEn = (count: number) => `${count} district${count === 1 ? ''
       </section>
     </div>
   </section>
+
+  <script is:inline>
+    function maybeShowCantons() {
+      if (window.location.hash === '#cantones') {
+        const section = document.getElementById('cantones')
+        if (section) {
+          section.classList.remove('hidden')
+          section.removeAttribute('aria-hidden')
+          section.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      }
+    }
+    maybeShowCantons()
+    window.addEventListener('hashchange', maybeShowCantons)
+  </script>
 </BaseLayout>

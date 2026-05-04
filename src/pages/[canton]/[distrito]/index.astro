@@ -3,7 +3,6 @@ import CategoryGrid from '@components/directory/CategoryGrid.astro'
 import DistrictLinkList from '@components/directory/DistrictLinkList.astro'
 import ProviderSignupCard from '@components/directory/ProviderSignupCard.astro'
 import StatsStrip from '@components/directory/StatsStrip.astro'
-import TranslatedText from '@components/i18n/TranslatedText.astro'
 import Breadcrumbs from '@components/seo/Breadcrumbs.astro'
 import BaseLayout from '@layouts/BaseLayout.astro'
 import { getCategoriesWithCountsByDistrictId } from '@lib/queries/categories'
@@ -40,40 +39,34 @@ const jsonLd = [
   breadcrumbJsonLd(breadcrumbs),
 ]
 const pageTitleEs = `Servicios locales en ${district.name}, ${district.canton.name}`
-const pageTitleEn = `Local Services in ${district.name}, ${district.canton.name}`
 const pageDescriptionEs = `Explore categorías de servicios verificados para ${district.name}, ${district.canton.name}, cerca de su comunidad.`
-const pageDescriptionEn = `Browse verified service categories for ${district.name}, ${district.canton.name}, near your local community.`
 const headingEs = `Servicios locales en ${district.name}`
-const headingEn = `Local services in ${district.name}`
 const introEs = `Seleccione una categoría para comparar proveedores verificados que atienden ${district.name}, ${district.canton.name}.`
-const introEn = `Select a category to compare verified providers serving ${district.name}, ${district.canton.name}.`
 ---
 
 <BaseLayout
   title={pageTitleEs}
-  titleEn={pageTitleEn}
   description={pageDescriptionEs}
-  descriptionEn={pageDescriptionEn}
   canonical={canonical}
   jsonLd={jsonLd}
 >
   <section class="border-b border-rule bg-surface">
     <div class="mx-auto max-w-6xl px-4 py-6 md:px-6">
       <Breadcrumbs items={breadcrumbs} />
-      <p class="civic-meta mt-5"><TranslatedText es="Distrito" en="District" /> · {district.canton.name}</p>
+      <p class="civic-meta mt-5">Distrito · {district.canton.name}</p>
       <h1 class="mt-2 text-3xl font-semibold tracking-[-0.5px] text-ink md:text-4xl">
-        <TranslatedText es={headingEs} en={headingEn} />
+        {headingEs}
       </h1>
       <p class="mt-3 max-w-3xl text-sm leading-6 text-ink-2">
-        <TranslatedText es={introEs} en={introEn} />
+        {introEs}
       </p>
       <div class="mt-5">
         <StatsStrip
           items={[
-            { labelEs: 'Categorías', labelEn: 'Categories', value: categories.length },
-            { labelEs: 'Distrito', labelEn: 'District', value: district.name },
-            { labelEs: 'Cantón', labelEn: 'Canton', value: district.canton.name },
-            { labelEs: 'Contacto', labelEn: 'Contact', value: 'Directo' },
+            { label: 'Proveedores en el distrito', value: categories.reduce((sum, cat) => sum + (cat.count ?? 0), 0) },
+            { label: 'Categorías disponibles', value: categories.length },
+            { label: 'Distrito', value: district.name },
+            { label: 'Cantón', value: district.canton.name },
           ]}
         />
       </div>
@@ -92,13 +85,13 @@ const introEn = `Select a category to compare verified providers serving ${distr
 
     <div class="order-1 md:order-2">
       <div class="mb-4 flex items-baseline justify-between">
-        <h2 class="text-xl font-semibold tracking-[-0.3px]"><TranslatedText es="Categorías en este distrito" en="Categories in this district" /></h2>
-        <span class="civic-meta">{categories.length} <TranslatedText es="categorías" en="categories" /></span>
+        <h2 class="text-xl font-semibold tracking-[-0.3px]">Categorías en este distrito</h2>
+        <span class="civic-meta">{categories.length} categorías</span>
       </div>
       <CategoryGrid categories={categories} basePath={`/${district.canton.slug}/${district.slug}`} />
 
       <div class="mt-8 rounded-civic border border-rule bg-surface-alt p-5">
-        <p class="civic-meta"><TranslatedText es="Distritos cercanos" en="Nearby districts" /></p>
+        <p class="civic-meta">Distritos cercanos</p>
         {
           nearbyDistricts.length > 0 ? (
             <div class="mt-3 flex flex-wrap gap-2">
@@ -113,7 +106,7 @@ const introEn = `Select a category to compare verified providers serving ${distr
             </div>
           ) : (
             <p class="mt-2 text-sm leading-6 text-ink-2">
-              <TranslatedText es="Aún no hay otros distritos publicados en este cantón." en="No other districts are published in this canton yet." />
+              Aún no hay otros distritos publicados en este cantón.
             </p>
           )
         }

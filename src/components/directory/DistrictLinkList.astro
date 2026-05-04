@@ -1,5 +1,5 @@
 ---
-import TranslatedText from '@components/i18n/TranslatedText.astro'
+import { t } from '@lib/i18n'
 import type { District } from '@lib/queries/geography'
 
 interface Props {
@@ -13,7 +13,7 @@ const { cantonSlug, districts, activeDistrictSlug } = Astro.props
 
 <div>
   <div class="civic-meta border-b border-rule pb-2">
-    <TranslatedText es="Distritos del cantón" en="Canton districts" />
+    {t('district.listHeading')}
   </div>
   <div class="divide-y divide-rule-soft">
     {
@@ -27,7 +27,7 @@ const { cantonSlug, districts, activeDistrictSlug } = Astro.props
         >
           <span>{district.name}</span>
           <span class="font-mono text-[11px] uppercase tracking-[0.5px] text-ink-3">
-            <TranslatedText es="Ver" en="View" />
+            {t('district.view')}
           </span>
         </a>
       ))

@@ -1,6 +1,6 @@
 ---
 import Icon from '@components/ui/Icon.astro'
-import TranslatedText from '@components/i18n/TranslatedText.astro'
+import { t } from '@lib/i18n'
 import type { Category } from '@lib/queries/categories'
 import type { CantonWithDistricts } from '@lib/queries/geography'
 
@@ -10,34 +10,55 @@ interface Props {
   publishedListings?: string[]
 }
 
-const { categories = [], publishedListings = [] } = Astro.props
+const { cantons = [], categories = [], publishedListings = [] } = Astro.props
 const categoryLookup = categories.map((category) => ({
   name: category.name,
   slug: category.slug,
 }))
+// Flat list of {districtName, cantonName, cantonSlug, districtSlug, districtId}
+const districtOptions = cantons.flatMap((canton) =>
+  canton.districts.map((d) => ({
+    d: d.name,
+    ds: d.slug,
+    di: d.id,
+    c: canton.name,
+    cs: canton.slug,
+  })),
+)
 ---
+
+<!-- Location autocomplete — shared snippet used in both mobile and desktop -->
+<!-- It is rendered twice (mobile + desktop) but JS deduplicates by data-location-autocomplete -->
 
 <!-- Mobile: stacked layout -->
 <div class="md:hidden">
-  <button
-    type="button"
-    class="flex w-full items-center gap-3 rounded-civic border-2 border-ink bg-surface px-4 py-3 text-left"
-    data-open-search-location
-    aria-label="Seleccionar ubicación"
-  >
-    <Icon name="pin" size={16} class="shrink-0 text-canopy" />
-    <span class="min-w-0 flex-1">
-      <span class="block font-mono text-[10px] uppercase tracking-[0.5px] text-ink-3">
-        <TranslatedText es="Ubicación" en="Location" />
+  <div class="relative mb-2" data-location-autocomplete>
+    <label class="flex cursor-text items-center gap-3 rounded-civic border-2 border-ink bg-surface px-4 py-3">
+      <Icon name="pin" size={16} class="shrink-0 text-canopy" />
+      <span class="min-w-0 flex-1">
+        <span class="block font-mono text-[10px] uppercase tracking-[0.5px] text-ink-3">{t('common.location')}</span>
+        <input
+          class="block w-full border-none bg-transparent text-sm font-semibold text-ink outline-none placeholder:font-normal placeholder:text-ink-3"
+          type="text"
+          autocomplete="off"
+          placeholder="Buscar distrito o cantón…"
+          data-location-input
+          aria-label="Ubicación"
+          aria-autocomplete="list"
+          aria-haspopup="listbox"
+        />
       </span>
-      <span class="block text-sm font-semibold text-ink" data-search-location-label
-        data-label-es="Seleccionar distrito" data-label-en="Select district">
-        Seleccionar distrito
-      </span>
-    </span>
-    <Icon name="chevronDown" size={14} class="shrink-0 text-ink-3" />
-  </button>
-  <form class="mt-2 flex overflow-hidden rounded-civic border-2 border-ink bg-surface" action="/buscar" method="get" data-directory-search>
+      <button type="button" class="hidden shrink-0 text-ink-3 hover:text-ink" data-location-clear aria-label="Limpiar ubicación">
+        <Icon name="close" size={14} />
+      </button>
+    </label>
+    <ul
+      class="absolute left-0 right-0 top-full z-50 mt-1 hidden max-h-56 overflow-y-auto rounded-civic border border-rule bg-surface shadow-lg"
+      data-location-dropdown
+      role="listbox"
+    ></ul>
+  </div>
+  <form class="flex overflow-hidden rounded-civic border-2 border-ink bg-surface" action="/search" method="get" data-directory-search>
     <input type="hidden" name="district" data-search-district-input />
     <input type="hidden" name="districtId" data-search-district-id-input />
     <input
@@ -45,8 +66,6 @@ const categoryLookup = categories.map((category) => ({
       type="search"
       name="q"
       placeholder="¿Qué necesitás? Ej: fontanero"
-      data-placeholder-es="¿Qué necesitás? Ej: fontanero"
-      data-placeholder-en="What do you need? e.g. plumber"
     />
     <button class="flex items-center bg-canopy px-4 text-white hover:bg-canopy-ink" type="submit" aria-label="Buscar">
       <Icon name="arrow" size={18} />
@@ -57,121 +76,201 @@ const categoryLookup = categories.map((category) => ({
 <!-- Desktop: 3-column grid -->
 <form
   class="hidden overflow-hidden rounded-civic border-2 border-ink bg-surface md:grid md:grid-cols-[1.4fr_1.1fr_auto]"
-  action="/buscar"
+  action="/search"
   method="get"
   data-directory-search
 >
   <label class="grid gap-1 border-r border-rule p-3">
-    <span class="civic-meta"><TranslatedText es="Buscar" en="Search" /></span>
+    <span class="civic-meta">{t('common.search')}</span>
     <input
       class="min-w-0 border-none bg-transparent text-sm font-semibold text-ink outline-none placeholder:text-ink-3"
       type="search"
       name="q"
       placeholder="¿Qué necesitás? Ej: fontanero"
-      data-placeholder-es="¿Qué necesitás? Ej: fontanero"
-      data-placeholder-en="What do you need? e.g. plumber"
     />
   </label>
-  <button
-    type="button"
-    class="grid gap-1 border-r border-rule p-3 text-left hover:bg-mist"
-    data-open-search-location
-  >
-    <span class="civic-meta"><TranslatedText es="Ubicación" en="Location" /></span>
-    <span class="flex items-center gap-2 text-sm font-semibold text-ink">
-      <span data-search-location-label
-        data-label-es="Seleccionar distrito" data-label-en="Select district">
-        Seleccionar distrito
+  <div class="relative border-r border-rule" data-location-autocomplete>
+    <label class="flex h-full cursor-text items-center gap-2 p-3">
+      <span class="grid min-w-0 flex-1 gap-1">
+        <span class="civic-meta">{t('common.location')}</span>
+        <input
+          class="block w-full border-none bg-transparent text-sm font-semibold text-ink outline-none placeholder:font-normal placeholder:text-ink-3"
+          type="text"
+          autocomplete="off"
+          placeholder="Buscar distrito o cantón…"
+          data-location-input
+          aria-label="Ubicación"
+          aria-autocomplete="list"
+          aria-haspopup="listbox"
+        />
       </span>
-      <Icon name="chevronDown" size={12} class="ml-auto text-ink-3" />
-    </span>
-  </button>
+      <button type="button" class="hidden shrink-0 text-ink-3 hover:text-ink" data-location-clear aria-label="Limpiar ubicación">
+        <Icon name="close" size={14} />
+      </button>
+    </label>
+    <ul
+      class="absolute left-0 right-0 top-full z-50 mt-0 hidden max-h-64 overflow-y-auto rounded-b-civic border border-t-0 border-rule bg-surface shadow-lg"
+      data-location-dropdown
+      role="listbox"
+    ></ul>
+  </div>
   <input type="hidden" name="district" data-search-district-input />
   <input type="hidden" name="districtId" data-search-district-id-input />
   <button class="bg-canopy px-6 text-sm font-semibold text-white hover:bg-canopy-ink" type="submit">
-    <TranslatedText es="Encontrar" en="Find" />
+    {t('common.find')}
   </button>
 </form>
 
 <script is:inline type="application/json" data-published-listings set:html={JSON.stringify(publishedListings)} />
+<script is:inline type="application/json" data-district-options set:html={JSON.stringify(districtOptions)} />
 
 <script is:inline define:vars={{ categoryLookup }}>
-  function normalizeSearchValue(value) {
+  // ── helpers ──────────────────────────────────────────────────────────────
+  function norm(value) {
     return value
       .normalize('NFD')
       .replace(/\p{Diacritic}/gu, '')
       .replace(/[ñÑ]/g, 'n')
       .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .replace(/\s+/g, ' ')
       .trim()
-      .replace(/\s+/g, '-')
+  }
+  function normSlug(value) {
+    return norm(value).replace(/\s/g, '-')
   }
 
-  const categoryAliases = {
-    plomero: 'fontaneria',
-    plomeria: 'fontaneria',
-    fontanero: 'fontaneria',
-    fuga: 'fontaneria',
-    fugas: 'fontaneria',
-    electrico: 'electricidad',
-    electricista: 'electricidad',
-    jardinero: 'jardineria',
-    jardin: 'jardineria',
-    limpieza: 'limpieza',
-    limpiar: 'limpieza',
-    reparacion: 'reparaciones',
-    reparaciones: 'reparaciones',
-    cerrajero: 'cerrajeria',
-    pintura: 'pintura',
-    pintor: 'pintura',
-    aire: 'aire-acondicionado',
-    'aire-acondicionado': 'aire-acondicionado',
-  }
-
-  const categoriesBySearchTerm = new Map()
+  // ── data ─────────────────────────────────────────────────────────────────
+  const districtOptions = JSON.parse(
+    document.querySelector('[data-district-options]')?.textContent ?? '[]',
+  )
   const publishedListingSet = new Set(
     JSON.parse(document.querySelector('[data-published-listings]')?.textContent ?? '[]'),
   )
-  categoryLookup.forEach((category) => {
-    categoriesBySearchTerm.set(category.slug, category.slug)
-    categoriesBySearchTerm.set(normalizeSearchValue(category.name), category.slug)
+  const categoryAliases = {
+    plomero: 'fontaneria', plomeria: 'fontaneria', fontanero: 'fontaneria',
+    fuga: 'fontaneria', fugas: 'fontaneria',
+    electrico: 'electricidad', electricista: 'electricidad',
+    jardinero: 'jardineria', jardin: 'jardineria',
+    limpieza: 'limpieza', limpiar: 'limpieza',
+    reparacion: 'reparaciones', reparaciones: 'reparaciones',
+    cerrajero: 'cerrajeria', pintura: 'pintura', pintor: 'pintura',
+    aire: 'aire-acondicionado', 'aire-acondicionado': 'aire-acondicionado',
+  }
+  const categoriesBySearchTerm = new Map()
+  categoryLookup.forEach((cat) => {
+    categoriesBySearchTerm.set(cat.slug, cat.slug)
+    categoriesBySearchTerm.set(normSlug(cat.name), cat.slug)
   })
-  Object.entries(categoryAliases).forEach(([alias, slug]) => {
-    categoriesBySearchTerm.set(alias, slug)
-  })
+  Object.entries(categoryAliases).forEach(([alias, slug]) => categoriesBySearchTerm.set(alias, slug))
 
+  // ── autocomplete ─────────────────────────────────────────────────────────
+  function initAutocomplete(container) {
+    const input = container.querySelector('[data-location-input]')
+    const dropdown = container.querySelector('[data-location-dropdown]')
+    const clearBtn = container.querySelector('[data-location-clear]')
+    if (!input || !dropdown) return
+
+    let selectedPath = ''
+    let selectedId = ''
+    let closeTimer = null
+
+    function syncHiddenFields(path, id) {
+      document.querySelectorAll('[data-search-district-input]').forEach((el) => { el.value = path })
+      document.querySelectorAll('[data-search-district-id-input]').forEach((el) => { el.value = id })
+      selectedPath = path
+      selectedId = id
+    }
+
+    function showDropdown(items) {
+      dropdown.innerHTML = ''
+      if (!items.length) {
+        dropdown.classList.add('hidden')
+        return
+      }
+      items.forEach((opt) => {
+        const li = document.createElement('li')
+        li.setAttribute('role', 'option')
+        li.className = 'flex cursor-pointer items-baseline justify-between gap-3 px-4 py-2.5 text-sm hover:bg-mist'
+        li.innerHTML = `<span class="font-semibold text-ink">${opt.d}</span><span class="font-mono text-[10px] uppercase tracking-[0.5px] text-ink-3">${opt.c}</span>`
+        li.addEventListener('mousedown', (e) => {
+          e.preventDefault()
+          input.value = `${opt.d}, ${opt.c}`
+          syncHiddenFields(`${opt.cs}/${opt.ds}`, opt.di)
+          clearBtn.classList.remove('hidden')
+          dropdown.classList.add('hidden')
+          // Notify other components (DistrictLinkList)
+          document.dispatchEvent(new CustomEvent('districtSelected', { detail: opt }))
+        })
+        dropdown.appendChild(li)
+      })
+      dropdown.classList.remove('hidden')
+    }
+
+    input.addEventListener('input', () => {
+      const q = norm(input.value)
+      clearBtn.classList.toggle('hidden', !input.value)
+      if (!q) {
+        syncHiddenFields('', '')
+        dropdown.classList.add('hidden')
+        return
+      }
+      const matches = districtOptions
+        .filter((o) => norm(o.d).includes(q) || norm(o.c).includes(q))
+        .slice(0, 10)
+      showDropdown(matches)
+    })
+
+    input.addEventListener('focus', () => {
+      if (closeTimer) clearTimeout(closeTimer)
+      if (input.value && !selectedPath) {
+        const q = norm(input.value)
+        const matches = districtOptions.filter((o) => norm(o.d).includes(q) || norm(o.c).includes(q)).slice(0, 10)
+        showDropdown(matches)
+      }
+    })
+
+    input.addEventListener('blur', () => {
+      closeTimer = setTimeout(() => dropdown.classList.add('hidden'), 150)
+    })
+
+    clearBtn?.addEventListener('click', () => {
+      input.value = ''
+      syncHiddenFields('', '')
+      clearBtn.classList.add('hidden')
+      dropdown.classList.add('hidden')
+      document.dispatchEvent(new CustomEvent('districtSelected', { detail: null }))
+    })
+  }
+
+  document.querySelectorAll('[data-location-autocomplete]').forEach(initAutocomplete)
+
+  // ── form submit ──────────────────────────────────────────────────────────
   document.querySelectorAll('[data-directory-search]').forEach((form) => {
     form.addEventListener('submit', (event) => {
+      event.preventDefault()
       const formData = new FormData(form)
       const districtPath = String(formData.get('district') ?? '').replace(/^\/+|\/+$/g, '')
       const districtId = String(formData.get('districtId') ?? '').trim()
-      const query = normalizeSearchValue(String(formData.get('q') ?? ''))
+      const query = normSlug(String(formData.get('q') ?? ''))
       const categorySlug = categoriesBySearchTerm.get(query)
 
-      // Has district + category match → go to category listing
       if (districtPath && categorySlug) {
         const listingPath = `${districtPath}/${categorySlug}`
         if (publishedListingSet.has(listingPath)) {
-          event.preventDefault()
           window.location.assign(`/${listingPath}/`)
           return
         }
       }
-
-      // Has district but no category match → go to district page
-      if (districtPath && !categorySlug) {
-        event.preventDefault()
+      if (districtPath) {
         window.location.assign(`/${districtPath}/`)
         return
       }
-
-      // No district → go to /buscar with query (and districtId if somehow set)
-      event.preventDefault()
       const rawQuery = String(formData.get('q') ?? '').trim()
       if (!rawQuery) return
       const params = new URLSearchParams({ q: rawQuery })
       if (districtId) params.set('district', districtId)
-      window.location.assign(`/buscar?${params.toString()}`)
+      window.location.assign(`/search?${params.toString()}`)
     })
   })
 </script>

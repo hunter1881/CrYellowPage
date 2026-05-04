@@ -1,6 +1,6 @@
 ---
 import { actions } from 'astro:actions'
-import TranslatedText from '@components/i18n/TranslatedText.astro'
+import { t } from '@lib/i18n'
 import type { Category } from '@lib/queries/categories'
 import type { CantonWithDistricts } from '@lib/queries/geography'
 
@@ -16,21 +16,21 @@ const errorFor = (name: string) => inputErrors[name]?.join(', ')
 
 <form class="civic-card grid gap-5 p-5" method="POST" action={actions.registerProvider}>
   <div>
-    <p class="civic-meta"><TranslatedText es="Solicitud de proveedor" en="Provider application" /></p>
+    <p class="civic-meta">{t('form.applicationMeta')}</p>
     <h2 class="mt-2 text-xl font-semibold text-ink">
-      <TranslatedText es="Datos públicos y de contacto" en="Public and contact details" />
+      {t('form.applicationTitle')}
     </h2>
   </div>
 
   <div class="grid gap-4 md:grid-cols-2">
     <label class="grid gap-1.5 text-sm font-semibold text-ink">
-      <span><TranslatedText es="Nombre del negocio" en="Business name" /></span>
+      <span>{t('form.businessName')}</span>
       <input class="rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-normal outline-none focus:border-canopy" name="businessName" required minlength="3" maxlength="120" />
       {errorFor('businessName') && <span class="text-xs font-medium text-red-700">{errorFor('businessName')}</span>}
     </label>
 
     <label class="grid gap-1.5 text-sm font-semibold text-ink">
-      <span><TranslatedText es="Persona de contacto" en="Contact person" /></span>
+      <span>{t('form.contactPerson')}</span>
       <input class="rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-normal outline-none focus:border-canopy" name="contactName" required minlength="3" maxlength="120" />
       {errorFor('contactName') && <span class="text-xs font-medium text-red-700">{errorFor('contactName')}</span>}
     </label>
@@ -42,13 +42,13 @@ const errorFor = (name: string) => inputErrors[name]?.join(', ')
     </label>
 
     <label class="grid gap-1.5 text-sm font-semibold text-ink">
-      <span><TranslatedText es="Teléfono" en="Phone" /></span>
+      <span>{t('form.phone')}</span>
       <input class="rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-normal outline-none focus:border-canopy" name="phone" required inputmode="tel" placeholder="8888-8888" pattern="(?:\+506\s?)?\d{4}-?\d{4}" />
       {errorFor('phone') && <span class="text-xs font-medium text-red-700">{errorFor('phone')}</span>}
     </label>
 
     <label class="grid gap-1.5 text-sm font-semibold text-ink md:col-span-2">
-      <span>WhatsApp <span class="font-normal text-ink-3"><TranslatedText es="opcional" en="optional" /></span></span>
+      <span>WhatsApp <span class="font-normal text-ink-3">{t('common.optional')}</span></span>
       <input class="rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-normal outline-none focus:border-canopy" name="whatsapp" inputmode="tel" placeholder="+506 8888-8888" />
       {errorFor('whatsapp') && <span class="text-xs font-medium text-red-700">{errorFor('whatsapp')}</span>}
     </label>
@@ -56,11 +56,9 @@ const errorFor = (name: string) => inputErrors[name]?.join(', ')
 
   <div class="grid gap-4">
     <label class="grid gap-1.5 text-sm font-semibold text-ink">
-      <span><TranslatedText es="Distrito donde atiende principalmente" en="Main district served" /></span>
+      <span>{t('form.district')}</span>
       <select class="rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-normal outline-none focus:border-canopy" name="districtId" required>
-        <option value="" data-option-es="Seleccione un distrito" data-option-en="Select a district">
-          Seleccione un distrito
-        </option>
+        <option value="">Seleccione un distrito</option>
         {
           cantons.map((canton) => (
             <optgroup label={`${canton.province?.name ?? 'Costa Rica'} · ${canton.name}`}>
@@ -76,7 +74,7 @@ const errorFor = (name: string) => inputErrors[name]?.join(', ')
 
     <fieldset class="grid gap-2">
       <legend class="text-sm font-semibold text-ink">
-        <TranslatedText es="Categorías de servicio" en="Service categories" />
+        {t('form.serviceCategories')}
       </legend>
       <div class="grid gap-2 sm:grid-cols-2">
         {
@@ -92,7 +90,7 @@ const errorFor = (name: string) => inputErrors[name]?.join(', ')
     </fieldset>
 
     <label class="grid gap-1.5 text-sm font-semibold text-ink">
-      <span><TranslatedText es="Descripción corta del servicio" en="Short service description" /></span>
+      <span>{t('form.serviceDescription')}</span>
       <textarea class="min-h-32 rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-normal leading-6 outline-none focus:border-canopy" name="description" required minlength="30" maxlength="500"></textarea>
       {errorFor('description') && <span class="text-xs font-medium text-red-700">{errorFor('description')}</span>}
     </label>
@@ -100,16 +98,16 @@ const errorFor = (name: string) => inputErrors[name]?.join(', ')
 
   <div class="grid gap-4 rounded-civic border border-rule bg-surface-alt p-4 md:grid-cols-3">
     <label class="grid gap-1.5 text-sm font-semibold text-ink">
-      <span><TranslatedText es="Años de experiencia" en="Years active" /></span>
+      <span>{t('form.yearsActive')}</span>
       <input class="rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-normal outline-none focus:border-canopy" name="yearsActive" type="number" min="0" max="80" value="1" />
     </label>
     <label class="flex items-center gap-2 text-sm font-semibold text-ink-2">
       <input name="acceptsSinpe" type="checkbox" />
-      <TranslatedText es="Acepta SINPE" en="Accepts SINPE" />
+      {t('form.acceptsSinpe')}
     </label>
     <label class="flex items-center gap-2 text-sm font-semibold text-ink-2">
       <input name="worksWeekends" type="checkbox" />
-      <TranslatedText es="Atiende fines de semana" en="Works weekends" />
+      {t('form.worksWeekends')}
     </label>
   </div>
 
@@ -120,6 +118,6 @@ const errorFor = (name: string) => inputErrors[name]?.join(', ')
   </label>
 
   <button class="civic-button justify-center bg-canopy text-white" type="submit">
-    <TranslatedText es="Enviar solicitud" en="Send application" />
+    {t('form.submit')}
   </button>
 </form>

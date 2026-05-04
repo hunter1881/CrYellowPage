@@ -2,7 +2,7 @@
 import { Image } from 'astro:assets'
 import Icon from '@components/ui/Icon.astro'
 import Badge from '@components/ui/Badge.astro'
-import TranslatedText from '@components/i18n/TranslatedText.astro'
+import { t } from '@lib/i18n'
 import { providerDisplayMeta } from '@lib/providerPresentation'
 import type { ReviewSummary } from '@lib/queries/reviews'
 import type { ProviderListItem } from '@lib/queries/providers'
@@ -43,16 +43,11 @@ const displayMeta = providerDisplayMeta(provider, reviewSummary)
           {provider.name}
           </a>
         </h2>
-        <Badge label="Verificado" labelEn="Verified" />
+        <Badge label="Verificado" />
       </div>
       <p class="mt-2 text-sm leading-6 text-ink/75">
         {
-          provider.description ?? (
-            <TranslatedText
-              es="Proveedor local verificado disponible en este distrito."
-              en="Verified local provider available in this district."
-            />
-          )
+          provider.description ?? t('provider.defaultDescription')
         }
       </p>
       <div class="mt-2 flex flex-wrap gap-3 font-mono text-[11px] uppercase tracking-[0.5px] text-ink-3">
@@ -60,13 +55,13 @@ const displayMeta = providerDisplayMeta(provider, reviewSummary)
           <span class="flex items-center gap-1 text-star"><Icon name="star" size={11} /> {displayMeta.rating} <span class="text-ink-3">({displayMeta.reviewCount})</span></span>
         )}
         {displayMeta.yearsActive !== null && (
-          <span>{displayMeta.yearsActive} <TranslatedText es="años" en="yrs" /></span>
+          <span>{displayMeta.yearsActive} {t('provider.yearsUnit')}</span>
         )}
         {displayMeta.completedJobs !== null && (
-          <span>{displayMeta.completedJobs} <TranslatedText es="trabajos" en="jobs" /></span>
+          <span>{displayMeta.completedJobs} {t('provider.jobsUnit')}</span>
         )}
         {displayMeta.responseTimeEs !== null && (
-          <span class="flex items-center gap-1"><Icon name="clock" size={11} /> <TranslatedText es={displayMeta.responseTimeEs} en={displayMeta.responseTimeEn!} /></span>
+          <span class="flex items-center gap-1"><Icon name="clock" size={11} /> {displayMeta.responseTimeEs}</span>
         )}
       </div>
     </div>
@@ -78,7 +73,7 @@ const displayMeta = providerDisplayMeta(provider, reviewSummary)
       </a>
     )}
     <a class="civic-button gap-2 border border-rule bg-surface text-ink" href={`tel:${provider.phone}`}>
-      <Icon name="phone" size={14} /><span><TranslatedText es="Llamar" en="Call" /></span>
+      <Icon name="phone" size={14} /><span>{t('common.call')}</span>
     </a>
   </div>
 </article>

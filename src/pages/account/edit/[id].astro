@@ -1,0 +1,237 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro'
+import { createSupabaseServerClient } from '@lib/supabaseServer'
+import { getCategories } from '@lib/queries/categories'
+import { absoluteUrl } from '@lib/site'
+import { t } from '@lib/i18n'
+
+export const prerender = false
+
+const { id: providerId } = Astro.params
+if (!providerId) return Astro.redirect('/account/')
+
+const supabase = createSupabaseServerClient(Astro.request, Astro.response.headers)
+const { data: { user } } = await supabase.auth.getUser()
+
+if (!user) return Astro.redirect('/account/login/')
+
+// Load provider — RLS enforces ownership
+const { data: provider, error: providerError } = await supabase
+  .from('providers')
+  .select('id, name, description, phone, whatsapp, accepts_sinpe, works_weekends, years_active, response_time_minutes, owner_id')
+  .eq('id', providerId)
+  .eq('owner_id', user.id)
+  .maybeSingle()
+
+if (providerError || !provider) return Astro.redirect('/account/')
+
+// Current categories for this provider
+const { data: currentCategories } = await supabase
+  .from('provider_categories')
+  .select('category_id')
+  .eq('provider_id', providerId)
+
+const currentCategoryIds = new Set((currentCategories ?? []).map((row) => row.category_id))
+const allCategories = await getCategories()
+const canonical = absoluteUrl(`/account/edit/${providerId}/`, Astro.site)
+
+let successMessage: string | null = null
+let errorMessage: string | null = null
+
+if (Astro.request.method === 'POST') {
+  const formData = await Astro.request.formData()
+
+  const description = String(formData.get('description') ?? '').trim() || null
+  const phone = String(formData.get('phone') ?? '').trim()
+  const whatsapp = String(formData.get('whatsapp') ?? '').trim() || null
+  const acceptsSinpe = formData.get('acceptsSinpe') === 'on'
+  const worksWeekends = formData.get('worksWeekends') === 'on'
+  const yearsActive = Math.max(0, parseInt(String(formData.get('yearsActive') ?? '0'), 10) || 0)
+  const responseTimeMinutes = parseInt(String(formData.get('responseTimeMinutes') ?? ''), 10)
+  const selectedCategoryIds = formData.getAll('categoryIds').map(String).filter(Boolean)
+
+  if (!phone) {
+    errorMessage = 'El teléfono es obligatorio.'
+  } else if (selectedCategoryIds.length === 0 || selectedCategoryIds.length > 4) {
+    errorMessage = 'Seleccioná entre 1 y 4 categorías.'
+  } else {
+    const validCategories = new Set(allCategories.map((c) => c.id))
+    const allValid = selectedCategoryIds.every((id) => validCategories.has(id))
+    if (!allValid) {
+      errorMessage = 'Una o más categorías no son válidas.'
+    } else {
+      const { error: updateError } = await supabase
+        .from('providers')
+        .update({
+          description,
+          phone,
+          whatsapp,
+          accepts_sinpe: acceptsSinpe,
+          works_weekends: worksWeekends,
+          years_active: yearsActive,
+          response_time_minutes: Number.isFinite(responseTimeMinutes) && responseTimeMinutes > 0
+            ? responseTimeMinutes
+            : null,
+        })
+        .eq('id', providerId)
+        .eq('owner_id', user.id)
+
+      if (updateError) {
+        errorMessage = 'No se pudieron guardar los cambios. Intentá de nuevo.'
+      } else {
+        // Sync categories: delete all then re-insert
+        await supabase.from('provider_categories').delete().eq('provider_id', providerId)
+        if (selectedCategoryIds.length > 0) {
+          await supabase.from('provider_categories').insert(
+            selectedCategoryIds.map((categoryId) => ({ provider_id: providerId, category_id: categoryId }))
+          )
+        }
+        successMessage = 'Cambios guardados.'
+        // Refresh current category list
+        const { data: refreshed } = await supabase
+          .from('provider_categories')
+          .select('category_id')
+          .eq('provider_id', providerId)
+        currentCategoryIds.clear()
+        for (const row of refreshed ?? []) currentCategoryIds.add(row.category_id)
+      }
+    }
+  }
+}
+---
+
+<BaseLayout
+  title={`Editar ${provider.name} | DirectorioLocal CR`}
+  description="Edite los datos de su perfil de proveedor."
+  canonical={canonical}
+>
+  <section class="border-b border-rule bg-surface">
+    <div class="mx-auto max-w-6xl px-4 py-5 md:px-6">
+      <nav class="flex items-center gap-2 text-sm text-ink-3">
+        <a class="hover:text-ink" href="/account/">{t('edit.myAccount')}</a>
+        <span>/</span>
+        <span class="text-ink">{provider.name}</span>
+      </nav>
+      <h1 class="mt-2 text-2xl font-semibold tracking-[-0.5px] text-ink">
+        {t('edit.title')}
+      </h1>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-3xl px-4 py-8 md:px-6">
+    {successMessage && (
+      <div class="mb-5 rounded-civic border border-canopy bg-canopy-soft p-4 text-sm text-canopy-ink">
+        {t('edit.saved')}
+      </div>
+    )}
+    {errorMessage && (
+      <div class="mb-5 rounded-civic border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+        {errorMessage}
+      </div>
+    )}
+
+    <form class="civic-card grid gap-6 p-6" method="POST">
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        <label class="grid gap-1.5 text-sm font-semibold text-ink">
+          <span>{t('edit.phone')} <span class="text-red-500">*</span></span>
+          <input
+            class="rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-normal outline-none focus:border-canopy"
+            name="phone"
+            required
+            inputmode="tel"
+            value={provider.phone}
+          />
+        </label>
+
+        <label class="grid gap-1.5 text-sm font-semibold text-ink">
+          <span>WhatsApp <span class="font-normal text-ink-3">{t('common.optional')}</span></span>
+          <input
+            class="rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-normal outline-none focus:border-canopy"
+            name="whatsapp"
+            inputmode="tel"
+            value={provider.whatsapp ?? ''}
+          />
+        </label>
+      </div>
+
+      <label class="grid gap-1.5 text-sm font-semibold text-ink">
+        <span>{t('edit.description')}</span>
+        <textarea
+          class="rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-normal outline-none focus:border-canopy"
+          name="description"
+          rows="4"
+          maxlength="500"
+        >{provider.description ?? ''}</textarea>
+        <span class="text-xs font-normal text-ink-3">{t('edit.descriptionHint')}</span>
+      </label>
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        <label class="grid gap-1.5 text-sm font-semibold text-ink">
+          <span>{t('edit.yearsActive')}</span>
+          <input
+            class="rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-normal outline-none focus:border-canopy"
+            name="yearsActive"
+            type="number"
+            min="0"
+            max="80"
+            value={provider.years_active}
+          />
+        </label>
+
+        <label class="grid gap-1.5 text-sm font-semibold text-ink">
+          <span>{t('edit.responseTime')}</span>
+          <input
+            class="rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-normal outline-none focus:border-canopy"
+            name="responseTimeMinutes"
+            type="number"
+            min="1"
+            placeholder="ej. 30"
+            value={provider.response_time_minutes ?? ''}
+          />
+        </label>
+      </div>
+
+      <fieldset class="grid gap-2">
+        <legend class="text-sm font-semibold text-ink">
+          {t('edit.categories')}
+        </legend>
+        <div class="grid gap-2 sm:grid-cols-2">
+          {allCategories.map((category) => (
+            <label class="flex cursor-pointer items-center gap-2.5 rounded-civic border border-rule bg-surface p-3 text-sm hover:border-canopy has-[:checked]:border-canopy has-[:checked]:bg-canopy-soft">
+              <input
+                type="checkbox"
+                name="categoryIds"
+                value={category.id}
+                checked={currentCategoryIds.has(category.id)}
+              />
+              <span>{category.icon_emoji ? `${category.icon_emoji} ` : ''}{category.name}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
+      <fieldset class="grid gap-2">
+        <legend class="text-sm font-semibold text-ink">{t('edit.options')}</legend>
+        <label class="flex cursor-pointer items-center gap-2 text-sm text-ink">
+          <input type="checkbox" name="acceptsSinpe" checked={provider.accepts_sinpe} />
+          {t('edit.acceptsSinpe')}
+        </label>
+        <label class="flex cursor-pointer items-center gap-2 text-sm text-ink">
+          <input type="checkbox" name="worksWeekends" checked={provider.works_weekends} />
+          {t('edit.worksWeekends')}
+        </label>
+      </fieldset>
+
+      <div class="flex gap-3">
+        <button class="civic-button bg-canopy px-6 text-white" type="submit">
+          {t('edit.save')}
+        </button>
+        <a class="civic-button border border-rule bg-surface text-ink" href="/account/">
+          {t('edit.cancel')}
+        </a>
+      </div>
+
+    </form>
+  </section>
+</BaseLayout>

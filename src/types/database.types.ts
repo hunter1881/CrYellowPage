@@ -403,7 +403,30 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      search_providers: {
+        Args: {
+          p_district?: string
+          p_limit?: number
+          p_offset?: number
+          q: string
+        }
+        Returns: {
+          accepts_sinpe: boolean
+          completed_jobs: number
+          created_at: string
+          description: string
+          district_id: string
+          id: string
+          name: string
+          phone: string
+          photo_url: string
+          rank: number
+          response_time_minutes: number
+          whatsapp: string
+          works_weekends: boolean
+          years_active: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

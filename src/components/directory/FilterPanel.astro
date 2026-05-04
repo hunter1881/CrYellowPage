@@ -1,6 +1,6 @@
 ---
 import Icon from '@components/ui/Icon.astro'
-import TranslatedText from '@components/i18n/TranslatedText.astro'
+import { t } from '@lib/i18n'
 
 interface FilterOption {
   key: string
@@ -29,7 +29,7 @@ const { filters, sortOptions } = Astro.props
 <aside class="hidden md:block">
   <div class="flex items-center gap-2 border-b border-rule pb-2">
     <Icon name="filter" size={14} class="text-ink-3" />
-    <span class="civic-meta"><TranslatedText es="Filtros" en="Filters" /></span>
+    <span class="civic-meta">{t('filter.heading')}</span>
   </div>
   <div class="mt-3 grid gap-2 text-sm text-ink-2">
     {
@@ -46,14 +46,14 @@ const { filters, sortOptions } = Astro.props
           <span class="flex h-4 w-4 items-center justify-center rounded-civic border border-current text-[10px]">
             {filter.active ? '✓' : ''}
           </span>
-          <TranslatedText es={filter.es} en={filter.en} />
+          {filter.es}
         </a>
       ))
     }
   </div>
   <div class="mt-6 rounded-civic border border-rule bg-surface-alt p-4">
     <p class="civic-meta">
-      <TranslatedText es="Ordenar" en="Sort" />
+      {t('filter.sort')}
     </p>
     <div class="mt-3 grid gap-2">
       {
@@ -65,7 +65,7 @@ const { filters, sortOptions } = Astro.props
             ]}
             href={option.href}
           >
-            <TranslatedText es={option.es} en={option.en} />
+            {option.es}
           </a>
         ))
       }

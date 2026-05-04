@@ -1,0 +1,100 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro'
+import { createSupabaseServerClient } from '@lib/supabaseServer'
+import { absoluteUrl } from '@lib/site'
+import { t } from '@lib/i18n'
+
+export const prerender = false
+
+const supabase = createSupabaseServerClient(Astro.request, Astro.response.headers)
+const { data: { user } } = await supabase.auth.getUser()
+
+// Already logged in → redirect to dashboard
+if (user) {
+  return Astro.redirect('/account/')
+}
+
+const canonical = absoluteUrl('/account/login/', Astro.site)
+
+let errorMessage: string | null = null
+let successMessage: string | null = null
+
+if (Astro.request.method === 'POST') {
+  const formData = await Astro.request.formData()
+  const email = String(formData.get('email') ?? '').trim().toLowerCase()
+
+  if (!email || !email.includes('@')) {
+    errorMessage = 'Ingresá un correo electrónico válido.'
+  } else {
+    const redirectTo = absoluteUrl('/account/', Astro.site)
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: redirectTo },
+    })
+    if (error) {
+      errorMessage = 'No pudimos enviar el enlace. Intentá de nuevo.'
+    } else {
+      successMessage = email
+    }
+  }
+}
+---
+
+<BaseLayout
+  title="Iniciar sesión | DirectorioLocal CR"
+  description="Ingresá a tu panel de proveedor para administrar tu perfil en DirectorioLocal CR."
+  canonical={canonical}
+>
+  <section class="flex min-h-[60vh] items-center justify-center px-4 py-12">
+    <div class="w-full max-w-sm">
+      <div class="mb-8 text-center">
+        <p class="civic-meta">{t('login.meta')}</p>
+        <h1 class="mt-2 text-2xl font-semibold tracking-[-0.5px] text-ink">
+          {t('login.title')}
+        </h1>
+        <p class="mt-2 text-sm text-ink-2">
+          Te enviamos un enlace mágico al correo. Sin contraseña.
+        </p>
+      </div>
+
+      {successMessage && (
+        <div class="mb-5 rounded-civic border border-canopy bg-canopy-soft p-4 text-sm leading-6 text-canopy-ink">
+          <p class="font-semibold">{t('login.checkEmail')}</p>
+          {`Enviamos un enlace a ${successMessage}. Revisá tu correo.`}
+        </div>
+      )}
+
+      {errorMessage && (
+        <div class="mb-5 rounded-civic border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+          {errorMessage}
+        </div>
+      )}
+
+      {!successMessage && (
+        <form class="civic-card grid gap-4 p-5" method="POST">
+          <label class="grid gap-1.5 text-sm font-semibold text-ink">
+            {t('login.emailLabel')}
+            <input
+              class="rounded-civic border border-rule bg-surface px-3 py-2.5 text-sm font-normal outline-none focus:border-canopy"
+              type="email"
+              name="email"
+              required
+              autofocus
+              placeholder="you@email.com"
+            />
+          </label>
+          <button class="civic-button bg-canopy py-3 text-white" type="submit">
+            {t('login.sendLink')}
+          </button>
+        </form>
+      )}
+
+      <p class="mt-5 text-center text-xs text-ink-3">
+        {t('login.noProfile')}
+        <a class="underline hover:text-ink" href="/register-provider">
+          {t('login.registerService')}
+        </a>
+      </p>
+    </div>
+  </section>
+</BaseLayout>

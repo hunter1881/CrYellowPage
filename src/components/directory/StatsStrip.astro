@@ -1,7 +1,6 @@
 ---
 interface StatItem {
-  labelEs: string
-  labelEn: string
+  label: string
   value: string | number
 }
 
@@ -16,10 +15,7 @@ const { items } = Astro.props
   {
     items.map((item) => (
       <div class="border-b border-rule-soft p-4 sm:border-r sm:[&:nth-child(2n)]:border-r-0 lg:border-b-0 lg:[&:nth-child(2n)]:border-r lg:last:border-r-0">
-        <dt class="font-mono text-[10px] font-semibold uppercase tracking-[0.5px] text-ink-3">
-          <span data-lang="es">{item.labelEs}</span>
-          <span data-lang="en" hidden>{item.labelEn}</span>
-        </dt>
+        <dt class="font-mono text-[10px] font-semibold uppercase tracking-[0.5px] text-ink-3">{item.label}</dt>
         <dd class="mt-1 text-2xl font-bold tracking-[-0.4px] text-ink">{item.value}</dd>
       </div>
     ))

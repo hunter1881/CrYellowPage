@@ -1,5 +1,5 @@
 ---
-import TranslatedText from '@components/i18n/TranslatedText.astro'
+import { t } from '@lib/i18n'
 ---
 
 <footer class="mt-10 border-t border-rule bg-surface-alt px-4 py-8 md:px-6">
@@ -9,43 +9,40 @@ import TranslatedText from '@components/i18n/TranslatedText.astro'
         DirectorioLocal<span class="text-canopy">.cr</span>
       </a>
       <p class="mt-2 max-w-xs text-sm leading-6 text-ink-3">
-        <TranslatedText
-          es="El directorio de servicios verificados de Costa Rica, organizado por cantón y distrito."
-          en="Costa Rica's verified services directory, organized by canton and district."
-        />
+        El directorio de servicios verificados de Costa Rica, organizado por cantón y distrito.
       </p>
     </div>
 
     <nav aria-label="Directorio">
-      <p class="civic-meta mb-3"><TranslatedText es="Directorio" en="Directory" /></p>
+      <p class="civic-meta mb-3">{t('footer.directory')}</p>
       <ul class="grid gap-2 text-sm">
-        <li><a class="text-ink-2 no-underline hover:text-canopy" href="/#districts"><TranslatedText es="Cantones" en="Cantons" /></a></li>
-        <li><a class="text-ink-2 no-underline hover:text-canopy" href="/#categories"><TranslatedText es="Categorías" en="Categories" /></a></li>
-        <li><a class="text-ink-2 no-underline hover:text-canopy" href="/aserri/vuelta-de-jorco/"><TranslatedText es="Distritos populares" en="Popular districts" /></a></li>
+        <li><a class="text-ink-2 no-underline hover:text-canopy" href="/#districts">{t('nav.cantons')}</a></li>
+        <li><a class="text-ink-2 no-underline hover:text-canopy" href="/#categories">{t('nav.categories')}</a></li>
+        <li><a class="text-ink-2 no-underline hover:text-canopy" href="/aserri/vuelta-de-jorco/">{t('footer.popularDistricts')}</a></li>
       </ul>
     </nav>
 
     <nav aria-label="Proveedores">
-      <p class="civic-meta mb-3"><TranslatedText es="Para proveedores" en="For providers" /></p>
+      <p class="civic-meta mb-3">{t('signup.forProviders')}</p>
       <ul class="grid gap-2 text-sm">
-        <li><a class="text-ink-2 no-underline hover:text-canopy" href="/registrar-proveedor/"><TranslatedText es="Registrarme" en="Register" /></a></li>
+        <li><a class="text-ink-2 no-underline hover:text-canopy" href="/register-provider/">{t('signup.cta')}</a></li>
         <li><a class="text-ink-2 no-underline hover:text-canopy" href="/#provider-signup">FAQ</a></li>
-        <li><a class="text-ink-2 no-underline hover:text-canopy" href="/#provider-signup"><TranslatedText es="Verificación" en="Verification" /></a></li>
+        <li><a class="text-ink-2 no-underline hover:text-canopy" href="/#provider-signup">{t('footer.verification')}</a></li>
       </ul>
     </nav>
 
     <nav aria-label="Legal">
       <p class="civic-meta mb-3">Legal</p>
       <ul class="grid gap-2 text-sm">
-        <li><a class="text-ink-2 no-underline hover:text-canopy" href="/#terms"><TranslatedText es="Términos" en="Terms" /></a></li>
-        <li><a class="text-ink-2 no-underline hover:text-canopy" href="/#privacy"><TranslatedText es="Privacidad" en="Privacy" /></a></li>
-        <li><a class="text-ink-2 no-underline hover:text-canopy" href="/#report"><TranslatedText es="Reportar" en="Report" /></a></li>
+        <li><a class="text-ink-2 no-underline hover:text-canopy" href="/#terms">{t('footer.terms')}</a></li>
+        <li><a class="text-ink-2 no-underline hover:text-canopy" href="/#privacy">{t('footer.privacy')}</a></li>
+        <li><a class="text-ink-2 no-underline hover:text-canopy" href="/#report">{t('footer.report')}</a></li>
       </ul>
     </nav>
   </div>
 
   <div class="mx-auto mt-8 flex max-w-6xl flex-col gap-2 border-t border-rule pt-4 font-mono text-[11px] text-ink-3 sm:flex-row sm:justify-between">
     <span>© 2026 DirectorioLocal.cr</span>
-    <span><TranslatedText es="Hecho en Costa Rica" en="Made in Costa Rica" /></span>
+    <span>{t('footer.madeIn')}</span>
   </div>
 </footer>

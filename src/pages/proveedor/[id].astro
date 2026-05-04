@@ -3,7 +3,6 @@ import { Image } from 'astro:assets'
 import ProviderContactBox from '@components/directory/ProviderContactBox.astro'
 import ReviewPreview from '@components/directory/ReviewPreview.astro'
 import StickyContactBar from '@components/directory/StickyContactBar.astro'
-import TranslatedText from '@components/i18n/TranslatedText.astro'
 import Badge from '@components/ui/Badge.astro'
 import Breadcrumbs from '@components/seo/Breadcrumbs.astro'
 import BaseLayout from '@layouts/BaseLayout.astro'
@@ -13,6 +12,7 @@ import { providerDisplayMeta } from '@lib/providerPresentation'
 import { absoluteUrl } from '@lib/site'
 import { breadcrumbJsonLd } from '@lib/seo/breadcrumb'
 import { localBusinessJsonLd } from '@lib/seo/localBusiness'
+import { t } from '@lib/i18n'
 
 export const prerender = true
 
@@ -51,11 +51,8 @@ const jsonLd = [
   breadcrumbJsonLd(breadcrumbs),
 ]
 const pageTitleEs = `${provider.name} | Servicio local en ${provider.district.name}`
-const pageTitleEn = `${provider.name} | ${provider.district.name} Local Service`
 const pageDescriptionEs = `${provider.name} es un proveedor local verificado que atiende ${provider.district.name}, ${provider.district.canton.name}.`
-const pageDescriptionEn = `${provider.name} is a verified local provider serving ${provider.district.name}, ${provider.district.canton.name}.`
 const fallbackDescriptionEs = `Proveedor local que atiende ${provider.district.name}.`
-const fallbackDescriptionEn = `Local service provider serving ${provider.district.name}.`
 const [reviewSummary, reviews] = await Promise.all([
   getReviewSummaryByProvider(provider.id),
   getReviewsByProvider(provider.id),
@@ -63,15 +60,12 @@ const [reviewSummary, reviews] = await Promise.all([
 const displayMeta = providerDisplayMeta(provider, reviewSummary)
 const featuredReview = reviews[0] ?? null
 const categoryLabel = provider.categories.map((category) => category.name).join(', ') || 'Servicio local'
-const categoryLabelEn = provider.categories.map((category) => category.name).join(', ') || 'Local service'
 const serviceAreas = [provider.district.name, provider.district.canton.name]
 ---
 
 <BaseLayout
   title={pageTitleEs}
-  titleEn={pageTitleEn}
   description={pageDescriptionEs}
-  descriptionEn={pageDescriptionEn}
   canonical={canonical}
   image={provider.photo_url ?? undefined}
   jsonLd={jsonLd}
@@ -104,59 +98,57 @@ const serviceAreas = [provider.district.name, provider.district.canton.name]
         </div>
         <div class="min-w-0">
           <p class="civic-meta">
-            <TranslatedText es={categoryLabel} en={categoryLabelEn} /> · {provider.district.canton.name} · {provider.district.name}
+            {categoryLabel} · {provider.district.canton.name} · {provider.district.name}
           </p>
           <h1 class="mt-1 text-3xl font-semibold leading-tight tracking-[-0.5px] text-ink md:text-4xl">{provider.name}</h1>
           <div class="mt-3 flex flex-wrap items-center gap-3">
-            <Badge label="Verificado" labelEn="Verified" />
+            <Badge label="Verificado" />
             {displayMeta.rating !== null && (
-              <span class="text-sm text-ink-2"><span class="text-star">★</span> {displayMeta.rating} · {displayMeta.reviewCount} <TranslatedText es="reseñas" en="reviews" /></span>
+              <span class="text-sm text-ink-2"><span class="text-star">★</span> {displayMeta.rating} · {displayMeta.reviewCount} {t('profile.reviews')}</span>
             )}
           </div>
         </div>
       </div>
 
       <article class="civic-card p-5">
-        <p class="civic-meta mb-3"><TranslatedText es="Acerca del proveedor" en="About the provider" /></p>
+        <p class="civic-meta mb-3">{t('profile.about')}</p>
         <p class="text-sm leading-7 text-ink-2">
-          {provider.description ?? <TranslatedText es={fallbackDescriptionEs} en={fallbackDescriptionEn} />}
+          {provider.description ?? fallbackDescriptionEs}
         </p>
       </article>
 
       <dl class="mt-4 grid overflow-hidden rounded-civic border border-rule bg-surface text-sm sm:grid-cols-2 lg:grid-cols-4">
         <div class="border-b border-rule-soft p-4 sm:border-r lg:border-b-0">
-          <dt class="civic-meta"><TranslatedText es={`Años en ${provider.district.canton.name}`} en={`Years in ${provider.district.canton.name}`} /></dt>
+          <dt class="civic-meta">{`Años en ${provider.district.canton.name}`}</dt>
           <dd class="mt-1 text-xl font-bold tracking-[-0.3px] text-ink">{displayMeta.yearsActive ?? '—'}</dd>
         </div>
         <div class="border-b border-rule-soft p-4 sm:border-b-0 lg:border-r">
-          <dt class="civic-meta"><TranslatedText es="Trabajos" en="Jobs" /></dt>
+          <dt class="civic-meta">{t('profile.jobs')}</dt>
           <dd class="mt-1 text-xl font-bold tracking-[-0.3px] text-ink">{displayMeta.completedJobs ?? '—'}</dd>
         </div>
         <div class="border-b border-rule-soft p-4 sm:border-r lg:border-b-0">
-          <dt class="civic-meta"><TranslatedText es="Calificación" en="Rating" /></dt>
+          <dt class="civic-meta">{t('profile.rating')}</dt>
           <dd class="mt-1 text-xl font-bold tracking-[-0.3px] text-ink">{displayMeta.rating ?? '—'}</dd>
         </div>
         <div class="p-4">
-          <dt class="civic-meta"><TranslatedText es="Responde en" en="Replies in" /></dt>
+          <dt class="civic-meta">{t('profile.repliesIn')}</dt>
           <dd class="mt-1 text-xl font-bold tracking-[-0.3px] text-ink">
-            {displayMeta.responseTimeEs !== null
-              ? <TranslatedText es={displayMeta.responseTimeEs} en={displayMeta.responseTimeEn!} />
-              : '—'}
+            {displayMeta.responseTimeEs !== null ? displayMeta.responseTimeEs : '—'}
           </dd>
         </div>
       </dl>
 
       <section class="civic-card mt-4 p-5">
-        <p class="civic-meta mb-3"><TranslatedText es="Área de servicio" en="Service area" /></p>
+        <p class="civic-meta mb-3">{t('profile.serviceArea')}</p>
         <div class="grid gap-4 sm:grid-cols-2">
           <div>
-            <p class="mb-2 text-xs font-semibold text-ink-3"><TranslatedText es="Ubicación principal" en="Primary location" /></p>
+            <p class="mb-2 text-xs font-semibold text-ink-3">{t('profile.primaryLocation')}</p>
             <div class="flex flex-wrap gap-2">
               {serviceAreas.map((area) => <span class="rounded-full border border-rule bg-surface-alt px-3 py-1 text-xs font-semibold text-ink-2">{area}</span>)}
             </div>
           </div>
           <div>
-            <p class="mb-2 text-xs font-semibold text-ink-3"><TranslatedText es="Servicios listados" en="Listed services" /></p>
+            <p class="mb-2 text-xs font-semibold text-ink-3">{t('profile.listedServices')}</p>
             <div class="flex flex-wrap gap-2">
               {
                 provider.categories.map((category) => (

@@ -273,10 +273,9 @@ export async function searchProviders(
 ): Promise<ProviderSearchResult[]> {
   if (!isSupabaseConfigured || q.trim().length === 0) return []
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any).rpc('search_providers', {
+  const { data, error } = await supabase.rpc('search_providers', {
     q: q.trim(),
-    p_district: districtId ?? null,
+    p_district: districtId ?? undefined,
     p_limit: 20,
     p_offset: 0,
   })
@@ -287,5 +286,22 @@ export async function searchProviders(
   }
 
   return (data ?? []) as ProviderSearchResult[]
+}
+
+export async function getProviderCountByDistrictIds(districtIds: string[]): Promise<number> {
+  if (!isSupabaseConfigured) return mockProviders.length
+  if (districtIds.length === 0) return 0
+
+  const { count, error } = await supabase
+    .from('providers')
+    .select('id', { count: 'exact', head: true })
+    .eq('verified', true)
+    .in('district_id', districtIds)
+
+  if (error) {
+    logger.error('getProviderCountByDistrictIds', { districtIds, error })
+    return 0
+  }
+  return count ?? 0
 }
 

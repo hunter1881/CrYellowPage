@@ -1,34 +1,30 @@
 ---
-import TranslatedText from '@components/i18n/TranslatedText.astro'
+import { t } from '@lib/i18n'
 
 interface Props {
   titleEs?: string
-  titleEn?: string
   bodyEs?: string
-  bodyEn?: string
   actionHref?: string
 }
 
 const {
-  titleEs = 'Aún no tenemos proveedores en esta categoría',
-  titleEn = 'No providers yet in this category',
-  bodyEs = 'Esta categoría todavía está creciendo. Si ofrece este servicio en la zona, puede registrar su negocio.',
-  bodyEn = 'This category is still growing. If you offer this service in the area, you can register your business.',
+  titleEs = t('empty.defaultTitle'),
+  bodyEs = t('empty.defaultBody'),
   actionHref = '/#provider-signup',
 } = Astro.props
 ---
 
 <section class="rounded-civic border border-rule bg-surface-alt p-6 text-center">
   <p class="civic-meta">
-    <TranslatedText es="Sin resultados" en="No results" />
+    {t('empty.label')}
   </p>
   <h2 class="mt-3 text-xl font-semibold tracking-[-0.3px] text-ink">
-    <TranslatedText es={titleEs} en={titleEn} />
+    {titleEs}
   </h2>
   <p class="mx-auto mt-3 max-w-xl text-sm leading-6 text-ink-2">
-    <TranslatedText es={bodyEs} en={bodyEn} />
+    {bodyEs}
   </p>
   <a class="civic-button mt-5 bg-canopy text-white" href={actionHref}>
-    <TranslatedText es="Registrarme como proveedor" en="Register as a provider" />
+    {t('empty.registerCta')}
   </a>
 </section>

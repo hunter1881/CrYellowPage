@@ -2,7 +2,6 @@
 import EmptyState from '@components/directory/EmptyState.astro'
 import FilterPanel from '@components/directory/FilterPanel.astro'
 import ProviderCard from '@components/directory/ProviderCard.astro'
-import TranslatedText from '@components/i18n/TranslatedText.astro'
 import Breadcrumbs from '@components/seo/Breadcrumbs.astro'
 import BaseLayout from '@layouts/BaseLayout.astro'
 import { getCategoriesByDistrictId, getCategoryBySlug } from '@lib/queries/categories'
@@ -13,12 +12,6 @@ import { absoluteUrl } from '@lib/site'
 import { breadcrumbJsonLd } from '@lib/seo/breadcrumb'
 import { itemListJsonLd } from '@lib/seo/itemList'
 import { providerUrl } from '@lib/slug'
-
-export const prerender = true
-
-export async function getStaticPaths() {
-  return getListingStaticPaths()
-}
 
 const cantonSlug = Astro.params.canton ?? ''
 const districtSlug = Astro.params.distrito ?? ''
@@ -120,7 +113,7 @@ const breadcrumbs = [
 ]
 const jsonLd = [
   itemListJsonLd({
-    name: `${category.name} in ${district.name}`,
+    name: `${category.name} en ${district.name}`,
     items: visibleProviders.map((provider) => ({
       name: provider.name,
       url: absoluteUrl(providerUrl(provider.id, provider.name), Astro.site),
@@ -129,20 +122,14 @@ const jsonLd = [
   breadcrumbJsonLd(breadcrumbs),
 ]
 const pageTitleEs = `${category.name} en ${district.name}, ${district.canton.name}`
-const pageTitleEn = `${category.name} in ${district.name}, ${district.canton.name}`
 const pageDescriptionEs = `Compare proveedores verificados de ${category.name.toLowerCase()} que atienden ${district.name}, ${district.canton.name}.`
-const pageDescriptionEn = `Compare verified ${category.name.toLowerCase()} providers serving ${district.name}, ${district.canton.name}.`
 const headingEs = `${category.name} en ${district.name}`
-const headingEn = `${category.name} in ${district.name}`
 const introEs = `Compare proveedores locales verificados que atienden ${district.name}, ${district.canton.name}.`
-const introEn = `Compare verified local providers serving ${district.name}, ${district.canton.name}.`
 ---
 
 <BaseLayout
   title={pageTitleEs}
-  titleEn={pageTitleEn}
   description={pageDescriptionEs}
-  descriptionEn={pageDescriptionEn}
   canonical={canonical}
   jsonLd={jsonLd}
 >
@@ -156,12 +143,12 @@ const introEn = `Compare verified local providers serving ${district.name}, ${di
         <div>
           <p class="civic-meta">{district.canton.name} · {district.name}</p>
           <h1 class="text-3xl font-semibold tracking-[-0.5px] text-ink">
-            <TranslatedText es={headingEs} en={headingEn} />
+            {headingEs}
           </h1>
         </div>
       </div>
       <p class="mt-3 max-w-3xl text-sm leading-6 text-ink-2">
-        <TranslatedText es={introEs} en={introEn} />
+        {introEs}
       </p>
     </div>
   </section>
@@ -186,7 +173,7 @@ const introEn = `Compare verified local providers serving ${district.name}, ${di
                 ]}
                 href={filter.href}
               >
-                <TranslatedText es={filter.es} en={filter.en} />
+                {filter.es}
               </a>
             ))
           }
@@ -194,13 +181,13 @@ const introEn = `Compare verified local providers serving ${district.name}, ${di
       </div>
 
       <div class="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <span class="civic-meta">{visibleProviders.length} <TranslatedText es="resultados" en="results" /></span>
+        <span class="civic-meta">{visibleProviders.length} resultados</span>
         <label class="flex items-center gap-2 text-xs font-semibold text-ink-2">
-          <span class="civic-meta"><TranslatedText es="Ordenar" en="Sort" /></span>
+          <span class="civic-meta">Ordenar</span>
           <select class="rounded-civic border border-rule bg-surface px-3 py-1.5 text-xs font-semibold text-ink outline-none" name="sort" data-sort-select>
             {
               sortOptions.map((option) => (
-                <option value={option.href} selected={option.active} data-option-es={option.es} data-option-en={option.en}>
+                <option value={option.href} selected={option.active}>
                   {option.es}
                 </option>
               ))
@@ -217,7 +204,7 @@ const introEn = `Compare verified local providers serving ${district.name}, ${di
       )}
       <div class="mt-8 grid gap-4 rounded-civic border border-rule bg-surface-alt p-4 md:grid-cols-2">
         <div>
-          <p class="civic-meta"><TranslatedText es="Distritos cercanos" en="Nearby districts" /></p>
+          <p class="civic-meta">Distritos cercanos</p>
           {
             nearbyDistrictLinks.length > 0 ? (
               <div class="mt-3 flex flex-wrap gap-2">
@@ -232,13 +219,13 @@ const introEn = `Compare verified local providers serving ${district.name}, ${di
               </div>
             ) : (
               <p class="mt-2 text-sm leading-6 text-ink-2">
-                <TranslatedText es="Aún no hay distritos cercanos publicados." en="No nearby districts are published yet." />
+                Aún no hay distritos cercanos publicados.
               </p>
             )
           }
         </div>
         <div>
-          <p class="civic-meta"><TranslatedText es="Otras categorías en este distrito" en="Other categories in this district" /></p>
+          <p class="civic-meta">Otras categorías en este distrito</p>
           {
             relatedCategoryLinks.length > 0 ? (
               <div class="mt-3 flex flex-wrap gap-2">
@@ -253,10 +240,7 @@ const introEn = `Compare verified local providers serving ${district.name}, ${di
               </div>
             ) : (
               <p class="mt-2 text-sm leading-6 text-ink-2">
-                <TranslatedText
-                  es="Publicaremos más categorías cuando haya suficientes proveedores verificados."
-                  en="We will publish more categories when there are enough verified providers."
-                />
+                Publicaremos más categorías cuando haya suficientes proveedores verificados.
               </p>
             )
           }

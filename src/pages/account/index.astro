@@ -1,0 +1,133 @@
+---
+import Badge from '@components/ui/Badge.astro'
+import BaseLayout from '@layouts/BaseLayout.astro'
+import { createSupabaseServerClient } from '@lib/supabaseServer'
+import { absoluteUrl } from '@lib/site'
+import { providerUrl } from '@lib/slug'
+import { t } from '@lib/i18n'
+
+export const prerender = false
+
+const supabase = createSupabaseServerClient(Astro.request, Astro.response.headers)
+const { data: { user } } = await supabase.auth.getUser()
+
+if (!user) {
+  return Astro.redirect('/account/login/')
+}
+
+const canonical = absoluteUrl('/account/', Astro.site)
+
+// Load the provider owned by this user (if any)
+const { data: provider } = await supabase
+  .from('providers')
+  .select('id, name, verified, description, phone, created_at, district_id')
+  .eq('owner_id', user.id)
+  .maybeSingle()
+
+// Load pending registration (if any)
+const { data: registration } = await supabase
+  .from('provider_registrations')
+  .select('id, business_name, status, created_at')
+  .eq('email', user.email ?? '')
+  .order('created_at', { ascending: false })
+  .limit(1)
+  .maybeSingle()
+---
+
+<BaseLayout
+  title="Mi cuenta | DirectorioLocal CR"
+  description="Administre su perfil de proveedor en DirectorioLocal CR."
+  canonical={canonical}
+>
+  <section class="border-b border-rule bg-surface">
+    <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 md:px-6">
+      <div>
+        <p class="civic-meta">{t('account.meta')}</p>
+        <h1 class="mt-1 text-2xl font-semibold tracking-[-0.5px] text-ink">
+          {t('account.title')}
+        </h1>
+      </div>
+      <form method="POST" action="/account/logout">
+        <button class="rounded-civic border border-rule px-4 py-2 text-sm text-ink-2 hover:border-ink hover:text-ink" type="submit">
+          {t('account.signOut')}
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-6xl px-4 py-8 md:px-6">
+    <div class="grid gap-5 md:grid-cols-2">
+
+      {/* Active provider profile */}
+      {provider ? (
+        <div class="civic-card p-5">
+          <div class="mb-4 flex items-start justify-between gap-3">
+            <div>
+              <p class="civic-meta">{t('account.publishedProfile')}</p>
+              <h2 class="mt-1 text-lg font-semibold text-ink">{provider.name}</h2>
+            </div>
+            {provider.verified
+              ? <Badge label="Verificado" />
+              : <span class="rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">{t('common.pending')}</span>
+            }
+          </div>
+          <p class="text-sm leading-6 text-ink-2">{provider.description ?? '—'}</p>
+          <div class="mt-4 flex flex-wrap gap-2">
+            <a
+              class="civic-button gap-2 border border-rule bg-surface text-sm text-ink"
+              href={`/account/edit/${provider.id}`}
+            >
+              {t('account.editProfile')}
+            </a>
+            <a
+              class="civic-button gap-2 border border-rule bg-surface text-sm text-ink-2"
+              href={providerUrl(provider.id, provider.name)}
+              target="_blank"
+              rel="noopener"
+            >
+              {t('account.viewPublic')}
+            </a>
+          </div>
+        </div>
+      ) : (
+        <div class="civic-card flex flex-col items-center justify-center gap-3 p-8 text-center">
+          <p class="text-sm text-ink-2">
+            Aún no tenés un perfil activo en el directorio.
+          </p>
+          <a class="civic-button bg-canopy text-sm text-white" href="/register-provider">
+            {t('common.registerService')}
+          </a>
+        </div>
+      )}
+
+      {/* Registration status */}
+      {registration && (
+        <div class="civic-card p-5">
+          <p class="civic-meta mb-2">{t('account.applicationSent')}</p>
+          <p class="text-lg font-semibold text-ink">{registration.business_name}</p>
+          <div class="mt-3 flex items-center gap-2">
+            {registration.status === 'pending' && (
+              <span class="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700 border border-amber-200">
+                {t('account.underReview')}
+              </span>
+            )}
+            {registration.status === 'approved' && (
+              <span class="rounded-full bg-canopy-soft px-3 py-1 text-xs font-semibold text-canopy border border-canopy/30">
+                {t('account.approved')}
+              </span>
+            )}
+            {registration.status === 'rejected' && (
+              <span class="rounded-full bg-red-50 px-3 py-1 text-xs font-semibold text-red-700 border border-red-200">
+                {t('account.rejected')}
+              </span>
+            )}
+          </div>
+          <p class="mt-3 text-sm text-ink-3">
+            Revisamos las solicitudes en 1–2 días hábiles.
+          </p>
+        </div>
+      )}
+
+    </div>
+  </section>
+</BaseLayout>

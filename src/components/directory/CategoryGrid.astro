@@ -1,5 +1,5 @@
 ---
-import TranslatedText from '@components/i18n/TranslatedText.astro'
+import { t } from '@lib/i18n'
 import type { Category } from '@lib/queries/categories'
 
 interface Props {
@@ -24,10 +24,10 @@ const { categories, basePath } = Astro.props
           <span class="block text-[15px] font-semibold tracking-[-0.1px]">{category.name}</span>
           {category.count != null ? (
             <span class="civic-meta mt-1 block">
-              {category.count} <TranslatedText es="proveedores" en="providers" />
+              {category.count} {t('common.providers')}
             </span>
           ) : (
-            <span class="civic-meta mt-1 block"><TranslatedText es="Ver proveedores" en="View providers" /></span>
+            <span class="civic-meta mt-1 block">{t('category.viewProviders')}</span>
           )}
         </span>
       </a>

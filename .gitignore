@@ -13,3 +13,7 @@ supabase/.temp/
 
 # Lock de skills de agentes IA (personal, no del proyecto)
 skills-lock.json
+
+# Archivos generados por Playwright MCP (capturas de pruebas)
+.playwright-mcp/
+test-*.png
