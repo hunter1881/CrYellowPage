@@ -225,8 +225,12 @@ const cantons = await getCantonsWithDistricts()
 
         const cleanPath = href.replace(/^\//,'').replace(/\/$/,'')
         const districtText = link.querySelector('span')?.textContent?.trim() ?? cleanPath
+        const districtId = link.dataset.districtId ?? ''
         document.querySelectorAll('[data-search-district-input]').forEach((input) => {
           input.value = cleanPath
+        })
+        document.querySelectorAll('[data-search-district-id-input]').forEach((input) => {
+          input.value = districtId
         })
         document.querySelectorAll('[data-search-location-label]').forEach((label) => {
           label.textContent = districtText

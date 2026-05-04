@@ -71,6 +71,7 @@ const provinceGroups = [...cantonsByProvince.values()].sort((a, b) => a.name.loc
                         class="flex items-center justify-between gap-3 py-3 text-sm text-ink no-underline hover:text-canopy"
                         href={`/${canton.slug}/${district.slug}/`}
                         data-location-option
+                        data-district-id={district.id}
                         data-location-text={`${province.name} ${province.slug} ${canton.name} ${canton.slug} ${district.name} ${district.slug}`}
                       >
                         <span>{district.name}</span>

@@ -261,3 +261,31 @@ export async function getRecentProviders(limit: number = 3): Promise<ProviderLis
 
   return data ?? []
 }
+
+export interface ProviderSearchResult extends ProviderListItem {
+  district_id: string
+  rank: number
+}
+
+export async function searchProviders(
+  q: string,
+  districtId?: string,
+): Promise<ProviderSearchResult[]> {
+  if (!isSupabaseConfigured || q.trim().length === 0) return []
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase as any).rpc('search_providers', {
+    q: q.trim(),
+    p_district: districtId ?? null,
+    p_limit: 20,
+    p_offset: 0,
+  })
+
+  if (error) {
+    logger.error('searchProviders', { q, districtId, error })
+    return []
+  }
+
+  return (data ?? []) as ProviderSearchResult[]
+}
+

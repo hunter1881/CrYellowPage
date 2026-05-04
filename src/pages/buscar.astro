@@ -1,0 +1,117 @@
+---
+import TranslatedText from '@components/i18n/TranslatedText.astro'
+import ProviderCard from '@components/directory/ProviderCard.astro'
+import EmptyState from '@components/directory/EmptyState.astro'
+import BaseLayout from '@layouts/BaseLayout.astro'
+import { getCantonsWithDistricts } from '@lib/queries/geography'
+import { searchProviders } from '@lib/queries/providers'
+import { getReviewSummariesByProviderIds } from '@lib/queries/reviews'
+import { supabase } from '@lib/supabase'
+import { absoluteUrl } from '@lib/site'
+
+export const prerender = false
+
+const q = (Astro.url.searchParams.get('q') ?? '').trim()
+const districtId = Astro.url.searchParams.get('district') ?? Astro.url.searchParams.get('districtId') ?? undefined
+
+// Resolve district name for display (if a district filter is active)
+let districtLabel: string | null = null
+if (districtId) {
+  const { data } = await supabase
+    .from('districts')
+    .select('name, cantons!inner(name)')
+    .eq('id', districtId)
+    .maybeSingle()
+  if (data) {
+    const cantonName = Array.isArray(data.cantons) ? data.cantons[0]?.name : (data.cantons as { name: string } | null)?.name
+    districtLabel = cantonName ? `${data.name}, ${cantonName}` : data.name
+  }
+}
+
+const results = q.length >= 2 ? await searchProviders(q, districtId) : []
+
+const reviewSummaries = results.length > 0
+  ? await getReviewSummariesByProviderIds(results.map((r) => r.id))
+  : new Map()
+
+const canonical = absoluteUrl('/buscar', Astro.site)
+
+const titleEs = q ? `"${q}" — Búsqueda | DirectorioLocal CR` : 'Buscar proveedores | DirectorioLocal CR'
+const titleEn = q ? `"${q}" — Search | DirectorioLocal CR` : 'Search providers | DirectorioLocal CR'
+---
+
+<BaseLayout
+  title={titleEs}
+  titleEn={titleEn}
+  description="Búsqueda de proveedores locales en DirectorioLocal CR."
+  descriptionEn="Search local service providers in DirectorioLocal CR."
+  canonical={canonical}
+>
+  <section class="border-b border-rule bg-surface">
+    <div class="mx-auto max-w-6xl px-4 py-6 md:px-6">
+      <form class="flex gap-2" method="get" action="/buscar">
+        {districtId && <input type="hidden" name="district" value={districtId} />}
+        <input
+          class="min-w-0 flex-1 rounded-civic border border-rule bg-white px-4 py-2.5 text-sm font-semibold text-ink outline-none focus:border-canopy"
+          type="search"
+          name="q"
+          value={q}
+          placeholder="Ej: fontanero, electricista…"
+          autofocus
+          minlength="2"
+          required
+        />
+        <button class="civic-button bg-canopy px-5 text-white" type="submit">
+          <TranslatedText es="Buscar" en="Search" />
+        </button>
+      </form>
+
+      {districtLabel && (
+        <p class="mt-2 text-xs text-ink-3">
+          <TranslatedText es={`Filtrando en: ${districtLabel}`} en={`Filtering by: ${districtLabel}`} />
+          <a class="ml-2 underline" href={`/buscar?q=${encodeURIComponent(q)}`}>
+            <TranslatedText es="Quitar filtro" en="Remove filter" />
+          </a>
+        </p>
+      )}
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-6xl px-4 py-6 md:px-6">
+    {q.length >= 2 ? (
+      <>
+        <div class="mb-4 flex items-baseline justify-between">
+          <h1 class="text-lg font-semibold text-ink">
+            {results.length > 0
+              ? <TranslatedText es={`${results.length} resultado${results.length === 1 ? '' : 's'} para "${q}"`} en={`${results.length} result${results.length === 1 ? '' : 's'} for "${q}"`} />
+              : <TranslatedText es={`Sin resultados para "${q}"`} en={`No results for "${q}"`} />
+            }
+          </h1>
+        </div>
+
+        {results.length > 0 ? (
+          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {results.map((provider) => (
+              <ProviderCard
+                provider={provider}
+                reviewSummary={reviewSummaries.get(provider.id)}
+              />
+            ))}
+          </div>
+        ) : (
+          <EmptyState
+            titleEs={`No encontramos resultados para "${q}"`}
+            titleEn={`No results found for "${q}"`}
+            bodyEs="Probá con otras palabras o navegá por categoría desde la página principal."
+            bodyEn="Try different words or browse by category from the home page."
+            actionHref="/"
+          />
+        )}
+      </>
+    ) : (
+      <p class="text-sm text-ink-3">
+        <TranslatedText es="Escribí al menos 2 caracteres para buscar." en="Type at least 2 characters to search." />
+      </p>
+    )}
+  </section>
+</BaseLayout>
