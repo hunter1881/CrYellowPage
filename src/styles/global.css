@@ -1,6 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../../tailwind.config.mjs";
 
 @layer base {
   *,
@@ -14,12 +13,20 @@
   }
 
   body {
-    @apply bg-mist text-ink antialiased;
+    background: #f4f5f2;
+    color: #1a1f1b;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     font-family: Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   }
 
   a {
-    @apply text-canopy underline-offset-4 hover:underline;
+    color: #0e5a3f;
+    text-underline-offset: 4px;
+  }
+
+  a:hover {
+    text-decoration-line: underline;
   }
 
   button,
@@ -32,18 +39,46 @@
 
 @layer components {
   .civic-meta {
-    @apply font-mono text-[11px] font-semibold uppercase tracking-[0.5px] text-ink-3;
+    color: #7a8079;
+    font-family: 'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
   }
 
   .civic-card {
-    @apply rounded-civic border border-rule bg-surface shadow-none;
+    background: #ffffff;
+    border: 1px solid #d9dcd6;
+    border-radius: 2px;
+    box-shadow: none;
   }
 
   .civic-card-hover {
-    @apply transition hover:border-canopy hover:shadow-[0_1px_3px_rgba(0,0,0,0.06)];
+    transition:
+      border-color 150ms ease,
+      box-shadow 150ms ease;
+  }
+
+  .civic-card-hover:hover {
+    border-color: #0e5a3f;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.06);
   }
 
   .civic-button {
-    @apply inline-flex items-center justify-center rounded-civic px-4 py-2 text-sm font-semibold no-underline transition;
+    align-items: center;
+    border-radius: 2px;
+    display: inline-flex;
+    font-size: 14px;
+    font-weight: 600;
+    justify-content: center;
+    line-height: 20px;
+    padding: 8px 16px;
+    text-decoration-line: none;
+    transition:
+      background-color 150ms ease,
+      border-color 150ms ease,
+      color 150ms ease,
+      box-shadow 150ms ease;
   }
 }

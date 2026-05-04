@@ -1,40 +1,51 @@
 ---
 import TranslatedText from '@components/i18n/TranslatedText.astro'
 
-interface FilterItem {
+interface FilterOption {
+  key: string
   es: string
   en: string
-  checked?: boolean
+  active?: boolean
+  href: string
+}
+
+interface SortOption {
+  value: string
+  es: string
+  en: string
+  active?: boolean
+  href: string
 }
 
 interface Props {
-  filters?: FilterItem[]
-  sortEs?: string
-  sortEn?: string
+  filters: FilterOption[]
+  sortOptions: SortOption[]
 }
 
-const {
-  filters = [
-    { es: 'Solo verificados', en: 'Verified only', checked: true },
-    { es: 'Disponible hoy', en: 'Available today' },
-    { es: 'Acepta SINPE', en: 'Accepts SINPE' },
-  ],
-  sortEs = 'Mejor calificados',
-  sortEn = 'Top rated',
-} = Astro.props
+const { filters, sortOptions } = Astro.props
 ---
 
 <aside class="hidden md:block">
   <div class="civic-meta border-b border-rule pb-2">
     <TranslatedText es="Filtros" en="Filters" />
   </div>
-  <div class="mt-3 space-y-2 text-sm text-ink-2">
+  <div class="mt-3 grid gap-2 text-sm text-ink-2">
     {
       filters.map((filter) => (
-        <label class="flex items-center gap-2">
-          <input type="checkbox" checked={filter.checked} disabled />
+        <a
+          class:list={[
+            'flex items-center gap-2 rounded-civic border px-3 py-2 no-underline',
+            filter.active
+              ? 'border-canopy bg-canopy-soft font-semibold text-canopy'
+              : 'border-rule bg-surface text-ink-2 hover:border-canopy hover:text-canopy',
+          ]}
+          href={filter.href}
+        >
+          <span class="flex h-4 w-4 items-center justify-center rounded-civic border border-current text-[10px]">
+            {filter.active ? '✓' : ''}
+          </span>
           <TranslatedText es={filter.es} en={filter.en} />
-        </label>
+        </a>
       ))
     }
   </div>
@@ -42,8 +53,20 @@ const {
     <p class="civic-meta">
       <TranslatedText es="Ordenar" en="Sort" />
     </p>
-    <p class="mt-2 text-sm text-ink-2">
-      <TranslatedText es={sortEs} en={sortEn} />
-    </p>
+    <div class="mt-3 grid gap-2">
+      {
+        sortOptions.map((option) => (
+          <a
+            class:list={[
+              'text-sm no-underline',
+              option.active ? 'font-semibold text-canopy' : 'text-ink-2 hover:text-canopy',
+            ]}
+            href={option.href}
+          >
+            <TranslatedText es={option.es} en={option.en} />
+          </a>
+        ))
+      }
+    </div>
   </div>
 </aside>

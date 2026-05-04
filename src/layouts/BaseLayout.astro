@@ -141,6 +141,9 @@ const cantons = await getCantonsWithDistricts()
         document.querySelectorAll('[data-label-es][data-label-en]').forEach((element) => {
           element.textContent = element.dataset[nextLanguage === 'en' ? 'labelEn' : 'labelEs']
         })
+        document.querySelectorAll('[data-option-es][data-option-en]').forEach((element) => {
+          element.textContent = element.dataset[nextLanguage === 'en' ? 'optionEn' : 'optionEs']
+        })
 
         const title = document.body.dataset[nextLanguage === 'en' ? 'pageTitleEn' : 'pageTitleEs']
         if (title) document.title = title
@@ -171,6 +174,12 @@ const cantons = await getCantonsWithDistricts()
 
       document.querySelectorAll('[data-language-option]').forEach((button) => {
         button.addEventListener('click', () => applyLanguage(button.dataset.languageOption))
+      })
+
+      document.addEventListener('change', (event) => {
+        const select = event.target?.closest?.('[data-sort-select]')
+        if (!select?.value) return
+        window.location.assign(select.value)
       })
 
       document.querySelectorAll('[data-open-mobile-menu]').forEach((button) => {
@@ -212,6 +221,12 @@ const cantons = await getCantonsWithDistricts()
             option.hidden = !matches
           })
           document.querySelectorAll('[data-location-group]').forEach((group) => {
+            group.querySelectorAll('[data-location-subgroup]').forEach((subgroup) => {
+              const hasVisibleOption = [...subgroup.querySelectorAll('[data-location-option]')].some(
+                (option) => !option.hidden,
+              )
+              subgroup.hidden = !hasVisibleOption
+            })
             const hasVisibleOption = [...group.querySelectorAll('[data-location-option]')].some(
               (option) => !option.hidden,
             )

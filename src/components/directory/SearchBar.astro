@@ -1,15 +1,33 @@
 ---
 import TranslatedText from '@components/i18n/TranslatedText.astro'
+import type { Category } from '@lib/queries/categories'
 import type { CantonWithDistricts } from '@lib/queries/geography'
 
 interface Props {
   cantons: CantonWithDistricts[]
+  categories?: Category[]
+  publishedListings?: string[]
 }
 
-const { cantons } = Astro.props
+const { cantons, categories = [], publishedListings = [] } = Astro.props
+const cantonsByProvince = cantons.reduce(
+  (groups, canton) => {
+    const provinceName = canton.province?.name ?? 'Costa Rica'
+    const current = groups.get(provinceName) ?? [] as CantonWithDistricts[]
+    current.push(canton)
+    groups.set(provinceName, current)
+    return groups
+  },
+  new Map<string, CantonWithDistricts[]>(),
+)
+const provinceGroups = [...cantonsByProvince.entries()].sort(([a], [b]) => a.localeCompare(b, 'es'))
+const categoryLookup = categories.map((category) => ({
+  name: category.name,
+  slug: category.slug,
+}))
 ---
 
-<form class="grid gap-0 overflow-hidden rounded-civic border-2 border-ink bg-surface md:grid-cols-[1.4fr_1fr_auto]" action="/" method="get">
+<form class="grid gap-0 overflow-hidden rounded-civic border-2 border-ink bg-surface md:grid-cols-[1.4fr_1.1fr_auto]" action="/" method="get" data-directory-search>
   <label class="grid gap-1 border-b border-rule p-3 md:border-b-0 md:border-r">
     <span class="civic-meta"><TranslatedText es="Buscar" en="Search" /></span>
     <input
@@ -22,15 +40,17 @@ const { cantons } = Astro.props
     />
   </label>
   <label class="grid gap-1 border-b border-rule p-3 md:border-b-0 md:border-r">
-    <span class="civic-meta"><TranslatedText es="Distrito" en="District" /></span>
+    <span class="civic-meta"><TranslatedText es="Ubicación" en="Location" /></span>
     <select class="min-w-0 border-none bg-transparent text-sm font-semibold text-ink outline-none" name="district">
       <option value="" data-label-es="Todos los distritos" data-label-en="All districts">Todos los distritos</option>
       {
-        cantons.map((canton) => (
-          <optgroup label={canton.name}>
-            {canton.districts.map((district) => (
-              <option value={`${canton.slug}/${district.slug}`}>{district.name}</option>
-            ))}
+        provinceGroups.map(([provinceName, provinceCantons]) => (
+          <optgroup label={provinceName}>
+            {provinceCantons.flatMap((canton) =>
+              canton.districts.map((district) => (
+                <option value={`${canton.slug}/${district.slug}`}>{district.name} · {canton.name}</option>
+              )),
+            )}
           </optgroup>
         ))
       }
@@ -40,3 +60,67 @@ const { cantons } = Astro.props
     <TranslatedText es="Encontrar" en="Find" />
   </button>
 </form>
+
+<script is:inline type="application/json" data-published-listings set:html={JSON.stringify(publishedListings)} />
+
+<script is:inline define:vars={{ categoryLookup }}>
+  function normalizeSearchValue(value) {
+    return value
+      .normalize('NFD')
+      .replace(/\p{Diacritic}/gu, '')
+      .replace(/[ñÑ]/g, 'n')
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-')
+  }
+
+  const categoryAliases = {
+    plomero: 'fontaneria',
+    plomeria: 'fontaneria',
+    fontanero: 'fontaneria',
+    fuga: 'fontaneria',
+    fugas: 'fontaneria',
+    electrico: 'electricidad',
+    electricista: 'electricidad',
+    jardinero: 'jardineria',
+    jardin: 'jardineria',
+    limpieza: 'limpieza',
+    limpiar: 'limpieza',
+    reparacion: 'reparaciones',
+    reparaciones: 'reparaciones',
+    cerrajero: 'cerrajeria',
+    pintura: 'pintura',
+    pintor: 'pintura',
+    aire: 'aire-acondicionado',
+    'aire-acondicionado': 'aire-acondicionado',
+  }
+
+  const categoriesBySearchTerm = new Map()
+  const publishedListingSet = new Set(
+    JSON.parse(document.querySelector('[data-published-listings]')?.textContent ?? '[]'),
+  )
+  categoryLookup.forEach((category) => {
+    categoriesBySearchTerm.set(category.slug, category.slug)
+    categoriesBySearchTerm.set(normalizeSearchValue(category.name), category.slug)
+  })
+  Object.entries(categoryAliases).forEach(([alias, slug]) => {
+    categoriesBySearchTerm.set(alias, slug)
+  })
+
+  document.querySelectorAll('[data-directory-search]').forEach((form) => {
+    form.addEventListener('submit', (event) => {
+      const formData = new FormData(form)
+      const districtPath = String(formData.get('district') ?? '').replace(/^\/+|\/+$/g, '')
+      const query = normalizeSearchValue(String(formData.get('q') ?? ''))
+      const categorySlug = categoriesBySearchTerm.get(query)
+
+      if (!districtPath) return
+
+      event.preventDefault()
+      const listingPath = categorySlug ? `${districtPath}/${categorySlug}` : null
+      const nextPath = listingPath && publishedListingSet.has(listingPath) ? `/${listingPath}/` : `/${districtPath}/`
+      window.location.assign(nextPath)
+    })
+  })
+</script>

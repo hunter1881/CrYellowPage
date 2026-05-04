@@ -1,0 +1,125 @@
+---
+import { actions } from 'astro:actions'
+import TranslatedText from '@components/i18n/TranslatedText.astro'
+import type { Category } from '@lib/queries/categories'
+import type { CantonWithDistricts } from '@lib/queries/geography'
+
+interface Props {
+  cantons: CantonWithDistricts[]
+  categories: Category[]
+  inputErrors?: Record<string, string[] | undefined>
+}
+
+const { cantons, categories, inputErrors = {} } = Astro.props
+const errorFor = (name: string) => inputErrors[name]?.join(', ')
+---
+
+<form class="civic-card grid gap-5 p-5" method="POST" action={actions.registerProvider}>
+  <div>
+    <p class="civic-meta"><TranslatedText es="Solicitud de proveedor" en="Provider application" /></p>
+    <h2 class="mt-2 text-xl font-semibold text-ink">
+      <TranslatedText es="Datos públicos y de contacto" en="Public and contact details" />
+    </h2>
+  </div>
+
+  <div class="grid gap-4 md:grid-cols-2">
+    <label class="grid gap-1.5 text-sm font-semibold text-ink">
+      <span><TranslatedText es="Nombre del negocio" en="Business name" /></span>
+      <input class="rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-normal outline-none focus:border-canopy" name="businessName" required minlength="3" maxlength="120" />
+      {errorFor('businessName') && <span class="text-xs font-medium text-red-700">{errorFor('businessName')}</span>}
+    </label>
+
+    <label class="grid gap-1.5 text-sm font-semibold text-ink">
+      <span><TranslatedText es="Persona de contacto" en="Contact person" /></span>
+      <input class="rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-normal outline-none focus:border-canopy" name="contactName" required minlength="3" maxlength="120" />
+      {errorFor('contactName') && <span class="text-xs font-medium text-red-700">{errorFor('contactName')}</span>}
+    </label>
+
+    <label class="grid gap-1.5 text-sm font-semibold text-ink">
+      <span>Email</span>
+      <input class="rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-normal outline-none focus:border-canopy" name="email" required type="email" maxlength="160" />
+      {errorFor('email') && <span class="text-xs font-medium text-red-700">{errorFor('email')}</span>}
+    </label>
+
+    <label class="grid gap-1.5 text-sm font-semibold text-ink">
+      <span><TranslatedText es="Teléfono" en="Phone" /></span>
+      <input class="rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-normal outline-none focus:border-canopy" name="phone" required inputmode="tel" placeholder="8888-8888" pattern="(?:\+506\s?)?\d{4}-?\d{4}" />
+      {errorFor('phone') && <span class="text-xs font-medium text-red-700">{errorFor('phone')}</span>}
+    </label>
+
+    <label class="grid gap-1.5 text-sm font-semibold text-ink md:col-span-2">
+      <span>WhatsApp <span class="font-normal text-ink-3"><TranslatedText es="opcional" en="optional" /></span></span>
+      <input class="rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-normal outline-none focus:border-canopy" name="whatsapp" inputmode="tel" placeholder="+506 8888-8888" />
+      {errorFor('whatsapp') && <span class="text-xs font-medium text-red-700">{errorFor('whatsapp')}</span>}
+    </label>
+  </div>
+
+  <div class="grid gap-4">
+    <label class="grid gap-1.5 text-sm font-semibold text-ink">
+      <span><TranslatedText es="Distrito donde atiende principalmente" en="Main district served" /></span>
+      <select class="rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-normal outline-none focus:border-canopy" name="districtId" required>
+        <option value="" data-option-es="Seleccione un distrito" data-option-en="Select a district">
+          Seleccione un distrito
+        </option>
+        {
+          cantons.map((canton) => (
+            <optgroup label={`${canton.province?.name ?? 'Costa Rica'} · ${canton.name}`}>
+              {canton.districts.map((district) => (
+                <option value={district.id}>{district.name}</option>
+              ))}
+            </optgroup>
+          ))
+        }
+      </select>
+      {errorFor('districtId') && <span class="text-xs font-medium text-red-700">{errorFor('districtId')}</span>}
+    </label>
+
+    <fieldset class="grid gap-2">
+      <legend class="text-sm font-semibold text-ink">
+        <TranslatedText es="Categorías de servicio" en="Service categories" />
+      </legend>
+      <div class="grid gap-2 sm:grid-cols-2">
+        {
+          categories.map((category) => (
+            <label class="flex items-center gap-2 rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-semibold text-ink-2">
+              <input name="categoryIds" type="checkbox" value={category.id} />
+              <span>{category.icon_emoji ?? '#'} {category.name}</span>
+            </label>
+          ))
+        }
+      </div>
+      {errorFor('categoryIds') && <span class="text-xs font-medium text-red-700">{errorFor('categoryIds')}</span>}
+    </fieldset>
+
+    <label class="grid gap-1.5 text-sm font-semibold text-ink">
+      <span><TranslatedText es="Descripción corta del servicio" en="Short service description" /></span>
+      <textarea class="min-h-32 rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-normal leading-6 outline-none focus:border-canopy" name="description" required minlength="30" maxlength="500"></textarea>
+      {errorFor('description') && <span class="text-xs font-medium text-red-700">{errorFor('description')}</span>}
+    </label>
+  </div>
+
+  <div class="grid gap-4 rounded-civic border border-rule bg-surface-alt p-4 md:grid-cols-3">
+    <label class="grid gap-1.5 text-sm font-semibold text-ink">
+      <span><TranslatedText es="Años de experiencia" en="Years active" /></span>
+      <input class="rounded-civic border border-rule bg-surface px-3 py-2 text-sm font-normal outline-none focus:border-canopy" name="yearsActive" type="number" min="0" max="80" value="1" />
+    </label>
+    <label class="flex items-center gap-2 text-sm font-semibold text-ink-2">
+      <input name="acceptsSinpe" type="checkbox" />
+      <TranslatedText es="Acepta SINPE" en="Accepts SINPE" />
+    </label>
+    <label class="flex items-center gap-2 text-sm font-semibold text-ink-2">
+      <input name="worksWeekends" type="checkbox" />
+      <TranslatedText es="Atiende fines de semana" en="Works weekends" />
+    </label>
+  </div>
+
+  <input name="sourceLocale" type="hidden" value="es" />
+  <label class="hidden">
+    Website
+    <input name="website" tabindex="-1" autocomplete="off" />
+  </label>
+
+  <button class="civic-button justify-center bg-canopy text-white" type="submit">
+    <TranslatedText es="Enviar solicitud" en="Send application" />
+  </button>
+</form>

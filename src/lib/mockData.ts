@@ -5,6 +5,7 @@ import { providerUrl } from '@lib/slug'
 
 export const mockCanton: Canton = {
   id: '00000000-0000-4000-8000-000000000001',
+  province_id: '00000000-0000-4000-8000-000000000000',
   name: 'Aserrí',
   slug: 'aserri',
 }
@@ -32,6 +33,11 @@ export const mockProviders: ProviderListItem[] = [
     description: 'Fontanero con 18 años atendiendo Aserrí. Reparación de fugas, instalación de tanques y emergencias.',
     photo_url: null,
     created_at: '2026-01-01T00:00:00.000Z',
+    accepts_sinpe: true,
+    works_weekends: true,
+    years_active: 18,
+    completed_jobs: 230,
+    response_time_minutes: 35,
   },
   {
     id: '00000000-0000-4000-8000-000000000302',
@@ -41,6 +47,11 @@ export const mockProviders: ProviderListItem[] = [
     description: 'Servicio de emergencia 24/7 para fugas y obstrucciones en zona sur de San José.',
     photo_url: null,
     created_at: '2026-01-02T00:00:00.000Z',
+    accepts_sinpe: true,
+    works_weekends: true,
+    years_active: 9,
+    completed_jobs: 145,
+    response_time_minutes: 20,
   },
   {
     id: '00000000-0000-4000-8000-000000000303',
@@ -50,12 +61,23 @@ export const mockProviders: ProviderListItem[] = [
     description: 'Instalaciones, mantenimiento y reparaciones menores para hogares en Vuelta de Jorco.',
     photo_url: null,
     created_at: '2026-01-03T00:00:00.000Z',
+    accepts_sinpe: false,
+    works_weekends: true,
+    years_active: 6,
+    completed_jobs: 88,
+    response_time_minutes: 45,
   },
 ]
 
 export const mockCantonsWithDistricts: CantonWithDistricts[] = [
   {
     ...mockCanton,
+    province: {
+      id: '00000000-0000-4000-8000-000000000000',
+      code: '1',
+      name: 'San José',
+      slug: 'san-jose',
+    },
     districts: mockDistricts,
   },
 ]

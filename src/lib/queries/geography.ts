@@ -5,15 +5,17 @@ import type { Database } from '@generated/database.types'
 
 type CantonRow = Database['public']['Tables']['cantons']['Row']
 type DistrictRow = Database['public']['Tables']['districts']['Row']
+type ProvinceRow = Database['public']['Tables']['provinces']['Row']
 
-export type Canton = Pick<CantonRow, 'id' | 'name' | 'slug'>
+export type Province = Pick<ProvinceRow, 'id' | 'name' | 'slug' | 'code'>
+export type Canton = Pick<CantonRow, 'id' | 'province_id' | 'name' | 'slug'>
 export type District = Pick<DistrictRow, 'id' | 'canton_id' | 'name' | 'slug'>
-export type CantonWithDistricts = Canton & { districts: District[] }
+export type CantonWithDistricts = Canton & { province?: Province; districts: District[] }
 
 export async function getCantons(): Promise<Canton[]> {
   if (!isSupabaseConfigured) return [mockCanton]
 
-  const { data, error } = await supabase.from('cantons').select('id, name, slug').order('name')
+  const { data, error } = await supabase.from('cantons').select('id, province_id, name, slug').order('name')
 
   if (error) {
     logger.error('getCantons', { error })
@@ -28,7 +30,7 @@ export async function getCantonBySlug(cantonSlug: string): Promise<Canton | null
 
   const { data, error } = await supabase
     .from('cantons')
-    .select('id, name, slug')
+    .select('id, province_id, name, slug')
     .eq('slug', cantonSlug)
     .maybeSingle()
 
@@ -86,9 +88,10 @@ export async function getDistrictBySlugs(
 export async function getCantonsWithDistricts(): Promise<CantonWithDistricts[]> {
   if (!isSupabaseConfigured) return mockCantonsWithDistricts
 
-  const [cantons, districts] = await Promise.all([
+  const [cantons, districts, provinces] = await Promise.all([
     getCantons(),
     supabase.from('districts').select('id, canton_id, name, slug').order('name'),
+    supabase.from('provinces').select('id, name, slug, code').order('code'),
   ])
 
   if (districts.error) {
@@ -96,15 +99,54 @@ export async function getCantonsWithDistricts(): Promise<CantonWithDistricts[]> 
     return cantons.map((canton) => ({ ...canton, districts: [] }))
   }
 
+  if (provinces.error) {
+    logger.error('getCantonsWithDistricts.provinces', { error: provinces.error })
+  }
+
+  const provinceById = new Map((provinces.data ?? []).map((province) => [province.id, province]))
+
   return cantons.map((canton) => ({
     ...canton,
+    province: provinceById.get(canton.province_id),
     districts: (districts.data ?? []).filter((district) => district.canton_id === canton.id),
   }))
 }
 
 export async function getCantonStaticPaths(): Promise<Array<{ params: { canton: string } }>> {
+  if (!isSupabaseConfigured) {
+    return [{ params: { canton: mockCanton.slug } }]
+  }
+
+  const { data: providers, error: providersError } = await supabase
+    .from('providers')
+    .select('district_id')
+    .eq('verified', true)
+
+  if (providersError) {
+    logger.error('getCantonStaticPaths.providers', { error: providersError })
+    return []
+  }
+
+  const districtIds = [...new Set((providers ?? []).map((provider) => provider.district_id))]
+  if (districtIds.length === 0) return []
+
+  const { data: districts, error: districtsError } = await supabase
+    .from('districts')
+    .select('id, canton_id')
+    .in('id', districtIds)
+
+  if (districtsError) {
+    logger.error('getCantonStaticPaths.districts', { error: districtsError })
+    return []
+  }
+
+  const cantonIds = [...new Set((districts ?? []).map((district) => district.canton_id))]
+  if (cantonIds.length === 0) return []
+
   const cantons = await getCantons()
-  return cantons.map((canton) => ({ params: { canton: canton.slug } }))
+  return cantons
+    .filter((canton) => cantonIds.includes(canton.id))
+    .map((canton) => ({ params: { canton: canton.slug } }))
 }
 
 export async function getDistrictStaticPaths(): Promise<
@@ -116,9 +158,22 @@ export async function getDistrictStaticPaths(): Promise<
     }))
   }
 
+  const { data: providers, error: providersError } = await supabase
+    .from('providers')
+    .select('district_id')
+    .eq('verified', true)
+
+  if (providersError) {
+    logger.error('getDistrictStaticPaths.providers', { error: providersError })
+    return []
+  }
+
+  const districtIds = [...new Set((providers ?? []).map((provider) => provider.district_id))]
+  if (districtIds.length === 0) return []
+
   const [cantons, districtsResult] = await Promise.all([
     getCantons(),
-    supabase.from('districts').select('id, canton_id, name, slug'),
+    supabase.from('districts').select('id, canton_id, name, slug').in('id', districtIds),
   ])
 
   if (districtsResult.error) {

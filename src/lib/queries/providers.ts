@@ -10,7 +10,18 @@ type ProviderRow = Database['public']['Tables']['providers']['Row']
 
 export type ProviderListItem = Pick<
   ProviderRow,
-  'id' | 'name' | 'phone' | 'whatsapp' | 'description' | 'photo_url' | 'created_at'
+  | 'id'
+  | 'name'
+  | 'phone'
+  | 'whatsapp'
+  | 'description'
+  | 'photo_url'
+  | 'created_at'
+  | 'accepts_sinpe'
+  | 'works_weekends'
+  | 'years_active'
+  | 'completed_jobs'
+  | 'response_time_minutes'
 >
 
 export type ProviderProfile = ProviderListItem &
@@ -65,7 +76,9 @@ export async function getProvidersByDistrictAndCategory(
 
   const { data, error } = await supabase
     .from('providers')
-    .select('id, name, phone, whatsapp, description, photo_url, created_at')
+    .select(
+      'id, name, phone, whatsapp, description, photo_url, created_at, accepts_sinpe, works_weekends, years_active, completed_jobs, response_time_minutes',
+    )
     .eq('district_id', district.id)
     .eq('verified', true)
     .in('id', providerIds)
@@ -91,7 +104,7 @@ export async function getProviderByRouteSlug(routeSlug: string): Promise<Provide
   const { data: provider, error } = await supabase
     .from('providers')
     .select(
-      'id, name, phone, whatsapp, email, description, photo_url, district_id, verified, created_at',
+      'id, name, phone, whatsapp, email, description, photo_url, district_id, verified, created_at, accepts_sinpe, works_weekends, years_active, completed_jobs, response_time_minutes',
     )
     .eq('id', providerId)
     .eq('verified', true)

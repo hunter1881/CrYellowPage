@@ -5,6 +5,31 @@ description: Patterns and code examples for working with Supabase in this projec
 
 # Supabase patterns for DirectorioLocal CR
 
+## Current schema shape
+
+Geography:
+
+```text
+countries -> provinces -> cantons -> districts
+```
+
+Directory:
+
+```text
+categories
+providers
+provider_categories
+reviews
+```
+
+Provider rows include the template UI fields `accepts_sinpe`, `works_weekends`, `years_active`, `completed_jobs`, and `response_time_minutes`.
+
+Generate Costa Rica geography seed data from the official INEC DBF source:
+
+```bash
+npm run db:seed:generate
+```
+
 ## Singleton typed client (src/lib/supabase.ts)
 ```ts
 import { createClient } from '@supabase/supabase-js'
@@ -21,11 +46,12 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseKey)
 import { supabase } from '@lib/supabase'
 import { logger } from '@lib/logger'
 
-export async function getProviders(districtSlug, categorySlug) {
+export async function getProviders(cantonSlug, districtSlug, categorySlug) {
   const { data: district, error: districtError } = await supabase
     .from('districts')
-    .select('id')
+    .select('id, slug, canton:cantons!inner(slug)')
     .eq('slug', districtSlug)
+    .eq('canton.slug', cantonSlug)
     .maybeSingle()
 
   if (districtError) {
@@ -49,7 +75,8 @@ export async function getProviders(districtSlug, categorySlug) {
   const { data, error } = await supabase
     .from('providers')
     .select(`
-      id, name, phone, whatsapp, description, photo_url,
+      id, name, phone, whatsapp, description, photo_url, created_at,
+      accepts_sinpe, works_weekends, years_active, completed_jobs, response_time_minutes,
       provider_categories!inner(category_id)
     `)
     .eq('district_id', district.id)
@@ -57,7 +84,7 @@ export async function getProviders(districtSlug, categorySlug) {
     .eq('verified', true)
 
   if (error) {
-    logger.error('getProviders.list', { districtSlug, categorySlug, error })
+    logger.error('getProviders.list', { cantonSlug, districtSlug, categorySlug, error })
     return []
   }
   return data ?? []

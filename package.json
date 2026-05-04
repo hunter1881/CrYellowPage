@@ -12,15 +12,17 @@
     "db:seed:generate": "node scripts/generate-geography-seed.mjs"
   },
   "dependencies": {
-    "@astrojs/sitemap": "^3.2.1",
-    "@astrojs/tailwind": "^5.1.0",
+    "@astrojs/sitemap": "^3.7.2",
+    "@astrojs/vercel": "^10.0.6",
     "@supabase/supabase-js": "^2.45.4",
+    "@tailwindcss/postcss": "^4.2.4",
     "alpinejs": "^3.14.1",
-    "astro": "^5.0.0",
-    "tailwindcss": "^3.4.13"
+    "astro": "^6.2.2",
+    "postcss": "^8.5.14",
+    "tailwindcss": "^4.2.4"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.4",
+    "@astrojs/check": "^0.9.9",
     "prettier": "^3.3.3",
     "prettier-plugin-astro": "^0.14.1",
     "typescript": "^5.6.2"

@@ -8,10 +8,13 @@ import Badge from '@components/ui/Badge.astro'
 import Breadcrumbs from '@components/seo/Breadcrumbs.astro'
 import BaseLayout from '@layouts/BaseLayout.astro'
 import { getProviderByRouteSlug, getProviderStaticPaths } from '@lib/queries/providers'
+import { getReviewsByProvider, getReviewSummaryByProvider } from '@lib/queries/reviews'
 import { providerDisplayMeta } from '@lib/providerPresentation'
 import { absoluteUrl } from '@lib/site'
 import { breadcrumbJsonLd } from '@lib/seo/breadcrumb'
 import { localBusinessJsonLd } from '@lib/seo/localBusiness'
+
+export const prerender = true
 
 export async function getStaticPaths() {
   return getProviderStaticPaths()
@@ -53,7 +56,12 @@ const pageDescriptionEs = `${provider.name} es un proveedor local verificado que
 const pageDescriptionEn = `${provider.name} is a verified local provider serving ${provider.district.name}, ${provider.district.canton.name}.`
 const fallbackDescriptionEs = `Proveedor local que atiende ${provider.district.name}.`
 const fallbackDescriptionEn = `Local service provider serving ${provider.district.name}.`
-const displayMeta = providerDisplayMeta(provider)
+const [reviewSummary, reviews] = await Promise.all([
+  getReviewSummaryByProvider(provider.id),
+  getReviewsByProvider(provider.id),
+])
+const displayMeta = providerDisplayMeta(provider, reviewSummary)
+const featuredReview = reviews[0] ?? null
 const categoryLabel = provider.categories.map((category) => category.name).join(', ') || 'Servicio local'
 const categoryLabelEn = provider.categories.map((category) => category.name).join(', ') || 'Local service'
 const serviceAreas = [provider.district.name, provider.district.canton.name]
@@ -161,6 +169,8 @@ const serviceAreas = [provider.district.name, provider.district.canton.name]
         districtName={provider.district.name}
         rating={displayMeta.rating}
         reviewCount={displayMeta.reviewCount}
+        authorName={featuredReview?.author_name}
+        comment={featuredReview?.comment}
       />
     </div>
 

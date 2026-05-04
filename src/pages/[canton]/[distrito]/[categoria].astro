@@ -8,10 +8,13 @@ import BaseLayout from '@layouts/BaseLayout.astro'
 import { getCategoriesByDistrictId, getCategoryBySlug } from '@lib/queries/categories'
 import { getDistrictBySlugs, getDistrictsByCantonId } from '@lib/queries/geography'
 import { getListingStaticPaths, getProvidersByDistrictAndCategory } from '@lib/queries/providers'
+import { getReviewSummariesByProviderIds } from '@lib/queries/reviews'
 import { absoluteUrl } from '@lib/site'
 import { breadcrumbJsonLd } from '@lib/seo/breadcrumb'
 import { itemListJsonLd } from '@lib/seo/itemList'
 import { providerUrl } from '@lib/slug'
+
+export const prerender = true
 
 export async function getStaticPaths() {
   return getListingStaticPaths()
@@ -34,6 +37,72 @@ const [nearbyDistricts, relatedCategories] = await Promise.all([
   getDistrictsByCantonId(district.canton.id),
   getCategoriesByDistrictId(district.id),
 ])
+const reviewSummaries = await getReviewSummariesByProviderIds(providers.map((provider) => provider.id))
+const currentParams = Astro.url.searchParams
+const activeFilters = {
+  sinpe: currentParams.get('sinpe') === '1',
+  weekend: currentParams.get('weekend') === '1',
+  fast: currentParams.get('fast') === '1',
+}
+const activeSort = currentParams.get('sort') ?? 'rating'
+
+function listingUrl(nextParams: Record<string, string | null>) {
+  const params = new URLSearchParams(currentParams)
+  for (const [key, value] of Object.entries(nextParams)) {
+    if (value === null) {
+      params.delete(key)
+    } else {
+      params.set(key, value)
+    }
+  }
+  const query = params.toString()
+  return query ? `${Astro.url.pathname}?${query}` : Astro.url.pathname
+}
+
+const filterOptions = [
+  {
+    key: 'sinpe',
+    es: 'Acepta SINPE',
+    en: 'Accepts SINPE',
+    active: activeFilters.sinpe,
+    href: listingUrl({ sinpe: activeFilters.sinpe ? null : '1' }),
+  },
+  {
+    key: 'weekend',
+    es: 'Atiende fines de semana',
+    en: 'Works weekends',
+    active: activeFilters.weekend,
+    href: listingUrl({ weekend: activeFilters.weekend ? null : '1' }),
+  },
+  {
+    key: 'fast',
+    es: 'Respuesta rápida',
+    en: 'Fast reply',
+    active: activeFilters.fast,
+    href: listingUrl({ fast: activeFilters.fast ? null : '1' }),
+  },
+]
+const sortOptions = [
+  { value: 'rating', es: 'Mejor calificados', en: 'Top rated', active: activeSort === 'rating', href: listingUrl({ sort: 'rating' }) },
+  { value: 'newest', es: 'Más recientes', en: 'Newest', active: activeSort === 'newest', href: listingUrl({ sort: 'newest' }) },
+  { value: 'fast', es: 'Respuesta rápida', en: 'Fast reply', active: activeSort === 'fast', href: listingUrl({ sort: 'fast' }) },
+  { value: 'experience', es: 'Más experiencia', en: 'Most experienced', active: activeSort === 'experience', href: listingUrl({ sort: 'experience' }) },
+]
+const visibleProviders = providers
+  .filter((provider) => !activeFilters.sinpe || provider.accepts_sinpe)
+  .filter((provider) => !activeFilters.weekend || provider.works_weekends)
+  .filter((provider) => !activeFilters.fast || (provider.response_time_minutes ?? Number.POSITIVE_INFINITY) <= 45)
+  .sort((a, b) => {
+    if (activeSort === 'newest') return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    if (activeSort === 'fast') {
+      return (a.response_time_minutes ?? Number.POSITIVE_INFINITY) - (b.response_time_minutes ?? Number.POSITIVE_INFINITY)
+    }
+    if (activeSort === 'experience') return (b.years_active ?? 0) - (a.years_active ?? 0)
+
+    const ratingDelta = Number(reviewSummaries.get(b.id)?.rating ?? 0) - Number(reviewSummaries.get(a.id)?.rating ?? 0)
+    if (ratingDelta !== 0) return ratingDelta
+    return (reviewSummaries.get(b.id)?.reviewCount ?? 0) - (reviewSummaries.get(a.id)?.reviewCount ?? 0)
+  })
 const listingPathKeys = new Set(
   (await getListingStaticPaths()).map((path) => `${path.params.canton}/${path.params.distrito}/${path.params.categoria}`),
 )
@@ -52,7 +121,7 @@ const breadcrumbs = [
 const jsonLd = [
   itemListJsonLd({
     name: `${category.name} in ${district.name}`,
-    items: providers.map((provider) => ({
+    items: visibleProviders.map((provider) => ({
       name: provider.name,
       url: absoluteUrl(providerUrl(provider.id, provider.name), Astro.site),
     })),
@@ -99,46 +168,49 @@ const introEn = `Compare verified local providers serving ${district.name}, ${di
 
   <section class="mx-auto grid max-w-6xl gap-6 px-4 py-6 md:grid-cols-[240px_1fr] md:px-6">
     <FilterPanel
-      filters={[
-        { es: 'Solo verificados', en: 'Verified only', checked: true },
-        { es: 'Disponible hoy', en: 'Available today' },
-        { es: 'Acepta SINPE', en: 'Accepts SINPE' },
-        { es: 'Atiende fines de semana', en: 'Works weekends' },
-      ]}
+      filters={filterOptions}
+      sortOptions={sortOptions}
     />
 
     <div>
       <div class="mb-4 md:hidden">
         <div class="flex gap-2 overflow-x-auto pb-1">
-          <button class="shrink-0 rounded-full border border-canopy bg-canopy-soft px-3 py-1.5 text-xs font-semibold text-canopy" type="button">
-            <TranslatedText es="Verificados" en="Verified" />
-          </button>
-          <button class="shrink-0 rounded-full border border-rule bg-surface px-3 py-1.5 text-xs font-semibold text-ink-2" type="button">
-            <TranslatedText es="Hoy" en="Today" />
-          </button>
-          <button class="shrink-0 rounded-full border border-rule bg-surface px-3 py-1.5 text-xs font-semibold text-ink-2" type="button">
-            SINPE
-          </button>
-          <button class="shrink-0 rounded-full border border-rule bg-surface px-3 py-1.5 text-xs font-semibold text-ink-2" type="button">
-            <TranslatedText es="Fin de semana" en="Weekend" />
-          </button>
+          {
+            filterOptions.map((filter) => (
+              <a
+                class:list={[
+                  'shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold no-underline',
+                  filter.active
+                    ? 'border-canopy bg-canopy-soft text-canopy'
+                    : 'border-rule bg-surface text-ink-2',
+                ]}
+                href={filter.href}
+              >
+                <TranslatedText es={filter.es} en={filter.en} />
+              </a>
+            ))
+          }
         </div>
       </div>
 
       <div class="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <span class="civic-meta">{providers.length} <TranslatedText es="resultados" en="results" /></span>
+        <span class="civic-meta">{visibleProviders.length} <TranslatedText es="resultados" en="results" /></span>
         <label class="flex items-center gap-2 text-xs font-semibold text-ink-2">
           <span class="civic-meta"><TranslatedText es="Ordenar" en="Sort" /></span>
-          <select class="rounded-civic border border-rule bg-surface px-3 py-1.5 text-xs font-semibold text-ink outline-none" name="sort">
-            <option><TranslatedText es="Mejor calificados" en="Top rated" /></option>
-            <option><TranslatedText es="Más recientes" en="Newest" /></option>
-            <option><TranslatedText es="Respuesta rápida" en="Fast reply" /></option>
+          <select class="rounded-civic border border-rule bg-surface px-3 py-1.5 text-xs font-semibold text-ink outline-none" name="sort" data-sort-select>
+            {
+              sortOptions.map((option) => (
+                <option value={option.href} selected={option.active} data-option-es={option.es} data-option-en={option.en}>
+                  {option.es}
+                </option>
+              ))
+            }
           </select>
         </label>
       </div>
-      {providers.length > 0 ? (
+      {visibleProviders.length > 0 ? (
         <div class="grid gap-3">
-          {providers.map((provider) => <ProviderCard provider={provider} />)}
+          {visibleProviders.map((provider) => <ProviderCard provider={provider} reviewSummary={reviewSummaries.get(provider.id)} />)}
         </div>
       ) : (
         <EmptyState />

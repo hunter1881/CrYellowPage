@@ -10,6 +10,8 @@ import { absoluteUrl } from '@lib/site'
 import { breadcrumbJsonLd } from '@lib/seo/breadcrumb'
 import { placeJsonLd } from '@lib/seo/place'
 
+export const prerender = true
+
 export async function getStaticPaths() {
   return getCantonStaticPaths()
 }

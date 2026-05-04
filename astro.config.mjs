@@ -1,6 +1,6 @@
 import { defineConfig } from 'astro/config'
 import sitemap from '@astrojs/sitemap'
-import tailwind from '@astrojs/tailwind'
+import vercel from '@astrojs/vercel'
 
 const site = process.env.PUBLIC_SITE_URL ?? 'https://directoriolocal.cr'
 const supabaseHost = process.env.PUBLIC_SUPABASE_URL
@@ -9,9 +9,9 @@ const supabaseHost = process.env.PUBLIC_SUPABASE_URL
 
 export default defineConfig({
   site,
-  output: 'static',
+  output: 'server',
+  adapter: vercel(),
   integrations: [
-    tailwind(),
     sitemap({
       entryLimit: 10000,
       serialize(item) {

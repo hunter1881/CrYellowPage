@@ -3,15 +3,17 @@ import { Image } from 'astro:assets'
 import Badge from '@components/ui/Badge.astro'
 import TranslatedText from '@components/i18n/TranslatedText.astro'
 import { providerDisplayMeta } from '@lib/providerPresentation'
+import type { ReviewSummary } from '@lib/queries/reviews'
 import type { ProviderListItem } from '@lib/queries/providers'
 import { providerUrl } from '@lib/slug'
 
 interface Props {
   provider: ProviderListItem
+  reviewSummary?: ReviewSummary
 }
 
-const { provider } = Astro.props
-const displayMeta = providerDisplayMeta(provider)
+const { provider, reviewSummary } = Astro.props
+const displayMeta = providerDisplayMeta(provider, reviewSummary)
 ---
 
 <article class="civic-card civic-card-hover grid gap-4 p-4 md:grid-cols-[1fr_auto]">

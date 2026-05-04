@@ -6,15 +6,34 @@ import ProviderSignupCard from '@components/directory/ProviderSignupCard.astro'
 import SearchBar from '@components/directory/SearchBar.astro'
 import StatsStrip from '@components/directory/StatsStrip.astro'
 import BaseLayout from '@layouts/BaseLayout.astro'
-import { getCategoriesByDistrictId } from '@lib/queries/categories'
+import { getCategories, getCategoriesByDistrictId } from '@lib/queries/categories'
 import { getCantonsWithDistricts } from '@lib/queries/geography'
+import { getListingStaticPaths } from '@lib/queries/providers'
 import { absoluteUrl, defaultDescription, defaultDescriptionEn, siteName } from '@lib/site'
 import { websiteJsonLd } from '@lib/seo/website'
 
+export const prerender = true
+
 const cantons = await getCantonsWithDistricts()
-const currentCanton = cantons[0] ?? null
-const currentDistrict = currentCanton?.districts[0] ?? null
-const currentCategories = currentDistrict ? await getCategoriesByDistrictId(currentDistrict.id) : []
+const allCategories = await getCategories()
+const publishedListings = (await getListingStaticPaths()).map(
+  (path) => `${path.params.canton}/${path.params.distrito}/${path.params.categoria}`,
+)
+let currentCanton = cantons[0] ?? null
+let currentDistrict = currentCanton?.districts[0] ?? null
+let currentCategories = currentDistrict ? await getCategoriesByDistrictId(currentDistrict.id) : []
+
+for (const canton of cantons) {
+  for (const district of canton.districts) {
+    const categories = await getCategoriesByDistrictId(district.id)
+    if (categories.length === 0) continue
+    currentCanton = canton
+    currentDistrict = district
+    currentCategories = categories
+    break
+  }
+  if (currentCategories.length > 0) break
+}
 const canonical = absoluteUrl('/', Astro.site)
 const jsonLd = websiteJsonLd({ name: siteName, url: canonical })
 const districtsLabelEs = (count: number) =>
@@ -49,7 +68,12 @@ const districtsLabelEn = (count: number) => `${count} district${count === 1 ? ''
           <div><TranslatedText es="Contacto directo por WhatsApp" en="Direct WhatsApp contact" /></div>
         </div>
       </div>
-      <SearchBar cantons={cantons} transition:persist />
+      <SearchBar
+        cantons={cantons}
+        categories={allCategories}
+        publishedListings={publishedListings}
+        transition:persist
+      />
       <p class="mt-4 max-w-3xl text-sm leading-6 text-ink-2">
           <TranslatedText
             es="Busque fontaneros, personal de limpieza, especialistas en reparaciones y otros proveedores por cantón, distrito y categoría."

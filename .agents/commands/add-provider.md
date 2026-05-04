@@ -15,20 +15,44 @@ When the user wants to add a provider:
    - Canton and district
    - One or more categories
 2. Verify that the district exists in the database.
-3. Generate insertion SQL for `providers`.
+3. Generate insertion SQL for `providers` using the current schema fields.
 4. Generate insertion SQL for each `provider_categories` relation.
 5. Ask whether the provider should be marked `verified = true`.
 
 ```sql
-INSERT INTO providers (name, phone, whatsapp, email, description, district_id, verified)
+INSERT INTO providers (
+  name,
+  phone,
+  whatsapp,
+  email,
+  description,
+  district_id,
+  verified,
+  accepts_sinpe,
+  works_weekends,
+  years_active,
+  completed_jobs,
+  response_time_minutes
+)
 VALUES (
   '{name}',
   '{phone}',
   '{whatsapp}',
   '{email}',
   '{description}',
-  (SELECT id FROM districts WHERE slug = '{district-slug}'),
-  false
+  (
+    SELECT districts.id
+    FROM districts
+    JOIN cantons ON cantons.id = districts.canton_id
+    WHERE cantons.slug = '{canton-slug}'
+      AND districts.slug = '{district-slug}'
+  ),
+  false,
+  false,
+  false,
+  1,
+  0,
+  null
 );
 ```
 

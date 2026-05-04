@@ -7,6 +7,22 @@ interface Props {
 }
 
 const { cantons } = Astro.props
+const cantonsByProvince = cantons.reduce(
+  (groups, canton) => {
+    const provinceName = canton.province?.name ?? 'Costa Rica'
+    const provinceSlug = canton.province?.slug ?? 'costa-rica'
+    const current = groups.get(provinceSlug) ?? {
+      name: provinceName,
+      slug: provinceSlug,
+      cantons: [] as CantonWithDistricts[],
+    }
+    current.cantons.push(canton)
+    groups.set(provinceSlug, current)
+    return groups
+  },
+  new Map<string, { name: string; slug: string; cantons: CantonWithDistricts[] }>(),
+)
+const provinceGroups = [...cantonsByProvince.values()].sort((a, b) => a.name.localeCompare(b.name, 'es'))
 ---
 
 <div class="fixed inset-0 z-[110] hidden items-end justify-center bg-ink/55 md:items-center md:p-6" data-location-modal aria-hidden="true">
@@ -29,32 +45,41 @@ const { cantons } = Astro.props
         class="min-w-0 flex-1 border-none bg-transparent text-sm text-ink outline-none placeholder:text-ink-3"
         type="search"
         data-location-filter
-        placeholder="Buscar cantón o distrito"
-        data-placeholder-es="Buscar cantón o distrito"
-        data-placeholder-en="Search canton or district"
+        placeholder="Buscar provincia, cantón o distrito"
+        data-placeholder-es="Buscar provincia, cantón o distrito"
+        data-placeholder-en="Search province, canton, or district"
       />
     </label>
 
     <div class="min-h-0 overflow-y-auto">
       {
-        cantons.map((canton) => (
-          <div class="mb-5" data-location-group>
-            <p class="civic-meta mb-2" data-location-text={`${canton.name} ${canton.slug}`}>
-              {canton.name}
+        provinceGroups.map((province) => (
+          <div class="mb-6" data-location-group>
+            <p class="civic-meta mb-2" data-location-text={`${province.name} ${province.slug}`}>
+              {province.name}
             </p>
-            <div class="divide-y divide-rule-soft border-y border-rule-soft">
-              {canton.districts.map((district) => (
-                <a
-                  class="flex items-center justify-between gap-3 py-3 text-sm text-ink no-underline hover:text-canopy"
-                  href={`/${canton.slug}/${district.slug}/`}
-                  data-location-option
-                  data-location-text={`${canton.name} ${canton.slug} ${district.name} ${district.slug}`}
-                >
-                  <span>{district.name}</span>
-                  <span class="font-mono text-[11px] uppercase tracking-[0.5px] text-ink-3">
-                    <TranslatedText es="Ver distrito" en="View district" />
-                  </span>
-                </a>
+            <div class="grid gap-4">
+              {province.cantons.map((canton) => (
+                <div data-location-subgroup>
+                  <p class="mb-1 text-xs font-semibold text-ink-3" data-location-text={`${province.name} ${canton.name} ${canton.slug}`}>
+                    {canton.name}
+                  </p>
+                  <div class="divide-y divide-rule-soft border-y border-rule-soft">
+                    {canton.districts.map((district) => (
+                      <a
+                        class="flex items-center justify-between gap-3 py-3 text-sm text-ink no-underline hover:text-canopy"
+                        href={`/${canton.slug}/${district.slug}/`}
+                        data-location-option
+                        data-location-text={`${province.name} ${province.slug} ${canton.name} ${canton.slug} ${district.name} ${district.slug}`}
+                      >
+                        <span>{district.name}</span>
+                        <span class="font-mono text-[11px] uppercase tracking-[0.5px] text-ink-3">
+                          <TranslatedText es="Ver distrito" en="View district" />
+                        </span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
           </div>
