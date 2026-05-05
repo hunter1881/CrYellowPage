@@ -202,6 +202,28 @@ These come from senior QA practice and are non-negotiable:
 11. **Codify every bug.** Fixed bug → new entry in `test-cases/regression/`, run on every future suite.
 12. **Real DB, not mocks.** Per the project's `.claude/rules/supabase.md` — mocked tests pass while real queries fail. Use the same Supabase the dev server uses; assert against the actual DB state.
 
+13. **Verify external-standards claims against context7 — plan first, then batch the calls.** Whenever a finding rests on a claim about an external spec or library (Schema.org, Google rich results, Astro 6 APIs, Alpine, Supabase JS, Playwright, WCAG), the agent **must** consult context7 before declaring the violation. Reasoning from training data is forbidden when context7 is accessible — training ages, specs evolve, and a wrong "must" ossifies a non-requirement into a regression test.
+
+    The agent uses a **plan-then-batch** workflow to keep calls cheap:
+
+    - **Phase 1 — Inventory** (no calls yet): while the test runs and findings emerge, collect a list of `claim → library → finding(s) that depend on it`.
+    - **Phase 2 — Deduplicate**: group claims by library. Multiple findings about Schema.org `LocalBusiness` collapse into ONE query covering all the relevant properties.
+    - **Phase 3 — Parallel batch**: issue every unique `mcp__context7__query-docs` call in a single message turn so they run in parallel, with bundled queries per library. Never call serially. **Skip `mcp__context7__resolve-library-id` when the library ID is already known** — the agent's prompt lists the canonical IDs (Schema.org `/schemaorg/schemaorg`, Astro `/withastro/docs`, Alpine `/alpinejs/alpine`, Supabase `/supabase/supabase`, Playwright `/microsoft/playwright.dev`, WCAG `/w3c/wcag`). Resolve only for novel libraries.
+    - **Phase 4 — Apply**: each finding gets annotated with what the spec actually says. Confirmed → cite the source. Contradicted → drop the finding (don't propose a regression test for a non-requirement). Ambiguous → keep but mark `partially-verified:` and explain.
+
+    Concrete examples where context7 verification is required:
+    - "schema.org `LocalBusiness.telephone` requires E.164" → fetch the Schema.org property spec
+    - "Google rich results requires `image` on LocalBusiness" → fetch Google's rich results docs
+    - "Alpine breaks on regex literals in `x-init`" → fetch Alpine docs / changelog
+    - "Astro 6 prerender behavior with `output: 'server'`" → fetch Astro 6 docs
+    - "WCAG 2.1 AA requires 4.5:1 contrast ratio" → fetch WCAG success criterion
+
+    **Exception**: empirical checks (HTTP status, console clean, JSON parses, DOM contents, screenshot diffs) don't need context7 — those are observable in runtime. Use context7 only when the assertion is "the spec/library says X".
+
+    **Cost target**: ≤ 4 `query-docs` calls per run (one per unique library touched). `resolve-library-id` calls don't count against the budget but should be skipped when the ID is already known. If the agent finds itself wanting a 5th `query-docs` call to the same library, it didn't bundle the queries enough — go back and rewrite the query to cover everything at once.
+
+    If context7 doesn't have the library, the agent prefixes the finding with `unverified:` and lowers the severity by one level (🔴 → 🟡, 🟡 → 🟢). The user decides whether to trust the un-cited claim.
+
 ---
 
 ## How to invoke the agent

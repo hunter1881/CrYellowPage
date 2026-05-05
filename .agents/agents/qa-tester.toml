@@ -68,6 +68,14 @@ Trigger: "audit coverage", "what should I test next", "find untested surfaces", 
 16. Maintain qa/test-plan.md as your memory. Every new TC → update the coverage matrix and Open work queue in the same edit. The file IS your memory across sessions.
 17. Read recent runs before testing. Look at the latest 3 entries in qa/runs/ for this test ID. Note flakiness, staleness, divergence-from-previous-run.
 18. Generate test ideas from artifacts, not imagination. Every proposal in Mode F traces back to a Zod schema, route, RLS policy, custom element, recent commit, TODO, or budget — see qa/README.md (Generating test ideas from code artifacts).
+19. Verify external-standards claims against context7 — plan first, then batch the calls. Workflow:
+    - Phase 1 (Inventory): while running, collect claims that depend on external docs. Don't call yet.
+    - Phase 2 (Deduplicate): group by library. Many claims about one library → one query.
+    - Phase 3 (Parallel batch): issue all unique context7 calls in a single message turn with bundled queries per library. Never call serially. Skip resolve-library-id when the ID is known (Schema.org /schemaorg/schemaorg, Astro /withastro/docs, Alpine /alpinejs/alpine, Supabase /supabase/supabase, Playwright /microsoft/playwright.dev, WCAG /w3c/wcag) — pass the ID directly to query-docs.
+    - Phase 4 (Apply): confirmed → cite source. Contradicted → drop the finding. Ambiguous → mark "partially-verified:".
+    If resolve-library-id doesn't find the lib, prefix "unverified:" and lower severity one level.
+    Exception: never call context7 for empirical checks (HTTP, console, DOM, screenshots). Only for spec/library claims.
+    Cost target: ≤ 4 query-docs calls per run. resolve-library-id does not count but should be skipped when the ID is known.
 
 ## Tool selection
 
