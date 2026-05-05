@@ -9,9 +9,9 @@
 
   /* ── Base surfaces (mapped from Tailwind tokens) ── */
   --color-base-100: oklch(100% 0 0);           /* surface     #FFFFFF */
-  --color-base-200: oklch(98.5% 0.004 120);    /* surface-alt #FAFBF8 */
-  --color-base-300: oklch(87% 0.006 140);      /* rule        #D9DCD6 */
-  --color-base-content: oklch(12% 0.01 150);   /* ink         #1A1F1B */
+  --color-base-200: oklch(98.5% 0.004 130);    /* surface-alt #F5F6F2 */
+  --color-base-300: oklch(92% 0.005 140);      /* rule        #E8EAE5 */
+  --color-base-content: oklch(9% 0.015 155);   /* ink         #0F1410 */
 
   /* ── Primary — canopy green ── */
   --color-primary: oklch(34% 0.12 162);        /* canopy      #0E5A3F */
@@ -46,15 +46,15 @@
   --color-info-content: oklch(100% 0 0);
 
   /* ── Border radius — civic angular style ── */
-  --radius-selector: 2px;
-  --radius-field: 2px;
-  --radius-box: 2px;
+  --radius-selector: 10px;
+  --radius-field: 10px;
+  --radius-box: 10px;
 
   /* ── Border ── */
   --border: 1px;
 
-  /* ── Flat design — no depth, no noise ── */
-  --depth: 0;
+  /* ── Subtle depth ── */
+  --depth: 0.5;
   --noise: 0;
 }
 
@@ -70,8 +70,8 @@
   }
 
   body {
-    background: #f4f5f2;
-    color: #1a1f1b;
+    background: #fbfbf9;
+    color: #0f1410;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-family: Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
@@ -106,9 +106,9 @@
 
   .civic-card {
     background: #ffffff;
-    border: 1px solid #d9dcd6;
-    border-radius: 2px;
-    box-shadow: none;
+    border: 1px solid #e8eae5;
+    border-radius: 10px;
+    box-shadow: 0 1px 2px rgba(15, 20, 16, 0.04);
   }
 
   .civic-card-hover {
@@ -119,7 +119,7 @@
 
   .civic-card-hover:hover {
     border-color: #0e5a3f;
-    box-shadow: 0 1px 3px rgb(0 0 0 / 0.06);
+    box-shadow: 0 6px 24px rgba(15, 20, 16, 0.06), 0 1px 2px rgba(15, 20, 16, 0.04);
   }
 
   /* ── Page progress bar ── */
@@ -195,7 +195,7 @@
 
   .civic-button {
     align-items: center;
-    border-radius: 2px;
+    border-radius: 10px;
     display: inline-flex;
     font-size: 14px;
     font-weight: 600;

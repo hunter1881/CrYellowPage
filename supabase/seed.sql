@@ -1759,14 +1759,47 @@ on conflict (postal_code) do update set name = excluded.name, slug = excluded.sl
 
 insert into public.categories (name, slug, icon_emoji, description)
 values
-  ('Fontanería', 'fontaneria', '💧', 'Reparaciones de fugas, tuberías, tanques y emergencias de agua.'),
-  ('Electricidad', 'electricidad', '⚡', 'Instalaciones, reparaciones eléctricas y mantenimiento residencial.'),
-  ('Limpieza', 'limpieza', '🧽', 'Limpieza residencial, comercial y servicios por visita.'),
-  ('Jardinería', 'jardineria', '🌿', 'Mantenimiento de jardines, zonas verdes y poda menor.'),
-  ('Reparaciones', 'reparaciones', '🛠️', 'Arreglos menores, mantenimiento general y mejoras del hogar.'),
-  ('Cerrajería', 'cerrajeria', '🔑', 'Aperturas, cambios de llavín y servicios de seguridad básica.'),
-  ('Pintura', 'pintura', '🎨', 'Pintura interior, exterior y retoques residenciales.'),
-  ('Aire acondicionado', 'aire-acondicionado', '❄️', 'Instalación, limpieza y mantenimiento de aires acondicionados.')
+  -- Servicios del hogar (instalaciones y mantenimiento)
+  ('Fontanería',            'fontaneria',            '💧', 'Reparaciones de fugas, tuberías, tanques y emergencias de agua.'),
+  ('Electricidad',          'electricidad',          '⚡', 'Instalaciones, reparaciones eléctricas y mantenimiento residencial.'),
+  ('Aire acondicionado',    'aire-acondicionado',    '❄️', 'Instalación, limpieza y mantenimiento de aires acondicionados.'),
+  ('Calentador de agua',    'calentador-agua',       '🔥', 'Instalación y reparación de calentadores de agua, ducha eléctrica y sistemas solares.'),
+  ('Pintura',               'pintura',               '🎨', 'Pintura interior, exterior y retoques residenciales.'),
+  ('Carpintería',           'carpinteria',           '🪵', 'Muebles a la medida, reparación de puertas y ventanas, trabajos en madera.'),
+  ('Albañilería',           'albanileria',           '🧱', 'Construcción, reparación de paredes, repellos, pisos y remodelaciones.'),
+  ('Techo y cubiertas',     'techo-cubiertas',       '🏠', 'Impermeabilización, cambio de zinc, tejas y reparación de goteras.'),
+  ('Cerámica y pisos',      'ceramica-pisos',        '🪟', 'Instalación de porcelanato, cerámica, madera flotante y vinil.'),
+  ('Cielo raso y gypsum',   'cielo-raso-gypsum',     '📐', 'Instalación de cielos rasos, divisiones en gypsum y acabados interiores.'),
+  ('Herrería y soldadura',  'herreria-soldadura',    '⚙️', 'Portones, rejas, estructuras metálicas y soldadura en general.'),
+  ('Cerrajería',            'cerrajeria',            '🔑', 'Aperturas, cambios de llavín y servicios de seguridad básica.'),
+  ('Seguridad y cámaras',   'seguridad-camaras',     '📷', 'Instalación de cámaras CCTV, alarmas y sistemas de control de acceso.'),
+  -- Limpieza y mantenimiento
+  ('Limpieza residencial',  'limpieza',              '🧽', 'Limpieza de casas, apartamentos y servicios de mantenimiento por visita.'),
+  ('Lavado de tapices',     'lavado-tapices',        '🛋️', 'Lavado profundo de muebles, alfombras, colchones y tapicería.'),
+  ('Mantenimiento de piscinas', 'piscinas',          '🏊', 'Limpieza, tratamiento de químicos y mantenimiento preventivo de piscinas.'),
+  ('Fumigación',            'fumigacion',            '🐛', 'Control de plagas: cucarachas, termitas, roedores y desinfección de espacios.'),
+  -- Jardinería y exteriores
+  ('Jardinería',            'jardineria',            '🌿', 'Mantenimiento de jardines, zonas verdes, chapea y poda menor.'),
+  ('Poda de árboles',       'poda-arboles',          '🌳', 'Poda de árboles grandes, tala controlada y limpieza de zona arbolada.'),
+  -- Reparaciones generales
+  ('Reparaciones del hogar','reparaciones',          '🛠️', 'Arreglos menores, mantenimiento general y mejoras del hogar.'),
+  ('Electrodomésticos',     'electrodomesticos',     '🔌', 'Reparación de lavadoras, refrigeradoras, microondas y más electrodomésticos.'),
+  ('Computadoras y redes',  'computadoras-redes',    '💻', 'Técnico en computadoras, instalación de redes Wi-Fi, reparación y soporte.'),
+  -- Transporte y mudanzas
+  ('Mudanzas y acarreos',   'mudanzas-acarreos',     '🚚', 'Mudanzas residenciales, acarreo de materiales y transporte de muebles.'),
+  -- Profesionales
+  ('Mecánica a domicilio',  'mecanica-domicilio',    '🔧', 'Cambio de aceite, baterías, revisiones y reparaciones mecánicas sin ir al taller.'),
+  ('Decoración de interiores','decoracion-interiores','🖼️', 'Diseño, decoración y ambientación de espacios residenciales y comerciales.'),
+  -- Servicios personales
+  ('Belleza a domicilio',   'belleza-domicilio',     '💇', 'Peluquería, manicura, pedicura y tratamientos de belleza en casa.'),
+  ('Fotografía y video',    'fotografia-video',      '📸', 'Fotografía de eventos, retratos, video corporativo y producción audiovisual.'),
+  ('Clases particulares',   'clases-particulares',   '📚', 'Tutorías y clases privadas de materias escolares, idiomas e instrumentos.'),
+  -- Cuidado y salud
+  ('Veterinaria a domicilio','veterinaria-domicilio','🐾', 'Consulta veterinaria, vacunas, baño y cuidado de mascotas en casa.'),
+  ('Cuidado de adultos mayores','cuidado-adultos-mayores','👴', 'Acompañamiento, enfermería básica y cuidado de adultos mayores en el hogar.'),
+  ('Cuido de niños',        'cuido-ninos',           '👶', 'Babysitter, niñera y servicios de cuido infantil en casa.'),
+  -- Alimentación
+  ('Catering y cocina',     'catering-cocina',       '🍽️', 'Servicios de catering para eventos, cocina a domicilio y preparación de comidas.')
 on conflict (slug) do update set name = excluded.name, icon_emoji = excluded.icon_emoji, description = excluded.description;
 
 insert into public.providers (id, name, phone, whatsapp, description, district_id, verified, accepts_sinpe, works_weekends, years_active, completed_jobs, response_time_minutes)
@@ -1798,4 +1831,41 @@ insert into public.reviews (provider_id, author_name, rating, comment)
 values
   ('00000000-0000-4000-8000-000000000301', 'Cliente de Vuelta de Jorco', 5, 'Respondió rápido y resolvió una fuga el mismo día.'),
   ('00000000-0000-4000-8000-000000000302', 'Vecina de Aserrí', 5, 'Llegaron en la noche y explicaron bien el trabajo.'),
-  ('00000000-0000-4000-8000-000000000303', 'Cliente local', 4, 'Buen servicio para reparaciones menores en la casa.');
+  ('00000000-0000-4000-8000-000000000303', 'Cliente local', 4, 'Buen servicio para reparaciones menores en la casa.')
+on conflict do nothing;
+
+-- ── Payment methods catalogue ────────────────────────────────────────────────
+insert into public.payment_methods (name, slug, category, description, sort_order) values
+  ('SINPE Móvil',               'sinpe-movil',           'digital', 'Transferencia entre números de teléfono vía SINPE del BCCR. El método más usado en CR.', 10),
+  ('SINPE Transferencia',       'sinpe-transfer',        'digital', 'Transferencia SINPE tradicional entre cuentas bancarias (IBAN).', 20),
+  ('Payphone',                  'payphone',              'digital', 'App costarricense: QR, link de pago y cobros con tarjeta desde el celular.', 30),
+  ('Pagos BAC',                 'pagos-bac',             'digital', 'App BAC Credomatic para transferencias y pagos entre clientes.', 40),
+  ('PayPal',                    'paypal',                'digital', 'Pagos internacionales en línea. Usado principalmente en servicios digitales.', 50),
+  ('Tarjeta de crédito',        'tarjeta-credito',       'card',    'Visa, Mastercard, American Express — cobro con datafono o link de pago.', 60),
+  ('Tarjeta de débito',         'tarjeta-debito',        'card',    'Débito de cuenta corriente o ahorros — cobro con datafono presencial.', 70),
+  ('Efectivo (colones)',        'efectivo-colones',      'cash',    'Pago en colones costarricenses al finalizar el trabajo.', 80),
+  ('Efectivo (dólares)',        'efectivo-dolares',      'cash',    'Pago en dólares americanos. Aceptado en zonas turísticas y proveedores internacionales.', 90),
+  ('Depósito bancario',         'deposito-bancario',     'bank',    'Depósito en cuenta corriente o ahorros de cualquier banco nacional.', 100),
+  ('Cheque',                    'cheque',                'bank',    'Cheque de cuenta corriente. Usado en contratos de obra o servicios mayores.', 110)
+on conflict (slug) do update
+  set name        = excluded.name,
+      category    = excluded.category,
+      description = excluded.description,
+      sort_order  = excluded.sort_order;
+
+-- ── Seed providers → payment methods (backfill accepts_sinpe) ────────────────
+insert into public.provider_payment_methods (provider_id, payment_method_id)
+select p.id, pm.id
+from   public.providers p
+cross  join public.payment_methods pm
+where  p.accepts_sinpe = true
+  and  pm.slug = 'sinpe-movil'
+on conflict do nothing;
+
+-- All seed providers also accept cash
+insert into public.provider_payment_methods (provider_id, payment_method_id)
+select p.id, pm.id
+from   public.providers p
+cross  join public.payment_methods pm
+where  pm.slug = 'efectivo-colones'
+on conflict do nothing;
