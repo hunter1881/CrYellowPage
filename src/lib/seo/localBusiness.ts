@@ -1,3 +1,5 @@
+import { toE164 } from '@lib/phone'
+
 export function localBusinessJsonLd(args: {
   name: string
   phone: string
@@ -13,9 +15,9 @@ export function localBusinessJsonLd(args: {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
     name: args.name,
-    telephone: args.phone,
+    telephone: toE164(args.phone),
     description: args.description,
-    image: args.imageUrl ?? undefined,
+    ...(args.imageUrl && { image: args.imageUrl }),
     url: args.pageUrl,
     address: {
       '@type': 'PostalAddress',

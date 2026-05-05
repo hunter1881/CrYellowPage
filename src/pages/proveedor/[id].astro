@@ -75,13 +75,16 @@ const serviceAreas = [provider.district.name, provider.district.canton.name]
     </div>
   </section>
 
-  {/* P2: Back-to-listing button — reads ?from=canton/distrito/categoria from the URL client-side (SSG-compatible) */}
+  {/* P2: Back-to-listing button — reads ?from=canton/distrito/categoria from the URL client-side (SSG-compatible).
+        Empirically: regex literal /.../ inside x-init triggered "SyntaxError: Unexpected token ']'" (qa-tester run 2026-05-05).
+        Workaround: new RegExp(string). Root cause unconfirmed against Alpine docs as of 2026-05-05. */}
   <div
     class="border-b border-rule-soft bg-surface-alt"
     x-data="{ backHref: null }"
     x-init="
       const from = new URLSearchParams(location.search).get('from');
-      if (from && /^[a-z0-9-]{1,80}\/[a-z0-9-]{1,80}\/[a-z0-9-]{1,80}$/.test(from)) {
+      const slugTriple = new RegExp('^[a-z0-9-]{1,80}/[a-z0-9-]{1,80}/[a-z0-9-]{1,80}$');
+      if (from && slugTriple.test(from)) {
         backHref = '/' + from + '/';
       }
     "
