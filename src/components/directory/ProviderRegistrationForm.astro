@@ -4,9 +4,9 @@ import { t } from '@lib/i18n'
 import type { Category } from '@lib/queries/categories'
 import type { CantonWithDistricts } from '@lib/queries/geography'
 import type { PaymentMethod } from '@lib/queries/paymentMethods'
-import { groupPaymentMethods } from '@lib/queries/paymentMethods'
 import Button from '@components/ui/Button.astro'
 import Checkbox from '@components/ui/Checkbox.astro'
+import ChipSelect from '@components/ui/ChipSelect.astro'
 import Input from '@components/ui/Input.astro'
 import Textarea from '@components/ui/Textarea.astro'
 
@@ -19,7 +19,16 @@ interface Props {
 
 const { cantons, categories, paymentMethods, inputErrors = {} } = Astro.props
 const errorFor = (name: string) => inputErrors[name]?.join(', ')
-const paymentGroups = groupPaymentMethods(paymentMethods)
+
+const categoryOptions = categories.map((c) => ({
+  value: c.id,
+  label: `${c.icon_emoji ?? ''} ${c.name}`.trim(),
+}))
+
+const paymentOptions = paymentMethods.map((pm) => ({
+  value: pm.slug,
+  label: pm.name,
+}))
 
 // Flat district list for autocomplete — {d: name, c: canton, cs: cantonSlug, di: id}
 const districtOptions = cantons.flatMap((canton) =>
@@ -85,15 +94,15 @@ const districtOptions = cantons.flatMap((canton) =>
       {errorFor('districtId') && <span class="text-xs font-medium text-clay">{errorFor('districtId')}</span>}
     </div>
 
-    <fieldset class="grid gap-2">
-      <legend class="text-sm font-semibold text-ink">{t('form.serviceCategories')}</legend>
-      <div class="grid gap-2 sm:grid-cols-2">
-        {categories.map((category) => (
-          <Checkbox name="categoryIds" value={category.id} label={`${category.icon_emoji ?? '#'} ${category.name}`} />
-        ))}
-      </div>
-      {errorFor('categoryIds') && <span class="text-xs font-medium text-clay">{errorFor('categoryIds')}</span>}
-    </fieldset>
+    <ChipSelect
+      name="categoryIds"
+      label={t('form.serviceCategories')}
+      options={categoryOptions}
+      max={4}
+      required
+      placeholder="Buscar categoría de servicio…"
+      error={errorFor('categoryIds')}
+    />
 
     <Textarea
       label={t('form.serviceDescription')}
@@ -106,21 +115,14 @@ const districtOptions = cantons.flatMap((canton) =>
     />
   </div>
 
-  {/* ── Payment methods (from DB) ── */}
-  <fieldset class="grid gap-3 rounded-civic border border-rule p-4">
-    <legend class="px-1 text-sm font-semibold text-ink">Métodos de pago aceptados</legend>
-    {paymentGroups.map((group) => (
-      <div>
-        <p class="civic-meta mb-2">{group.label}</p>
-        <div class="grid gap-2 sm:grid-cols-2">
-          {group.items.map((pm) => (
-            <Checkbox name="paymentMethodSlugs" value={pm.slug} label={pm.name} />
-          ))}
-        </div>
-      </div>
-    ))}
-    {errorFor('paymentMethodSlugs') && <span class="text-xs font-medium text-clay">{errorFor('paymentMethodSlugs')}</span>}
-  </fieldset>
+  <ChipSelect
+    name="paymentMethodSlugs"
+    label="Métodos de pago aceptados"
+    options={paymentOptions}
+    max={11}
+    placeholder="Buscar método de pago…"
+    error={errorFor('paymentMethodSlugs')}
+  />
 
   <div class="grid gap-4 rounded-civic border border-rule bg-surface-alt p-4 md:grid-cols-2">
     <Input label={t('form.yearsActive')} name="yearsActive" type="number" value="1" />

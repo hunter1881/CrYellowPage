@@ -1,5 +1,5 @@
 import { getCategoryBySlug } from '@lib/queries/categories'
-import { getCantons, getDistrictBySlugs } from '@lib/queries/geography'
+import { getDistrictBySlugs } from '@lib/queries/geography'
 import { logger } from '@lib/logger'
 import { getMockListingPaths, getMockProvider, getMockProviderPaths, mockProviders } from '@lib/mockData'
 import { providerIdFromSlug, toSlug } from '@lib/slug'
@@ -101,6 +101,7 @@ export async function getProviderByRouteSlug(routeSlug: string): Promise<Provide
 
   const providerId = providerIdFromSlug(routeSlug)
 
+  // Round 1: fetch provider
   const { data: provider, error } = await supabase
     .from('providers')
     .select(
@@ -116,49 +117,38 @@ export async function getProviderByRouteSlug(routeSlug: string): Promise<Provide
   }
   if (!provider) return null
 
-  const { data: district, error: districtError } = await supabase
-    .from('districts')
-    .select('id, canton_id, name, slug')
-    .eq('id', provider.district_id)
-    .maybeSingle()
+  // Round 2: fetch district + provider_categories in parallel
+  const [districtResult, providerCategoriesResult] = await Promise.all([
+    supabase.from('districts').select('id, canton_id, name, slug').eq('id', provider.district_id).maybeSingle(),
+    supabase.from('provider_categories').select('category_id').eq('provider_id', provider.id),
+  ])
 
-  if (districtError || !district) {
-    logger.error('getProviderByRouteSlug.district', { providerId, error: districtError })
+  if (districtResult.error || !districtResult.data) {
+    logger.error('getProviderByRouteSlug.district', { providerId, error: districtResult.error })
+    return null
+  }
+  if (providerCategoriesResult.error) {
+    logger.error('getProviderByRouteSlug.providerCategories', { providerId, error: providerCategoriesResult.error })
     return null
   }
 
-  const { data: canton, error: cantonError } = await supabase
-    .from('cantons')
-    .select('id, name, slug')
-    .eq('id', district.canton_id)
-    .maybeSingle()
+  const district = districtResult.data
+  const categoryIds = (providerCategoriesResult.data ?? []).map((row) => row.category_id)
 
-  if (cantonError || !canton) {
-    logger.error('getProviderByRouteSlug.canton', { providerId, error: cantonError })
-    return null
-  }
-
-  const { data: providerCategories, error: providerCategoriesError } = await supabase
-    .from('provider_categories')
-    .select('provider_id, category_id')
-    .eq('provider_id', provider.id)
-
-  if (providerCategoriesError) {
-    logger.error('getProviderByRouteSlug.providerCategories', {
-      providerId,
-      error: providerCategoriesError,
-    })
-    return null
-  }
-
-  const categoryIds = (providerCategories ?? []).map((row) => row.category_id)
-  const categories =
+  // Round 3: fetch canton + categories in parallel
+  const [cantonResult, categoriesResult] = await Promise.all([
+    supabase.from('cantons').select('id, name, slug').eq('id', district.canton_id).maybeSingle(),
     categoryIds.length > 0
-      ? await supabase.from('categories').select('id, name, slug, icon_emoji').in('id', categoryIds)
-      : { data: [], error: null }
+      ? supabase.from('categories').select('id, name, slug, icon_emoji').in('id', categoryIds)
+      : Promise.resolve({ data: [] as Array<{ id: string; name: string; slug: string; icon_emoji: string | null }>, error: null }),
+  ])
 
-  if (categories.error) {
-    logger.error('getProviderByRouteSlug.categories', { providerId, error: categories.error })
+  if (cantonResult.error || !cantonResult.data) {
+    logger.error('getProviderByRouteSlug.canton', { providerId, error: cantonResult.error })
+    return null
+  }
+  if (categoriesResult.error) {
+    logger.error('getProviderByRouteSlug.categories', { providerId, error: categoriesResult.error })
     return null
   }
 
@@ -168,9 +158,9 @@ export async function getProviderByRouteSlug(routeSlug: string): Promise<Provide
       id: district.id,
       name: district.name,
       slug: district.slug,
-      canton,
+      canton: cantonResult.data,
     },
-    categories: categories.data ?? [],
+    categories: categoriesResult.data ?? [],
   }
 }
 
@@ -197,49 +187,21 @@ export async function getListingStaticPaths(): Promise<
 > {
   if (!isSupabaseConfigured) return getMockListingPaths()
 
-  const [cantons, districtsResult, providersResult, providerCategoriesResult, categoriesResult] =
-    await Promise.all([
-      getCantons(),
-      supabase.from('districts').select('id, canton_id, name, slug'),
-      supabase.from('providers').select('id, district_id').eq('verified', true),
-      supabase.from('provider_categories').select('provider_id, category_id'),
-      supabase.from('categories').select('id, name, slug'),
-    ])
+  // Single SQL function replaces 5 full-table fetches + in-memory joining
+  const { data, error } = await supabase.rpc('list_valid_listing_combinations', { min_providers: 3 })
 
-  if (districtsResult.error || providersResult.error || providerCategoriesResult.error || categoriesResult.error) {
-    logger.error('getListingStaticPaths', {
-      districtsError: districtsResult.error,
-      providersError: providersResult.error,
-      providerCategoriesError: providerCategoriesResult.error,
-      categoriesError: categoriesResult.error,
-    })
+  if (error) {
+    logger.error('getListingStaticPaths', { error })
     return []
   }
 
-  const cantonSlugById = new Map(cantons.map((canton) => [canton.id, canton.slug]))
-  const districtById = new Map((districtsResult.data ?? []).map((district) => [district.id, district]))
-  const categorySlugById = new Map((categoriesResult.data ?? []).map((category) => [category.id, category.slug]))
-  const districtIdByProviderId = new Map(
-    (providersResult.data ?? []).map((provider) => [provider.id, provider.district_id]),
-  )
-  const countByCombination = new Map<string, number>()
-
-  for (const providerCategory of providerCategoriesResult.data ?? []) {
-    const districtId = districtIdByProviderId.get(providerCategory.provider_id)
-    const district = districtId ? districtById.get(districtId) : undefined
-    const cantonSlug = district ? cantonSlugById.get(district.canton_id) : undefined
-    const categorySlug = categorySlugById.get(providerCategory.category_id)
-    if (!district || !cantonSlug || !categorySlug) continue
-
-    const key = `${cantonSlug}/${district.slug}/${categorySlug}`
-    countByCombination.set(key, (countByCombination.get(key) ?? 0) + 1)
-  }
-
-  return [...countByCombination.entries()].flatMap(([key, count]) => {
-    if (count < 3) return []
-    const [canton, distrito, categoria] = key.split('/')
-    return [{ params: { canton, distrito, categoria } }]
-  })
+  return (data ?? []).map((row) => ({
+    params: {
+      canton: row.canton_slug as string,
+      distrito: row.district_slug as string,
+      categoria: row.category_slug as string,
+    },
+  }))
 }
 
 export async function getRecentProviders(limit: number = 3): Promise<ProviderListItem[]> {

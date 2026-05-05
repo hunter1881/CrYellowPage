@@ -77,10 +77,16 @@ const jsonLdItems = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : []
         if (window._dlProg) return
         window._dlProg = true
 
-        var bar = document.getElementById('page-progress')
-        if (!bar) return
+        var started = false
+
+        function getBar() {
+          return document.getElementById('page-progress')
+        }
 
         function start() {
+          started = true
+          var bar = getBar()
+          if (!bar) return
           // Phase 1: instant snap to 8% — visible even if page loads in 50ms
           bar.className = 'is-start'
           void bar.offsetWidth // force reflow so phase-2 transition fires from here
@@ -89,6 +95,14 @@ const jsonLdItems = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : []
         }
 
         function finish() {
+          var bar = getBar()
+          // Skip the animation on initial page load (start() was never called)
+          if (!started) {
+            if (bar) bar.className = ''
+            return
+          }
+          started = false
+          if (!bar) return
           bar.className = 'is-done'
           bar.addEventListener('transitionend', function onEnd(e) {
             // Wait for the opacity fade to complete before resetting
@@ -104,6 +118,14 @@ const jsonLdItems = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : []
             if (sp) sp.remove()
           })
         }
+
+        // After body swap, re-apply loading state (transition:persist is unreliable in some modes)
+        document.addEventListener('astro:after-swap', function () {
+          if (started) {
+            var bar = getBar()
+            if (bar) bar.className = 'is-loading'
+          }
+        })
 
         // Astro View Transition events
         document.addEventListener('astro:before-preparation', start)

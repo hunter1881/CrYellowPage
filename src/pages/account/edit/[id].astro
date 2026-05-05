@@ -3,10 +3,12 @@ import BaseLayout from '@layouts/BaseLayout.astro'
 import Alert from '@components/ui/Alert.astro'
 import Button from '@components/ui/Button.astro'
 import Checkbox from '@components/ui/Checkbox.astro'
+import ChipSelect from '@components/ui/ChipSelect.astro'
 import Input from '@components/ui/Input.astro'
 import Textarea from '@components/ui/Textarea.astro'
 import { createSupabaseServerClient } from '@lib/supabaseServer'
 import { getCategories } from '@lib/queries/categories'
+import { getPaymentMethods, selectedIncludesSinpe } from '@lib/queries/paymentMethods'
 import { absoluteUrl } from '@lib/site'
 import { t } from '@lib/i18n'
 
@@ -37,7 +39,18 @@ const { data: currentCategories } = await supabase
   .eq('provider_id', providerId)
 
 const currentCategoryIds = new Set((currentCategories ?? []).map((row) => row.category_id))
-const allCategories = await getCategories()
+const [allCategories, allPaymentMethods] = await Promise.all([getCategories(), getPaymentMethods()])
+
+// Current payment methods for this provider
+const { data: currentProviderPayments } = await supabase
+  .from('provider_payment_methods')
+  .select('payment_method_id')
+  .eq('provider_id', providerId)
+const currentPaymentMethodIds = new Set((currentProviderPayments ?? []).map((row) => row.payment_method_id))
+const currentPaymentSlugs = allPaymentMethods
+  .filter((pm) => currentPaymentMethodIds.has(pm.id))
+  .map((pm) => pm.slug)
+
 const canonical = absoluteUrl(`/account/edit/${providerId}/`, Astro.site)
 
 let successMessage: string | null = null
@@ -49,7 +62,8 @@ if (Astro.request.method === 'POST') {
   const description = String(formData.get('description') ?? '').trim() || null
   const phone = String(formData.get('phone') ?? '').trim()
   const whatsapp = String(formData.get('whatsapp') ?? '').trim() || null
-  const acceptsSinpe = formData.get('acceptsSinpe') === 'on'
+  const paymentMethodSlugs = formData.getAll('paymentMethodSlugs').map(String).filter(Boolean)
+  const acceptsSinpe = selectedIncludesSinpe(paymentMethodSlugs)
   const worksWeekends = formData.get('worksWeekends') === 'on'
   const yearsActive = Math.max(0, parseInt(String(formData.get('yearsActive') ?? '0'), 10) || 0)
   const responseTimeMinutes = parseInt(String(formData.get('responseTimeMinutes') ?? ''), 10)
@@ -91,6 +105,18 @@ if (Astro.request.method === 'POST') {
             selectedCategoryIds.map((categoryId) => ({ provider_id: providerId, category_id: categoryId }))
           )
         }
+        // Sync payment methods: delete all then re-insert by slug→id lookup
+        await supabase.from('provider_payment_methods').delete().eq('provider_id', providerId)
+        if (paymentMethodSlugs.length > 0) {
+          const validSlugMap = new Map(allPaymentMethods.map((pm) => [pm.slug, pm.id]))
+          const paymentRows = paymentMethodSlugs
+            .filter((slug) => validSlugMap.has(slug))
+            .map((slug) => ({ provider_id: providerId, payment_method_id: validSlugMap.get(slug)! }))
+          if (paymentRows.length > 0) {
+            await supabase.from('provider_payment_methods').insert(paymentRows)
+          }
+        }
+
         successMessage = 'Cambios guardados.'
         // Refresh current category list
         const { data: refreshed } = await supabase
@@ -152,23 +178,27 @@ if (Astro.request.method === 'POST') {
         <Input label={t('edit.responseTime')} name="responseTimeMinutes" type="number" placeholder="ej. 30" value={provider.response_time_minutes ?? ''} />
       </div>
 
-      <fieldset class="grid gap-2">
-        <legend class="text-sm font-semibold text-ink">{t('edit.categories')}</legend>
-        <div class="grid gap-2 sm:grid-cols-2">
-          {allCategories.map((category) => (
-            <Checkbox
-              name="categoryIds"
-              value={category.id}
-              label={`${category.icon_emoji ? `${category.icon_emoji} ` : ''}${category.name}`}
-              checked={currentCategoryIds.has(category.id)}
-            />
-          ))}
-        </div>
-      </fieldset>
+      <ChipSelect
+        name="categoryIds"
+        label={t('edit.categories')}
+        options={allCategories.map((c) => ({ value: c.id, label: `${c.icon_emoji ? `${c.icon_emoji} ` : ''}${c.name}` }))}
+        selected={[...currentCategoryIds]}
+        max={4}
+        required
+        placeholder="Buscar categoría de servicio…"
+      />
+
+      <ChipSelect
+        name="paymentMethodSlugs"
+        label="Métodos de pago aceptados"
+        options={allPaymentMethods.map((pm) => ({ value: pm.slug, label: pm.name }))}
+        selected={currentPaymentSlugs}
+        max={11}
+        placeholder="Buscar método de pago…"
+      />
 
       <fieldset class="grid gap-2">
         <legend class="text-sm font-semibold text-ink">{t('edit.options')}</legend>
-        <Checkbox name="acceptsSinpe" value="on" label={t('edit.acceptsSinpe')} variant="plain" checked={provider.accepts_sinpe ?? false} />
         <Checkbox name="worksWeekends" value="on" label={t('edit.worksWeekends')} variant="plain" checked={provider.works_weekends ?? false} />
       </fieldset>
 

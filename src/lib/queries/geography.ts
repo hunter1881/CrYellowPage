@@ -67,22 +67,25 @@ export async function getDistrictBySlugs(
 ): Promise<(District & { canton: Canton }) | null> {
   if (!isSupabaseConfigured) return getMockDistrict(cantonSlug, districtSlug)
 
-  const canton = await getCantonBySlug(cantonSlug)
-  if (!canton) return null
+  // Run both queries in parallel — district slug may appear in multiple cantons
+  const [cantonResult, districtsResult] = await Promise.all([
+    supabase.from('cantons').select('id, province_id, name, slug').eq('slug', cantonSlug).maybeSingle(),
+    supabase.from('districts').select('id, canton_id, name, slug').eq('slug', districtSlug),
+  ])
 
-  const { data, error } = await supabase
-    .from('districts')
-    .select('id, canton_id, name, slug')
-    .eq('canton_id', canton.id)
-    .eq('slug', districtSlug)
-    .maybeSingle()
-
-  if (error) {
-    logger.error('getDistrictBySlugs', { cantonSlug, districtSlug, error })
+  if (cantonResult.error) {
+    logger.error('getDistrictBySlugs.canton', { cantonSlug, error: cantonResult.error })
     return null
   }
+  const canton = cantonResult.data
+  if (!canton) return null
 
-  return data ? { ...data, canton } : null
+  if (districtsResult.error) {
+    logger.error('getDistrictBySlugs.district', { districtSlug, error: districtsResult.error })
+    return null
+  }
+  const district = (districtsResult.data ?? []).find((d) => d.canton_id === canton.id) ?? null
+  return district ? { ...district, canton } : null
 }
 
 export async function getCantonsWithDistricts(): Promise<CantonWithDistricts[]> {
@@ -233,4 +236,56 @@ export async function getDistrictStaticPaths(): Promise<
     const canton = cantonSlugById.get(district.canton_id)
     return canton ? [{ params: { canton, distrito: district.slug } }] : []
   })
+}
+
+export type DistrictWithCanton = District & { canton: Canton }
+
+/**
+ * Returns the first district (alphabetically by canton, then district) that has
+ * at least one verified provider. Uses a single JOIN query instead of iterating.
+ */
+export async function getFirstActiveDistrict(): Promise<DistrictWithCanton | null> {
+  if (!isSupabaseConfigured) {
+    return mockDistricts[0] ? { ...mockDistricts[0], canton: mockCanton } : null
+  }
+
+  // Single query: get one district_id that has a verified provider
+  const { data: providerRow, error: providerError } = await supabase
+    .from('providers')
+    .select('district_id')
+    .eq('verified', true)
+    .limit(1)
+    .maybeSingle()
+
+  if (providerError) {
+    logger.error('getFirstActiveDistrict.provider', { error: providerError })
+    return null
+  }
+  if (!providerRow) return null
+
+  const { data: district, error: districtError } = await supabase
+    .from('districts')
+    .select('id, canton_id, name, slug')
+    .eq('id', providerRow.district_id)
+    .maybeSingle()
+
+  if (districtError) {
+    logger.error('getFirstActiveDistrict.district', { error: districtError })
+    return null
+  }
+  if (!district) return null
+
+  const { data: canton, error: cantonError } = await supabase
+    .from('cantons')
+    .select('id, province_id, name, slug')
+    .eq('id', district.canton_id)
+    .maybeSingle()
+
+  if (cantonError) {
+    logger.error('getFirstActiveDistrict.canton', { error: cantonError })
+    return null
+  }
+  if (!canton) return null
+
+  return { ...district, canton }
 }

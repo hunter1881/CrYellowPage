@@ -192,39 +192,6 @@ export type Database = {
         }
         Relationships: []
       }
-      provider_payment_methods: {
-        Row: {
-          created_at: string
-          payment_method_id: string
-          provider_id: string
-        }
-        Insert: {
-          created_at?: string
-          payment_method_id: string
-          provider_id: string
-        }
-        Update: {
-          created_at?: string
-          payment_method_id?: string
-          provider_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "provider_payment_methods_payment_method_id_fkey"
-            columns: ["payment_method_id"]
-            isOneToOne: false
-            referencedRelation: "payment_methods"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "provider_payment_methods_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "providers"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       provider_categories: {
         Row: {
           category_id: string
@@ -251,6 +218,39 @@ export type Database = {
           },
           {
             foreignKeyName: "provider_categories_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider_payment_methods: {
+        Row: {
+          created_at: string
+          payment_method_id: string
+          provider_id: string
+        }
+        Insert: {
+          created_at?: string
+          payment_method_id: string
+          provider_id: string
+        }
+        Update: {
+          created_at?: string
+          payment_method_id?: string
+          provider_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_payment_methods_payment_method_id_fkey"
+            columns: ["payment_method_id"]
+            isOneToOne: false
+            referencedRelation: "payment_methods"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_payment_methods_provider_id_fkey"
             columns: ["provider_id"]
             isOneToOne: false
             referencedRelation: "providers"
@@ -472,6 +472,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      immutable_unaccent: { Args: { "": string }; Returns: string }
+      list_valid_listing_combinations: {
+        Args: { min_providers?: number }
+        Returns: {
+          canton_slug: string
+          category_slug: string
+          district_slug: string
+          provider_count: number
+        }[]
+      }
       search_providers: {
         Args: {
           p_district?: string

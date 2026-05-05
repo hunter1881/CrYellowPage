@@ -1,0 +1,165 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro'
+import { absoluteUrl, siteName } from '@lib/site'
+
+export const prerender = true
+
+const canonical = absoluteUrl('/legal/privacidad/', Astro.site)
+const lastUpdated = '1 de mayo de 2026'
+---
+
+<BaseLayout
+  title={`Política de Privacidad | ${siteName}`}
+  description="Política de privacidad de DirectorioLocal.cr. Conocé cómo recopilamos, usamos y protegemos tus datos personales conforme a la Ley 8968 de Costa Rica."
+  canonical={canonical}
+>
+  <div class="mx-auto max-w-3xl px-4 py-12 md:px-6 md:py-16">
+    <nav class="mb-6 text-sm text-ink-3">
+      <a href="/" class="text-canopy no-underline hover:underline">Inicio</a>
+      <span class="mx-2">/</span>
+      <span>Legal</span>
+      <span class="mx-2">/</span>
+      <span class="font-medium text-ink">Política de Privacidad</span>
+    </nav>
+
+    <h1 class="mb-2 text-3xl font-bold tracking-tight text-ink">Política de Privacidad</h1>
+    <p class="mb-10 text-sm text-ink-3">Última actualización: {lastUpdated}</p>
+
+    <div class="prose prose-sm max-w-none text-ink-2 [&_h2]:mb-3 [&_h2]:mt-10 [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-ink [&_p]:mb-4 [&_p]:leading-7 [&_ul]:mb-4 [&_ul]:list-disc [&_ul]:pl-5 [&_ul>li]:mb-2 [&_ul>li]:leading-7">
+
+      <p>
+        Esta Política describe cómo <strong>DirectorioLocal.cr</strong> ("nosotros") recopila, utiliza, almacena y protege la información personal conforme a la <strong>Ley 8968 de Protección de la Persona frente al Tratamiento de sus Datos Personales</strong> y su Reglamento (Decreto 37554-JP), vigentes en la República de Costa Rica.
+      </p>
+
+      <h2>1. Responsable del Tratamiento</h2>
+      <p>
+        El responsable del tratamiento de datos personales es <strong>DirectorioLocal.cr</strong>, operado en Costa Rica. Para ejercer sus derechos o consultar sobre el tratamiento de sus datos, puede contactarnos en <strong>privacidad@directoriolocal.cr</strong>.
+      </p>
+
+      <h2>2. Datos que Recopilamos</h2>
+      <p>Recopilamos distintos tipos de datos según el tipo de usuario:</p>
+
+      <p><strong>Visitantes (sin cuenta):</strong></p>
+      <ul>
+        <li>Datos de navegación: dirección IP, tipo de navegador, páginas visitadas, fecha y hora de acceso.</li>
+        <li>Preferencias de búsqueda (cantón/distrito seleccionado), almacenadas en <code>localStorage</code> del navegador.</li>
+      </ul>
+
+      <p><strong>Proveedores registrados:</strong></p>
+      <ul>
+        <li>Nombre completo o nombre comercial.</li>
+        <li>Correo electrónico (para autenticación y comunicaciones).</li>
+        <li>Número de teléfono y WhatsApp (publicados en el directorio).</li>
+        <li>Descripción del servicio, categorías y fotos (publicadas en el directorio).</li>
+        <li>Distrito donde opera el servicio.</li>
+        <li>Fecha de registro y estado de verificación.</li>
+      </ul>
+
+      <h2>3. Finalidad del Tratamiento</h2>
+      <p>Usamos sus datos para:</p>
+      <ul>
+        <li><strong>Publicación en el directorio:</strong> mostrar su perfil de proveedor a los visitantes del Sitio.</li>
+        <li><strong>Autenticación:</strong> gestionar su acceso a la cuenta.</li>
+        <li><strong>Comunicaciones operativas:</strong> notificarle sobre cambios en su cuenta, actualizaciones de términos o acciones sobre su perfil.</li>
+        <li><strong>Mejora del Sitio:</strong> analizar el uso para optimizar la experiencia (datos agregados y anónimos).</li>
+        <li><strong>Seguridad:</strong> detectar y prevenir usos fraudulentos.</li>
+      </ul>
+      <p>
+        <strong>No vendemos, alquilamos ni comercializamos datos personales a terceros.</strong>
+      </p>
+
+      <h2>4. Base Legal del Tratamiento</h2>
+      <p>El tratamiento se sustenta en:</p>
+      <ul>
+        <li><strong>Consentimiento:</strong> al registrarse como proveedor, usted acepta esta política y autoriza el tratamiento de sus datos.</li>
+        <li><strong>Contrato:</strong> el tratamiento es necesario para prestar el servicio de directorio.</li>
+        <li><strong>Interés legítimo:</strong> para datos de navegación con fines de seguridad y mejora del Sitio.</li>
+      </ul>
+
+      <h2>5. Datos que se Hacen Públicos</h2>
+      <p>
+        La siguiente información de proveedores es <strong>pública</strong> y visible para cualquier visitante del Sitio y para motores de búsqueda:
+      </p>
+      <ul>
+        <li>Nombre comercial.</li>
+        <li>Teléfono y WhatsApp.</li>
+        <li>Descripción del servicio, categorías, fotos.</li>
+        <li>Distrito de operación.</li>
+      </ul>
+      <p>
+        El correo electrónico <strong>no es público</strong> y nunca se muestra a visitantes.
+      </p>
+
+      <h2>6. Transferencias a Terceros</h2>
+      <p>Compartimos datos solo con los siguientes proveedores de servicio, bajo contratos de confidencialidad:</p>
+      <ul>
+        <li><strong>Supabase Inc.</strong> (infraestructura de base de datos y autenticación) — servidores en EE.UU., con garantías de protección adecuadas.</li>
+        <li><strong>Vercel Inc.</strong> (alojamiento web) — con servidores globales, incluidos EE.UU. y Europa.</li>
+      </ul>
+      <p>
+        No realizamos transferencias internacionales de datos sin las garantías exigidas por la Ley 8968.
+      </p>
+
+      <h2>7. Cookies y Almacenamiento Local</h2>
+      <p>El Sitio utiliza:</p>
+      <ul>
+        <li><strong>Cookies de sesión:</strong> estrictamente necesarias para mantener la sesión autenticada de proveedores.</li>
+        <li><strong>localStorage:</strong> para recordar su cantón/distrito seleccionado entre visitas.</li>
+      </ul>
+      <p>
+        No utilizamos cookies de seguimiento publicitario ni de terceros. Puede borrar las cookies y el almacenamiento local desde la configuración de su navegador.
+      </p>
+
+      <h2>8. Retención de Datos</h2>
+      <ul>
+        <li><strong>Proveedores activos:</strong> mientras la cuenta esté activa.</li>
+        <li><strong>Cuenta eliminada:</strong> los datos personales se eliminan dentro de los 30 días siguientes a la solicitud de baja, salvo obligación legal de conservación.</li>
+        <li><strong>Datos de navegación:</strong> máximo 12 meses en logs del servidor.</li>
+        <li><strong>Reseñas asociadas a un proveedor eliminado:</strong> se anonimizan automáticamente.</li>
+      </ul>
+
+      <h2>9. Sus Derechos (ARCO)</h2>
+      <p>
+        Conforme al artículo 5 de la Ley 8968, usted tiene derecho a:
+      </p>
+      <ul>
+        <li><strong>Acceso:</strong> solicitar qué datos tenemos sobre usted.</li>
+        <li><strong>Rectificación:</strong> corregir datos inexactos (puede hacerlo directamente desde su cuenta).</li>
+        <li><strong>Cancelación:</strong> solicitar la eliminación de sus datos.</li>
+        <li><strong>Oposición:</strong> oponerse a ciertos usos de sus datos.</li>
+      </ul>
+      <p>
+        Para ejercer estos derechos, envíe su solicitud a <strong>privacidad@directoriolocal.cr</strong> con su nombre y el detalle de su petición. Responderemos en un plazo máximo de <strong>10 días hábiles</strong>, conforme al artículo 12 de la Ley 8968.
+      </p>
+      <p>
+        Si considera que sus derechos han sido vulnerados, puede presentar una denuncia ante la <strong>Prodhab</strong> (Agencia de Protección de Datos de los Habitantes) en <a href="https://www.prodhab.go.cr" target="_blank" rel="noopener noreferrer" class="text-canopy no-underline hover:underline">www.prodhab.go.cr</a>.
+      </p>
+
+      <h2>10. Seguridad</h2>
+      <p>
+        Implementamos medidas técnicas y organizativas para proteger sus datos: comunicaciones cifradas con HTTPS/TLS, acceso restringido a la base de datos, autenticación con tokens seguros y políticas de seguridad a nivel de fila (Row Level Security) en la base de datos.
+      </p>
+
+      <h2>11. Menores de Edad</h2>
+      <p>
+        El Sitio no está dirigido a menores de 18 años. No recopilamos intencionalmente datos de menores. Si detectamos que hemos recopilado datos de un menor sin consentimiento parental, los eliminaremos de inmediato.
+      </p>
+
+      <h2>12. Cambios a esta Política</h2>
+      <p>
+        Notificaremos cambios materiales con al menos 15 días de anticipación mediante aviso en el Sitio y correo a proveedores registrados. La versión vigente siempre estará disponible en esta página.
+      </p>
+
+      <h2>13. Contacto</h2>
+      <p>
+        Para cualquier consulta sobre privacidad: <strong>privacidad@directoriolocal.cr</strong>
+      </p>
+    </div>
+
+    <div class="mt-12 flex gap-4 border-t border-rule pt-8 text-sm">
+      <a href="/legal/terminos/" class="text-canopy no-underline hover:underline">Términos de Uso</a>
+      <span class="text-ink-3">·</span>
+      <a href="/legal/reportar/" class="text-canopy no-underline hover:underline">Reportar contenido</a>
+    </div>
+  </div>
+</BaseLayout>

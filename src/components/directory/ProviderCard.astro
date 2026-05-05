@@ -30,6 +30,8 @@ const displayMeta = providerDisplayMeta(provider, reviewSummary)
             alt={`Foto de ${provider.name}`}
             width={180}
             height={180}
+            loading="lazy"
+            decoding="async"
           />
         ) : (
           <div class="flex h-full w-full items-center justify-center bg-gradient-to-br from-canopy-ink to-canopy text-[10px] font-semibold uppercase tracking-[0.5px] text-white/60">

@@ -1,0 +1,117 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro'
+import { absoluteUrl, siteName } from '@lib/site'
+
+export const prerender = true
+
+const canonical = absoluteUrl('/legal/terminos/', Astro.site)
+const lastUpdated = '1 de mayo de 2026'
+---
+
+<BaseLayout
+  title={`Términos de Uso | ${siteName}`}
+  description="Términos y condiciones de uso de DirectorioLocal.cr. Conocé tus derechos y obligaciones como usuario del directorio."
+  canonical={canonical}
+>
+  <div class="mx-auto max-w-3xl px-4 py-12 md:px-6 md:py-16">
+    <nav class="mb-6 text-sm text-ink-3">
+      <a href="/" class="text-canopy no-underline hover:underline">Inicio</a>
+      <span class="mx-2">/</span>
+      <span>Legal</span>
+      <span class="mx-2">/</span>
+      <span class="font-medium text-ink">Términos de Uso</span>
+    </nav>
+
+    <h1 class="mb-2 text-3xl font-bold tracking-tight text-ink">Términos de Uso</h1>
+    <p class="mb-10 text-sm text-ink-3">Última actualización: {lastUpdated}</p>
+
+    <div class="prose prose-sm max-w-none text-ink-2 [&_h2]:mb-3 [&_h2]:mt-10 [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-ink [&_p]:mb-4 [&_p]:leading-7 [&_ul]:mb-4 [&_ul]:list-disc [&_ul]:pl-5 [&_ul>li]:mb-2 [&_ul>li]:leading-7">
+
+      <p>
+        Al acceder o usar <strong>DirectorioLocal.cr</strong> ("el Sitio"), usted acepta estos Términos de Uso. Si no está de acuerdo, por favor absténgase de usar el Sitio. DirectorioLocal.cr es operado en Costa Rica y se rige por la legislación costarricense vigente.
+      </p>
+
+      <h2>1. Naturaleza del Servicio</h2>
+      <p>
+        DirectorioLocal.cr es un directorio de proveedores de servicios locales en Costa Rica. Actuamos como intermediario de información: publicamos datos que los proveedores nos suministran voluntariamente y que verificamos razonablemente antes de publicarlos. <strong>No somos parte de ningún contrato de servicios</strong> entre el proveedor y el usuario final.
+      </p>
+      <p>
+        La relación contractual de servicios se establece directa y exclusivamente entre el usuario y el proveedor. DirectorioLocal.cr no asume responsabilidad por la calidad, cumplimiento o resultado de los servicios contratados.
+      </p>
+
+      <h2>2. Usuarios del Sitio</h2>
+      <p>Existen dos tipos de usuarios:</p>
+      <ul>
+        <li><strong>Visitantes:</strong> personas que consultan el directorio para encontrar proveedores. No requieren registro.</li>
+        <li><strong>Proveedores:</strong> personas físicas o jurídicas que registran sus servicios. Deben crear una cuenta y aceptar los presentes términos.</li>
+      </ul>
+
+      <h2>3. Registro de Proveedores</h2>
+      <p>
+        Para registrar un servicio, el proveedor debe:
+      </p>
+      <ul>
+        <li>Ser mayor de 18 años o contar con la capacidad jurídica necesaria conforme al <strong>Código Civil de Costa Rica</strong>.</li>
+        <li>Proporcionar información veraz, actualizada y completa.</li>
+        <li>Ser el titular o contar con autorización para ofrecer el servicio declarado.</li>
+        <li>Mantener sus datos actualizados.</li>
+      </ul>
+      <p>
+        Nos reservamos el derecho de rechazar, suspender o eliminar cualquier registro que viole estos términos, contenga información falsa o engañosa, o infrinja derechos de terceros, de conformidad con la <strong>Ley 7472 de Promoción de la Competencia y Defensa Efectiva del Consumidor</strong>.
+      </p>
+
+      <h2>4. Contenido y Precisión de la Información</h2>
+      <p>
+        El proveedor es el único responsable de la veracidad del contenido que publica (nombre, teléfono, descripción, fotos, categorías). DirectorioLocal.cr realiza una verificación razonable pero no garantiza la exactitud de todos los datos.
+      </p>
+      <p>
+        Si usted detecta información errónea o engañosa, puede reportarla desde el perfil del proveedor o en la sección <a href="/legal/reportar/" class="text-canopy no-underline hover:underline">Reportar</a>.
+      </p>
+
+      <h2>5. Conductas Prohibidas</h2>
+      <p>Queda expresamente prohibido:</p>
+      <ul>
+        <li>Publicar información falsa, fraudulenta o que induzca a error al consumidor.</li>
+        <li>Suplantar la identidad de otra persona o empresa.</li>
+        <li>Publicar contenido difamatorio, obsceno, amenazante o que incite al odio.</li>
+        <li>Realizar scraping automatizado del directorio sin autorización escrita previa.</li>
+        <li>Intentar acceder a cuentas ajenas o vulnerar la seguridad del Sitio.</li>
+        <li>Publicar información de contacto de terceros sin su consentimiento.</li>
+      </ul>
+      <p>
+        Las conductas fraudulentas podrán ser denunciadas ante el <strong>Ministerio de Economía, Industria y Comercio (MEIC)</strong> y el <strong>Organismo de Investigación Judicial (OIJ)</strong>, según corresponda.
+      </p>
+
+      <h2>6. Propiedad Intelectual</h2>
+      <p>
+        El diseño, código, marca y contenido propio del Sitio son propiedad de DirectorioLocal.cr y están protegidos por la <strong>Ley 6683 de Derechos de Autor y Derechos Conexos</strong> de Costa Rica. Los proveedores conservan los derechos de su propio contenido (fotos, descripciones), pero otorgan a DirectorioLocal.cr una licencia no exclusiva para mostrarlo en el Sitio.
+      </p>
+
+      <h2>7. Limitación de Responsabilidad</h2>
+      <p>
+        En la medida permitida por la legislación costarricense, DirectorioLocal.cr no será responsable por daños indirectos, incidentales o consecuentes que resulten del uso del Sitio o de los servicios contratados con proveedores listados. Nuestra responsabilidad directa máxima frente a cualquier reclamo no excederá el monto pagado por el usuario a DirectorioLocal.cr en los últimos 12 meses (o ₡10,000 si no ha habido pago).
+      </p>
+
+      <h2>8. Modificaciones a los Términos</h2>
+      <p>
+        Podemos actualizar estos Términos en cualquier momento. Notificaremos cambios materiales mediante aviso en el Sitio y/o por correo electrónico a los proveedores registrados con al menos 15 días de anticipación. El uso continuado del Sitio después de esa fecha constituye aceptación de los nuevos términos.
+      </p>
+
+      <h2>9. Ley Aplicable y Jurisdicción</h2>
+      <p>
+        Estos Términos se rigen exclusivamente por las leyes de la República de Costa Rica. Cualquier controversia que no pueda resolverse amigablemente se someterá a los <strong>Tribunales de Justicia del Primer Circuito Judicial de San José</strong>, con renuncia expresa a cualquier otro fuero.
+      </p>
+
+      <h2>10. Contacto</h2>
+      <p>
+        Para consultas sobre estos Términos, puede escribirnos a <strong>legal@directoriolocal.cr</strong>.
+      </p>
+    </div>
+
+    <div class="mt-12 flex gap-4 border-t border-rule pt-8 text-sm">
+      <a href="/legal/privacidad/" class="text-canopy no-underline hover:underline">Política de Privacidad</a>
+      <span class="text-ink-3">·</span>
+      <a href="/legal/reportar/" class="text-canopy no-underline hover:underline">Reportar contenido</a>
+    </div>
+  </div>
+</BaseLayout>

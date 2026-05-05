@@ -26,11 +26,13 @@ if (!district || !category) {
   return Astro.redirect('/404')
 }
 
-const [nearbyDistricts, relatedCategories] = await Promise.all([
+// Merge into one parallel batch — nearbyDistricts and relatedCategories depend on district,
+// reviewSummaries depends on providers; all can now run together
+const [nearbyDistricts, relatedCategories, reviewSummaries] = await Promise.all([
   getDistrictsByCantonId(district.canton.id),
   getCategoriesByDistrictId(district.id),
+  getReviewSummariesByProviderIds(providers.map((provider) => provider.id)),
 ])
-const reviewSummaries = await getReviewSummariesByProviderIds(providers.map((provider) => provider.id))
 const currentParams = Astro.url.searchParams
 const activeFilters = {
   sinpe: currentParams.get('sinpe') === '1',

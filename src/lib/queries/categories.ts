@@ -94,47 +94,37 @@ export async function getCategoriesByDistrictId(districtId: string): Promise<Cat
 export async function getCategoriesWithCountsByDistrictId(districtId: string): Promise<CategoryWithCount[]> {
   if (!isSupabaseConfigured) return mockCategories.map((c) => ({ ...c, count: 2 }))
 
-  const { data: providers, error: providersError } = await supabase
-    .from('providers')
-    .select('id')
-    .eq('district_id', districtId)
-    .eq('verified', true)
-
-  if (providersError) {
-    logger.error('getCategoriesWithCountsByDistrictId.providers', { districtId, error: providersError })
-    return []
-  }
-
-  const providerIds = (providers ?? []).map((p) => p.id)
-  if (providerIds.length === 0) return []
-
-  const { data: providerCategories, error: pcError } = await supabase
+  // Single join query: provider_categories filtered to verified providers in this district
+  // Replaces 2 sequential queries (providers, then provider_categories)
+  const { data: rows, error } = await supabase
     .from('provider_categories')
-    .select('provider_id, category_id')
-    .in('provider_id', providerIds)
+    .select('category_id, providers!inner(district_id, verified)')
+    .eq('providers.district_id', districtId)
+    .eq('providers.verified', true)
 
-  if (pcError) {
-    logger.error('getCategoriesWithCountsByDistrictId.providerCategories', { districtId, error: pcError })
+  if (error) {
+    logger.error('getCategoriesWithCountsByDistrictId', { districtId, error })
     return []
   }
+
+  if (!rows || rows.length === 0) return []
 
   // Count providers per category
   const countByCategory = new Map<string, number>()
-  for (const row of providerCategories ?? []) {
+  for (const row of rows) {
     countByCategory.set(row.category_id, (countByCategory.get(row.category_id) ?? 0) + 1)
   }
 
   const categoryIds = [...countByCategory.keys()]
-  if (categoryIds.length === 0) return []
 
-  const { data, error } = await supabase
+  const { data, error: catError } = await supabase
     .from('categories')
     .select('id, name, slug, icon_emoji')
     .in('id', categoryIds)
     .order('name')
 
-  if (error) {
-    logger.error('getCategoriesWithCountsByDistrictId.categories', { districtId, error })
+  if (catError) {
+    logger.error('getCategoriesWithCountsByDistrictId.categories', { districtId, error: catError })
     return []
   }
 
