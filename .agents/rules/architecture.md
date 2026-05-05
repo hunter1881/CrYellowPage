@@ -246,7 +246,7 @@ A dynamic `src/pages/robots.txt.ts` API route points to `sitemap-index.xml`.
 
 ### Anti-thin-content
 Programmatic SEO works in 2026 only if pages have real content. Enforce:
-- **Skip listings with <3 providers** in `getStaticPaths()`. A page with one provider is not a directory page; redirect or omit.
+- **Skip listings with 0 verified providers** in `getStaticPaths()`. The `getListingStaticPaths()` query enforces `min_providers: 1`. A category-district combination with no verified providers must NOT be pre-rendered (404 is correct for those). Internal links from district pages must respect the same threshold so we never link to a 404 page. Do not raise this threshold above 1 unless the category grid on district pages is also re-thresholded — broken internal links destroy trust.
 - **Per-district category descriptions** (not generic). Even one sentence with a local landmark beats a templated paragraph.
 - **Internal linking automation**: at the bottom of every listing, link to nearby districts with the same category and other categories in the same district. This builds the topical mesh search engines reward.
 

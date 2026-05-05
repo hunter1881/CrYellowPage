@@ -115,6 +115,20 @@ export const ui = {
   'reviews.seeAll': 'Ver todas',
   'reviews.placeholder': 'El módulo dinámico de reseñas usará Astro Server Islands cuando conectemos escrituras reales.',
   'reviews.clientsHeading': 'Reseñas de clientes',
+  'reviews.writeReview': 'Escribir una reseña',
+  'reviews.yourName': 'Tu nombre',
+  'reviews.namePlaceholder': 'Anónimo',
+  'reviews.rating': 'Calificación',
+  'reviews.yourComment': 'Comentario',
+  'reviews.commentPlaceholder': 'Contá tu experiencia con este proveedor...',
+  'reviews.workConfirmed': 'El trabajo fue realizado',
+  'reviews.workConfirmedHelp': 'Confirmá esto para sumar al contador de trabajos completados del proveedor.',
+  'reviews.submit': 'Publicar reseña',
+  'reviews.submitSuccess': '¡Gracias! Tu reseña fue publicada.',
+  'reviews.noReviews': 'Todavía no hay reseñas. ¡Sé la primera persona en opinar!',
+  'reviews.anonymous': 'Cliente anónimo',
+  'reviews.verifiedWork': 'Trabajo confirmado',
+  'reviews.errorRequired': 'Seleccioná una calificación de 1 a 5 estrellas.',
 
   // ─── Registration form ────────────────────────────────────────────────────
   'form.applicationMeta': 'Solicitud de proveedor',
@@ -307,6 +321,14 @@ export const ui = {
 
   // ─── Badge ────────────────────────────────────────────────────────────────
   'badge.verified': 'Verificado',
+
+  // ─── Navigation improvements ──────────────────────────────────────────────
+  'nav.backToListing': '← Volver al listado',
+  'nav.bottomHome': 'Inicio',
+  'nav.bottomSearch': 'Buscar',
+  'nav.bottomExplore': 'Explorar',
+  'nav.bottomAccount': 'Cuenta',
+  'nav.context': 'Ubicación actual',
 } as const
 
 export type UiKey = keyof typeof ui

@@ -1,0 +1,24 @@
+---
+/**
+ * ContextBar — styled breadcrumb wrapper used in page header sections.
+ * Replaces the bare <section><Breadcrumbs/></section> pattern with a
+ * consistent, accessible container.
+ *
+ * Usage:
+ *   <ContextBar items={breadcrumbs} />
+ */
+import Breadcrumbs from '@components/seo/Breadcrumbs.astro'
+import type { BreadcrumbItem } from '@lib/seo/breadcrumb'
+
+interface Props {
+  items: BreadcrumbItem[]
+}
+
+const { items } = Astro.props
+---
+
+<div class="border-b border-rule bg-surface">
+  <div class="mx-auto max-w-6xl px-4 py-2.5 md:px-6">
+    <Breadcrumbs items={items} />
+  </div>
+</div>

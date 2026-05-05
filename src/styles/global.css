@@ -58,6 +58,9 @@
   --noise: 0;
 }
 
+/* Alpine.js cloak — hide elements until Alpine initialises */
+[x-cloak] { display: none !important; }
+
 @layer base {
   *,
   ::before,

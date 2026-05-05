@@ -1,13 +1,13 @@
 ---
 import { Image } from 'astro:assets'
 import ProviderContactBox from '@components/directory/ProviderContactBox.astro'
-import ReviewPreview from '@components/directory/ReviewPreview.astro'
+import ReviewSection from '@components/directory/ReviewSection.astro'
 import StickyContactBar from '@components/directory/StickyContactBar.astro'
 import Badge from '@components/ui/Badge.astro'
 import Breadcrumbs from '@components/seo/Breadcrumbs.astro'
 import BaseLayout from '@layouts/BaseLayout.astro'
 import { getProviderByRouteSlug, getProviderStaticPaths } from '@lib/queries/providers'
-import { getReviewsByProvider, getReviewSummaryByProvider } from '@lib/queries/reviews'
+import { getReviewSummaryByProvider } from '@lib/queries/reviews'
 import { providerDisplayMeta } from '@lib/providerPresentation'
 import { absoluteUrl } from '@lib/site'
 import { breadcrumbJsonLd } from '@lib/seo/breadcrumb'
@@ -53,12 +53,10 @@ const jsonLd = [
 const pageTitle = tpl('provider.pageTitle', { name: provider.name, district: provider.district.name })
 const pageDescription = tpl('provider.pageDescription', { name: provider.name, district: provider.district.name, canton: provider.district.canton.name })
 const fallbackDescription = tpl('provider.fallbackDesc', { district: provider.district.name })
-const [reviewSummary, reviews] = await Promise.all([
+const [reviewSummary] = await Promise.all([
   getReviewSummaryByProvider(provider.id),
-  getReviewsByProvider(provider.id),
 ])
 const displayMeta = providerDisplayMeta(provider, reviewSummary)
-const featuredReview = reviews[0] ?? null
 const categoryLabel = provider.categories.map((category) => category.name).join(', ') || t('provider.localService')
 const serviceAreas = [provider.district.name, provider.district.canton.name]
 ---
@@ -69,12 +67,37 @@ const serviceAreas = [provider.district.name, provider.district.canton.name]
   canonical={canonical}
   image={provider.photo_url ?? undefined}
   jsonLd={jsonLd}
+  locationLabel={`${provider.district.name} · ${provider.district.canton.name}`}
 >
   <section class="border-b border-rule bg-surface">
     <div class="mx-auto max-w-6xl px-4 py-3 md:px-6">
       <Breadcrumbs items={breadcrumbs} />
     </div>
   </section>
+
+  {/* P2: Back-to-listing button — reads ?from=canton/distrito/categoria from the URL client-side (SSG-compatible) */}
+  <div
+    class="border-b border-rule-soft bg-surface-alt"
+    x-data="{ backHref: null }"
+    x-init="
+      const from = new URLSearchParams(location.search).get('from');
+      if (from && /^[a-z0-9-]{1,80}\/[a-z0-9-]{1,80}\/[a-z0-9-]{1,80}$/.test(from)) {
+        backHref = '/' + from + '/';
+      }
+    "
+  >
+    <div class="mx-auto max-w-6xl px-4 py-2 md:px-6">
+      <a
+        x-cloak
+        x-show="backHref"
+        :href="backHref"
+        class="inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.5px] text-ink-3 underline underline-offset-2 hover:text-canopy"
+      >
+        <span aria-hidden="true">←</span>
+        Volver al listado
+      </a>
+    </div>
+  </div>
 
   <section class="mx-auto grid max-w-6xl gap-8 px-4 pb-24 pt-6 md:grid-cols-[1fr_320px] md:px-6 md:pb-6">
     <div>
@@ -160,14 +183,19 @@ const serviceAreas = [provider.district.name, provider.district.canton.name]
         </div>
       </section>
 
-      <ReviewPreview
+      <ReviewSection
+        server:defer
+        providerId={provider.id}
         providerName={provider.name}
-        districtName={provider.district.name}
-        rating={displayMeta.rating}
-        reviewCount={displayMeta.reviewCount}
-        authorName={featuredReview?.author_name}
-        comment={featuredReview?.comment}
-      />
+      >
+        <div slot="fallback" class="civic-card mt-4 animate-pulse p-5">
+          <div class="h-4 w-32 rounded bg-rule"></div>
+          <div class="mt-4 space-y-2">
+            <div class="h-3 w-full rounded bg-rule-soft"></div>
+            <div class="h-3 w-4/5 rounded bg-rule-soft"></div>
+          </div>
+        </div>
+      </ReviewSection>
     </div>
 
     <ProviderContactBox

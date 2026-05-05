@@ -1,0 +1,166 @@
+---
+import { actions } from 'astro:actions'
+import Icon from '@components/ui/Icon.astro'
+import { t } from '@lib/i18n'
+
+interface Props {
+  providerId: string
+  providerName: string
+}
+
+const { providerId, providerName } = Astro.props
+
+const result = Astro.getActionResult(actions.submitReview)
+const submitted = result?.data?.providerId === providerId && !result?.error
+const formError = result?.error?.message ?? null
+---
+
+<section class="civic-card mt-4 p-5" id="escribir-resena" aria-label={`Escribir reseña para ${providerName}`}>
+  <p class="civic-meta mb-3">{t('reviews.writeReview')}</p>
+
+  {submitted ? (
+    <div class="flex items-center gap-3 rounded-civic border border-canopy/30 bg-canopy-soft px-4 py-3 text-sm font-semibold text-canopy">
+      <Icon name="check" size={16} />
+      {t('reviews.submitSuccess')}
+    </div>
+  ) : (
+    <form
+      method="POST"
+      action={actions.submitReview}
+      x-data="{ submitting: false }"
+      x-on:submit="submitting = true"
+    >
+      <input type="hidden" name="providerId" value={providerId} />
+
+      {formError && (
+        <p class="mb-4 rounded-civic border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700" role="alert">
+          {formError}
+        </p>
+      )}
+
+      {/* Star rating */}
+      <div class="mb-4">
+        <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.5px] text-ink-3">
+          {t('reviews.rating')}
+        </label>
+        <star-rating data-name="rating">
+          <div class="flex gap-1" role="radiogroup" aria-label={t('reviews.rating')}>
+            {[1, 2, 3, 4, 5].map((n) => (
+              <button
+                type="button"
+                data-value={n}
+                aria-label={`${n} estrella${n > 1 ? 's' : ''}`}
+                class="star-btn text-2xl text-ink-3/30 transition-colors hover:text-star focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-canopy"
+              >
+                ★
+              </button>
+            ))}
+          </div>
+          <input type="hidden" name="rating" value="" required />
+          <p class="sr-only" aria-live="polite" data-star-label></p>
+        </star-rating>
+        <p class="mt-1 text-xs text-red-600 hidden" data-rating-error>{t('reviews.errorRequired')}</p>
+      </div>
+
+      {/* Author name */}
+      <div class="mb-4">
+        <label for="review-author" class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.5px] text-ink-3">
+          {t('reviews.yourName')}
+          <span class="ml-1 normal-case font-normal text-ink-3/70">({t('common.optional')})</span>
+        </label>
+        <input
+          id="review-author"
+          type="text"
+          name="authorName"
+          maxlength="80"
+          placeholder={t('reviews.namePlaceholder')}
+          autocomplete="name"
+          class="w-full rounded-civic border border-rule bg-surface px-3 py-2 text-sm text-ink placeholder:text-ink-3/50 focus:border-canopy focus:outline-none focus:ring-1 focus:ring-canopy"
+        />
+      </div>
+
+      {/* Comment */}
+      <div class="mb-4">
+        <label for="review-comment" class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.5px] text-ink-3">
+          {t('reviews.yourComment')}
+          <span class="ml-1 normal-case font-normal text-ink-3/70">({t('common.optional')})</span>
+        </label>
+        <textarea
+          id="review-comment"
+          name="comment"
+          rows="3"
+          maxlength="800"
+          placeholder={t('reviews.commentPlaceholder')}
+          class="w-full resize-none rounded-civic border border-rule bg-surface px-3 py-2 text-sm text-ink placeholder:text-ink-3/50 focus:border-canopy focus:outline-none focus:ring-1 focus:ring-canopy"
+        ></textarea>
+      </div>
+
+      {/* Work confirmed */}
+      <label class="mb-5 flex cursor-pointer items-start gap-3 rounded-civic border border-rule bg-surface-alt p-3 has-[:checked]:border-canopy/40 has-[:checked]:bg-canopy-soft">
+        <input
+          type="checkbox"
+          name="workConfirmed"
+          value="on"
+          class="mt-0.5 h-4 w-4 shrink-0 accent-canopy"
+        />
+        <span>
+          <span class="block text-sm font-semibold text-ink">{t('reviews.workConfirmed')}</span>
+          <span class="mt-0.5 block text-xs leading-5 text-ink-3">{t('reviews.workConfirmedHelp')}</span>
+        </span>
+      </label>
+
+      <button
+        type="submit"
+        x-bind:disabled="submitting"
+        class="w-full rounded-civic bg-canopy px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        <span x-show="!submitting">{t('reviews.submit')}</span>
+        <span x-show="submitting" x-cloak>Publicando…</span>
+      </button>
+    </form>
+  )}
+</section>
+
+<script>
+  class StarRating extends HTMLElement {
+    connectedCallback() {
+      const hiddenInput = this.querySelector<HTMLInputElement>('input[type="hidden"]')
+      const label = this.querySelector<HTMLElement>('[data-star-label]')
+      const buttons = Array.from(this.querySelectorAll<HTMLButtonElement>('.star-btn'))
+      const errorEl = this.closest('form')?.querySelector<HTMLElement>('[data-rating-error]')
+
+      if (!hiddenInput) return
+
+      const highlight = (value: number) => {
+        buttons.forEach((btn, i) => {
+          const active = i < value
+          btn.classList.toggle('text-star', active)
+          btn.classList.toggle('text-ink-3/30', !active)
+        })
+      }
+
+      const setValue = (value: number) => {
+        hiddenInput.value = String(value)
+        if (label) label.textContent = `${value} estrella${value > 1 ? 's' : ''} seleccionada${value > 1 ? 's' : ''}`
+        if (errorEl) errorEl.classList.add('hidden')
+        highlight(value)
+      }
+
+      buttons.forEach((btn, i) => {
+        btn.addEventListener('mouseenter', () => highlight(i + 1))
+        btn.addEventListener('mouseleave', () => highlight(hiddenInput.value ? Number(hiddenInput.value) : 0))
+        btn.addEventListener('click', () => setValue(i + 1))
+      })
+
+      // Validate on submit
+      this.closest('form')?.addEventListener('submit', (e) => {
+        if (!hiddenInput.value) {
+          e.preventDefault()
+          if (errorEl) errorEl.classList.remove('hidden')
+        }
+      })
+    }
+  }
+
+  if (!customElements.get('star-rating')) customElements.define('star-rating', StarRating)
+</script>

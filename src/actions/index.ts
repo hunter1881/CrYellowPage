@@ -2,6 +2,7 @@ import { ActionError, defineAction } from 'astro:actions'
 import { z } from 'astro/zod'
 import { createProviderRegistration } from '@lib/queries/providerRegistrations'
 import { selectedIncludesSinpe } from '@lib/queries/paymentMethods'
+import { insertReview } from '@lib/queries/reviews'
 
 const optionalTrimmedString = z
   .string()
@@ -49,6 +50,45 @@ export const server = {
         yearsActive: input.yearsActive,
         sourceLocale: input.sourceLocale,
       })
+    },
+  }),
+
+  submitReview: defineAction({
+    accept: 'form',
+    input: z.object({
+      providerId: z.uuid(),
+      authorName: z
+        .string()
+        .trim()
+        .max(80)
+        .optional()
+        .transform((v) => (v && v.length > 0 ? v : null)),
+      rating: z.coerce.number().int().min(1).max(5),
+      comment: z
+        .string()
+        .trim()
+        .max(800)
+        .optional()
+        .transform((v) => (v && v.length > 0 ? v : null)),
+      workConfirmed: z
+        .string()
+        .optional()
+        .transform((v) => v === 'on'),
+    }),
+    handler: async (input) => {
+      const result = await insertReview({
+        providerId: input.providerId,
+        authorName: input.authorName ?? null,
+        rating: input.rating,
+        comment: input.comment ?? null,
+        workConfirmed: input.workConfirmed,
+      })
+
+      if (!result.ok) {
+        throw new ActionError({ code: 'INTERNAL_SERVER_ERROR', message: result.message })
+      }
+
+      return { providerId: input.providerId }
     },
   }),
 }

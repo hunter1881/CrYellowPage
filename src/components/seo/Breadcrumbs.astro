@@ -17,17 +17,41 @@ function toPath(url: string): string {
     return url
   }
 }
+
+// Immediate parent item — used for the mobile single-level back link
+const parent = items.length >= 2 ? items[items.length - 2] : null
 ---
 
-<nav class="font-mono text-[11px] font-semibold uppercase tracking-[0.5px] text-ink-3" aria-label="Breadcrumb">
-  <ol class="flex flex-wrap items-center gap-1.5">
+{/* Mobile: single "‹ Parent" back link — one tap to go up one level */}
+{parent && (
+  <a
+    class="inline-flex items-center gap-1 font-mono text-[11px] font-semibold uppercase tracking-[0.5px] text-ink-3 underline underline-offset-2 hover:text-canopy md:hidden"
+    href={toPath(parent.url)}
+  >
+    <span aria-hidden="true">‹</span>
+    {parent.name}
+  </a>
+)}
+
+{/* Desktop: full breadcrumb trail */}
+<nav class="hidden md:block" aria-label="Breadcrumb">
+  <ol class="flex flex-wrap items-center gap-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.5px] text-ink-3">
     {
       items.map((item, index) => (
-        <li class="flex items-center gap-2">
-          {index > 0 && <span class="opacity-50" aria-hidden="true">/</span>}
-          <a class={index === items.length - 1 ? 'text-ink no-underline' : 'text-ink-3 no-underline hover:text-canopy'} href={toPath(item.url)}>
-            {item.name}
-          </a>
+        <li class="flex items-center gap-1.5">
+          {index > 0 && (
+            <span class="select-none opacity-40" aria-hidden="true">›</span>
+          )}
+          {index === items.length - 1 ? (
+            <span class="text-ink" aria-current="page">{item.name}</span>
+          ) : (
+            <a
+              class="text-ink-3 underline underline-offset-2 hover:text-canopy"
+              href={toPath(item.url)}
+            >
+              {item.name}
+            </a>
+          )}
         </li>
       ))
     }

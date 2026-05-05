@@ -13,10 +13,14 @@ import { providerUrl } from '@lib/slug'
 interface Props {
   provider: ProviderListItem
   reviewSummary?: ReviewSummary
+  fromPath?: string
 }
 
-const { provider, reviewSummary } = Astro.props
+const { provider, reviewSummary, fromPath } = Astro.props
 const displayMeta = providerDisplayMeta(provider, reviewSummary)
+const providerHref = fromPath
+  ? `${providerUrl(provider.id, provider.name)}?from=${encodeURIComponent(fromPath)}`
+  : providerUrl(provider.id, provider.name)
 ---
 
 <Card tag="article" hover class="grid gap-4 p-4 md:grid-cols-[1fr_auto]">
@@ -43,7 +47,7 @@ const displayMeta = providerDisplayMeta(provider, reviewSummary)
     <div class="min-w-0">
       <div class="flex flex-wrap items-center gap-2">
         <h2 class="text-base font-semibold tracking-[-0.2px]">
-          <a class="text-ink no-underline hover:text-canopy" href={providerUrl(provider.id, provider.name)}>
+          <a class="text-ink no-underline hover:text-canopy" href={providerHref}>
             {provider.name}
           </a>
         </h2>

@@ -1,0 +1,81 @@
+---
+import Icon from '@components/ui/Icon.astro'
+import { t } from '@lib/i18n'
+import type { Review } from '@lib/queries/reviews'
+import type { ReviewSummary } from '@lib/queries/reviews'
+
+interface Props {
+  reviews: Review[]
+  summary: ReviewSummary
+}
+
+const { reviews, summary } = Astro.props
+
+function stars(rating: number): { filled: number; empty: number } {
+  const filled = Math.round(Math.max(0, Math.min(5, rating)))
+  return { filled, empty: 5 - filled }
+}
+
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString('es-CR', { year: 'numeric', month: 'long', day: 'numeric' })
+}
+---
+
+<section class="civic-card mt-4 p-5">
+  <div class="mb-4 flex items-center justify-between">
+    <p class="civic-meta">
+      {t('reviews.clientsHeading')}
+      {summary.reviewCount > 0 && <span class="ml-1">· {summary.reviewCount}</span>}
+    </p>
+    {summary.rating !== null && (
+      <span class="flex items-center gap-1 text-sm font-semibold text-ink">
+        <Icon name="star" size={13} class="text-star" />
+        {summary.rating}
+      </span>
+    )}
+  </div>
+
+  {reviews.length === 0 ? (
+    <p class="text-sm text-ink-3">{t('reviews.noReviews')}</p>
+  ) : (
+    <ul class="space-y-3">
+      {reviews.map((review) => {
+        const { filled, empty } = stars(review.rating)
+        return (
+          <li class="rounded-civic border border-rule-soft bg-surface-alt p-4">
+            <div class="mb-1.5 flex flex-wrap items-center justify-between gap-2">
+              <span class="text-sm font-semibold text-ink">
+                {review.author_name ?? t('reviews.anonymous')}
+              </span>
+              <span class="font-mono text-[11px] uppercase tracking-[0.5px] text-ink-3">
+                {formatDate(review.created_at)}
+              </span>
+            </div>
+            <div class="mb-2 flex items-center gap-0.5 text-star" aria-label={`${review.rating} de 5 estrellas`}>
+              {Array.from({ length: filled }).map(() => <Icon name="star" size={12} />)}
+              {Array.from({ length: empty }).map(() => (
+                <Icon name="star" size={12} class="opacity-20" />
+              ))}
+            </div>
+            {review.comment && (
+              <p class="text-sm leading-6 text-ink-2">{review.comment}</p>
+            )}
+            {review.work_confirmed && (
+              <span class="mt-2 inline-flex items-center gap-1.5 rounded-full border border-canopy/30 bg-canopy-soft px-2.5 py-0.5 text-[11px] font-semibold text-canopy">
+                <Icon name="check" size={10} />
+                {t('reviews.verifiedWork')}
+              </span>
+            )}
+          </li>
+        )
+      })}
+    </ul>
+  )}
+
+  <a
+    href="#escribir-resena"
+    class="mt-4 block text-center text-xs font-semibold text-canopy underline underline-offset-2 hover:opacity-80"
+  >
+    {t('reviews.writeReview')} →
+  </a>
+</section>

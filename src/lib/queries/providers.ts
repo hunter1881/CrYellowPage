@@ -187,8 +187,13 @@ export async function getListingStaticPaths(): Promise<
 > {
   if (!isSupabaseConfigured) return getMockListingPaths()
 
-  // Single SQL function replaces 5 full-table fetches + in-memory joining
-  const { data, error } = await supabase.rpc('list_valid_listing_combinations', { min_providers: 3 })
+  // min_providers = 1: emit a static path for any (canton, district, category)
+  // with at least one verified provider. The "<3 providers = thin content"
+  // Google heuristic does not fit a hyperlocal directory where a small district
+  // legitimately has 1–2 providers per category. The EmptyState in the listing
+  // page is reserved for the case where active filters reduce the visible set
+  // to 0, not for the listing as a whole.
+  const { data, error } = await supabase.rpc('list_valid_listing_combinations', { min_providers: 1 })
 
   if (error) {
     logger.error('getListingStaticPaths', { error })

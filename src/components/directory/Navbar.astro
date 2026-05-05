@@ -1,6 +1,12 @@
 ---
 import Icon from '@components/ui/Icon.astro'
 import { t } from '@lib/i18n'
+
+interface Props {
+  locationLabel?: string
+}
+
+const { locationLabel } = Astro.props
 ---
 
 <header class="sticky top-0 z-50 border-b border-rule bg-surface">
@@ -14,6 +20,12 @@ import { t } from '@lib/i18n'
         </span>
       </span>
     </a>
+    {locationLabel && (
+      <span class="hidden items-center gap-1.5 rounded-full border border-rule bg-surface-alt px-3 py-1 font-mono text-[11px] font-semibold uppercase tracking-[0.5px] text-ink-2 sm:flex">
+        <span aria-hidden="true">&#128205;</span>
+        {locationLabel}
+      </span>
+    )}
     <nav class="ml-auto hidden items-center gap-5 text-sm font-medium md:flex" aria-label="Primary">
       <a class="text-ink-2 no-underline hover:text-canopy" href="/cantones/">
         {t('nav.cantons')}

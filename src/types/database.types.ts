@@ -438,6 +438,7 @@ export type Database = {
           id: string
           provider_id: string
           rating: number
+          work_confirmed: boolean
         }
         Insert: {
           author_id?: string | null
@@ -447,6 +448,7 @@ export type Database = {
           id?: string
           provider_id: string
           rating: number
+          work_confirmed?: boolean
         }
         Update: {
           author_id?: string | null
@@ -456,6 +458,7 @@ export type Database = {
           id?: string
           provider_id?: string
           rating?: number
+          work_confirmed?: boolean
         }
         Relationships: [
           {

@@ -2,6 +2,7 @@
 import { ClientRouter } from 'astro:transitions'
 import '@styles/global.css'
 import Footer from '@components/directory/Footer.astro'
+import MobileBottomBar from '@components/directory/MobileBottomBar.astro'
 import MobileDrawer from '@components/directory/MobileDrawer.astro'
 import Navbar from '@components/directory/Navbar.astro'
 import { defaultDescription, siteName } from '@lib/site'
@@ -15,6 +16,7 @@ interface Props {
   image?: string
   ogType?: 'website' | 'article'
   jsonLd?: unknown | unknown[]
+  locationLabel?: string
 }
 
 const {
@@ -24,6 +26,7 @@ const {
   image = new URL('/og-default.png', Astro.site ?? Astro.url).href,
   ogType = 'website',
   jsonLd,
+  locationLabel,
 } = Astro.props
 
 const jsonLdItems = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : []
@@ -63,12 +66,19 @@ const jsonLdItems = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : []
     </script>
   </head>
   <body class="min-h-screen">
+    <a
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-200 focus:rounded-civic focus:bg-canopy focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white focus:no-underline"
+      href="#main-content"
+    >
+      Saltar al contenido principal
+    </a>
     <div id="page-progress" aria-hidden="true"></div>
-    <Navbar />
-    <main>
+    <Navbar locationLabel={locationLabel} />
+    <main id="main-content" class="pb-16 md:pb-0">
       <slot />
     </main>
     <Footer />
+    <MobileBottomBar />
     <MobileDrawer />
     <script is:inline>
       // ── Page progress bar ──────────────────────────────────────────────────

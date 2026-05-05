@@ -1,0 +1,24 @@
+---
+/**
+ * ReviewSection — Server Island (render on every request via server:defer).
+ * Fetches live reviews and renders both the list and the submission form.
+ */
+import ReviewForm from '@components/directory/ReviewForm.astro'
+import ReviewList from '@components/directory/ReviewList.astro'
+import { getReviewsByProvider, getReviewSummaryByProvider } from '@lib/queries/reviews'
+
+interface Props {
+  providerId: string
+  providerName: string
+}
+
+const { providerId, providerName } = Astro.props
+
+const [reviews, summary] = await Promise.all([
+  getReviewsByProvider(providerId),
+  getReviewSummaryByProvider(providerId),
+])
+---
+
+<ReviewList reviews={reviews} summary={summary} />
+<ReviewForm providerId={providerId} providerName={providerName} />

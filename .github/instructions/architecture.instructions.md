@@ -148,7 +148,7 @@ Every page must have:
 - Open Graph tags
 
 ### Anti-thin-content
-- Skip listings with <3 providers in `getStaticPaths()`
+- Skip listings with 0 verified providers in `getStaticPaths()`. The `getListingStaticPaths()` query uses `min_providers: 1`. Internal links from district pages must respect the same threshold or you will create dead links.
 - Per-district category descriptions (not generic)
 - Internal linking automation: link to nearby districts + other categories in same district
 

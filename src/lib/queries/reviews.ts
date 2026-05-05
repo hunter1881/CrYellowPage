@@ -6,8 +6,16 @@ type ReviewRow = Database['public']['Tables']['reviews']['Row']
 
 export type Review = Pick<
   ReviewRow,
-  'id' | 'provider_id' | 'author_name' | 'rating' | 'comment' | 'created_at'
+  'id' | 'provider_id' | 'author_name' | 'rating' | 'comment' | 'work_confirmed' | 'created_at'
 >
+
+export interface InsertReviewInput {
+  providerId: string
+  authorName: string | null
+  rating: number
+  comment: string | null
+  workConfirmed: boolean
+}
 
 export interface ReviewSummary {
   rating: string | null
@@ -22,7 +30,7 @@ export const emptyReviewSummary: ReviewSummary = {
 export async function getReviewsByProvider(providerId: string): Promise<Review[]> {
   const { data, error } = await supabase
     .from('reviews')
-    .select('id, provider_id, author_name, rating, comment, created_at')
+    .select('id, provider_id, author_name, rating, comment, work_confirmed, created_at')
     .eq('provider_id', providerId)
     .order('created_at', { ascending: false })
 
@@ -32,6 +40,23 @@ export async function getReviewsByProvider(providerId: string): Promise<Review[]
   }
 
   return data ?? []
+}
+
+export async function insertReview(input: InsertReviewInput): Promise<{ ok: true } | { ok: false; message: string }> {
+  const { error } = await supabase.from('reviews').insert({
+    provider_id: input.providerId,
+    author_name: input.authorName,
+    rating: input.rating,
+    comment: input.comment,
+    work_confirmed: input.workConfirmed,
+  })
+
+  if (error) {
+    logger.error('insertReview', { providerId: input.providerId, error })
+    return { ok: false, message: 'No se pudo publicar la reseña. Intentá de nuevo.' }
+  }
+
+  return { ok: true }
 }
 
 export async function getReviewSummaryByProvider(providerId: string): Promise<ReviewSummary> {

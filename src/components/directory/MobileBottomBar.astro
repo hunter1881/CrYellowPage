@@ -1,0 +1,47 @@
+---
+/**
+ * MobileBottomBar — persistent bottom tab bar for mobile navigation.
+ * Hidden on md+ screens. Adds safe-area-inset-bottom for notched devices.
+ *
+ * BaseLayout adds pb-16 md:pb-0 to <main> so content is not obscured.
+ */
+import { t } from '@lib/i18n'
+---
+
+<nav
+  class="fixed inset-x-0 bottom-0 z-40 flex border-t border-rule bg-surface md:hidden"
+  style="padding-bottom: env(safe-area-inset-bottom, 0);"
+  aria-label={t('nav.context')}
+>
+  <a
+    class="flex flex-1 flex-col items-center gap-1 py-3 text-ink-3 no-underline hover:text-canopy"
+    href="/"
+  >
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span class="font-mono text-[10px] font-semibold uppercase tracking-[0.5px]">{t('nav.bottomHome')}</span>
+  </a>
+
+  <a
+    class="flex flex-1 flex-col items-center gap-1 py-3 text-ink-3 no-underline hover:text-canopy"
+    href="/search/"
+  >
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <span class="font-mono text-[10px] font-semibold uppercase tracking-[0.5px]">{t('nav.bottomSearch')}</span>
+  </a>
+
+  <a
+    class="flex flex-1 flex-col items-center gap-1 py-3 text-ink-3 no-underline hover:text-canopy"
+    href="/categorias/"
+  >
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+    <span class="font-mono text-[10px] font-semibold uppercase tracking-[0.5px]">{t('nav.bottomExplore')}</span>
+  </a>
+
+  <a
+    class="flex flex-1 flex-col items-center gap-1 py-3 text-ink-3 no-underline hover:text-canopy"
+    href="/account/"
+  >
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span class="font-mono text-[10px] font-semibold uppercase tracking-[0.5px]">{t('nav.bottomAccount')}</span>
+  </a>
+</nav>
