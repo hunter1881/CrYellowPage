@@ -238,6 +238,29 @@ export async function getDistrictStaticPaths(): Promise<
   })
 }
 
+export async function getDistrictLabelById(districtId: string): Promise<string | null> {
+  if (!isSupabaseConfigured) {
+    const district = mockDistricts.find((d) => d.id === districtId)
+    if (!district) return null
+    return `${district.name}, ${mockCanton.name}`
+  }
+
+  const { data, error } = await supabase
+    .from('districts')
+    .select('name, canton:cantons!inner(name)')
+    .eq('id', districtId)
+    .maybeSingle()
+
+  if (error) {
+    logger.error('getDistrictLabelById', { districtId, error })
+    return null
+  }
+  if (!data) return null
+
+  const canton = Array.isArray(data.canton) ? data.canton[0] : data.canton
+  return canton?.name ? `${data.name}, ${canton.name}` : data.name
+}
+
 export type DistrictWithCanton = District & { canton: Canton }
 
 /**

@@ -91,6 +91,42 @@ export async function getCategoriesByDistrictId(districtId: string): Promise<Cat
   return data ?? []
 }
 
+/**
+ * Batched count of distinct active categories per district. One query for N districts
+ * — replaces calling getCategoriesByDistrictId in a loop. Returns a Map keyed by
+ * district_id; districts with zero verified providers are absent from the map.
+ */
+export async function getCategoryCountsByDistrictIds(
+  districtIds: string[],
+): Promise<Map<string, number>> {
+  if (districtIds.length === 0) return new Map()
+  if (!isSupabaseConfigured) {
+    return new Map(districtIds.map((id) => [id, mockCategories.length]))
+  }
+
+  const { data, error } = await supabase
+    .from('provider_categories')
+    .select('category_id, providers!inner(district_id, verified)')
+    .in('providers.district_id', districtIds)
+    .eq('providers.verified', true)
+
+  if (error) {
+    logger.error('getCategoryCountsByDistrictIds', { districtIds, error })
+    return new Map()
+  }
+
+  const distinctByDistrict = new Map<string, Set<string>>()
+  for (const row of data ?? []) {
+    const provider = Array.isArray(row.providers) ? row.providers[0] : row.providers
+    if (!provider) continue
+    const set = distinctByDistrict.get(provider.district_id) ?? new Set<string>()
+    set.add(row.category_id)
+    distinctByDistrict.set(provider.district_id, set)
+  }
+
+  return new Map([...distinctByDistrict].map(([districtId, set]) => [districtId, set.size]))
+}
+
 export async function getCategoriesWithCountsByDistrictId(districtId: string): Promise<CategoryWithCount[]> {
   if (!isSupabaseConfigured) return mockCategories.map((c) => ({ ...c, count: 2 }))
 

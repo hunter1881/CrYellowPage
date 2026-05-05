@@ -3,7 +3,7 @@ import ProviderSignupCard from '@components/directory/ProviderSignupCard.astro'
 import StatsStrip from '@components/directory/StatsStrip.astro'
 import Breadcrumbs from '@components/seo/Breadcrumbs.astro'
 import BaseLayout from '@layouts/BaseLayout.astro'
-import { getCategoriesByDistrictId } from '@lib/queries/categories'
+import { getCategoryCountsByDistrictIds } from '@lib/queries/categories'
 import { getCantonBySlug, getCantonStaticPathsAll, getDistrictsByCantonId } from '@lib/queries/geography'
 import { getProviderCountByDistrictIds } from '@lib/queries/providers'
 import { absoluteUrl } from '@lib/site'
@@ -25,13 +25,15 @@ if (!canton) {
 }
 
 const districts = await getDistrictsByCantonId(canton.id)
-const districtSummaries = await Promise.all(
-  districts.map(async (district) => ({
-    district,
-    categoryCount: (await getCategoriesByDistrictId(district.id)).length,
-  })),
-)
-const totalProviders = await getProviderCountByDistrictIds(districts.map((d) => d.id))
+const districtIds = districts.map((d) => d.id)
+const [categoryCounts, totalProviders] = await Promise.all([
+  getCategoryCountsByDistrictIds(districtIds),
+  getProviderCountByDistrictIds(districtIds),
+])
+const districtSummaries = districts.map((district) => ({
+  district,
+  categoryCount: categoryCounts.get(district.id) ?? 0,
+}))
 const canonical = absoluteUrl(`/${canton.slug}/`, Astro.site)
 const breadcrumbs = [
   { name: t('nav.home'), url: absoluteUrl('/', Astro.site) },

@@ -4,9 +4,9 @@ import EmptyState from '@components/directory/EmptyState.astro'
 import Button from '@components/ui/Button.astro'
 import Input from '@components/ui/Input.astro'
 import BaseLayout from '@layouts/BaseLayout.astro'
+import { getDistrictLabelById } from '@lib/queries/geography'
 import { searchProviders } from '@lib/queries/providers'
 import { getReviewSummariesByProviderIds } from '@lib/queries/reviews'
-import { supabase } from '@lib/supabase'
 import { absoluteUrl } from '@lib/site'
 import { t } from '@lib/i18n'
 
@@ -15,19 +15,7 @@ export const prerender = false
 const q = (Astro.url.searchParams.get('q') ?? '').trim()
 const districtId = Astro.url.searchParams.get('district') ?? Astro.url.searchParams.get('districtId') ?? undefined
 
-// Resolve district name for display (if a district filter is active)
-let districtLabel: string | null = null
-if (districtId) {
-  const { data } = await supabase
-    .from('districts')
-    .select('name, cantons!inner(name)')
-    .eq('id', districtId)
-    .maybeSingle()
-  if (data) {
-    const cantonName = Array.isArray(data.cantons) ? data.cantons[0]?.name : (data.cantons as { name: string } | null)?.name
-    districtLabel = cantonName ? `${data.name}, ${cantonName}` : data.name
-  }
-}
+const districtLabel = districtId ? await getDistrictLabelById(districtId) : null
 
 const results = q.length >= 2 ? await searchProviders(q, districtId) : []
 
