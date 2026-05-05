@@ -266,10 +266,11 @@ export type Database = {
           contact_name: string
           created_at: string
           description: string
-          district_id: string
+          district_id: string | null
           email: string
           id: string
           phone: string
+          service_areas: Json | null
           source_locale: string
           status: string
           whatsapp: string | null
@@ -283,10 +284,11 @@ export type Database = {
           contact_name: string
           created_at?: string
           description: string
-          district_id: string
+          district_id?: string | null
           email: string
           id?: string
           phone: string
+          service_areas?: Json | null
           source_locale?: string
           status?: string
           whatsapp?: string | null
@@ -300,10 +302,11 @@ export type Database = {
           contact_name?: string
           created_at?: string
           description?: string
-          district_id?: string
+          district_id?: string | null
           email?: string
           id?: string
           phone?: string
+          service_areas?: Json | null
           source_locale?: string
           status?: string
           whatsapp?: string | null
@@ -320,13 +323,59 @@ export type Database = {
           },
         ]
       }
+      provider_service_areas: {
+        Row: {
+          canton_id: string | null
+          district_id: string | null
+          id: string
+          level: string
+          provider_id: string
+        }
+        Insert: {
+          canton_id?: string | null
+          district_id?: string | null
+          id?: string
+          level: string
+          provider_id: string
+        }
+        Update: {
+          canton_id?: string | null
+          district_id?: string | null
+          id?: string
+          level?: string
+          provider_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_service_areas_canton_id_fkey"
+            columns: ["canton_id"]
+            isOneToOne: false
+            referencedRelation: "cantons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_service_areas_district_id_fkey"
+            columns: ["district_id"]
+            isOneToOne: false
+            referencedRelation: "districts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_service_areas_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       providers: {
         Row: {
           accepts_sinpe: boolean
           completed_jobs: number
           created_at: string
           description: string | null
-          district_id: string
+          district_id: string | null
           email: string | null
           id: string
           name: string
@@ -345,7 +394,7 @@ export type Database = {
           completed_jobs?: number
           created_at?: string
           description?: string | null
-          district_id: string
+          district_id?: string | null
           email?: string | null
           id?: string
           name: string
@@ -364,7 +413,7 @@ export type Database = {
           completed_jobs?: number
           created_at?: string
           description?: string | null
-          district_id?: string
+          district_id?: string | null
           email?: string | null
           id?: string
           name?: string
@@ -472,9 +521,32 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      provider_effective_districts: {
+        Row: {
+          district_id: string | null
+          provider_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      get_providers_for_listing: {
+        Args: { p_category_id: string; p_district_id: string }
+        Returns: {
+          accepts_sinpe: boolean
+          completed_jobs: number
+          created_at: string
+          description: string
+          id: string
+          name: string
+          phone: string
+          photo_url: string
+          response_time_minutes: number
+          whatsapp: string
+          works_weekends: boolean
+          years_active: number
+        }[]
+      }
       immutable_unaccent: { Args: { "": string }; Returns: string }
       list_valid_listing_combinations: {
         Args: { min_providers?: number }

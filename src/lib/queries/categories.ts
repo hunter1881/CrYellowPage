@@ -130,12 +130,25 @@ export async function getCategoryCountsByDistrictIds(
 export async function getCategoriesWithCountsByDistrictId(districtId: string): Promise<CategoryWithCount[]> {
   if (!isSupabaseConfigured) return mockCategories.map((c) => ({ ...c, count: 2 }))
 
-  // Single join query: provider_categories filtered to verified providers in this district
-  // Replaces 2 sequential queries (providers, then provider_categories)
+  // Step 1: get all provider IDs that effectively cover this district (country/canton/district level)
+  const { data: effective, error: effError } = await supabase
+    .from('provider_effective_districts')
+    .select('provider_id')
+    .eq('district_id', districtId)
+
+  if (effError) {
+    logger.error('getCategoriesWithCountsByDistrictId.effective', { districtId, error: effError })
+    return []
+  }
+
+  const providerIds = (effective ?? []).map((r) => r.provider_id).filter(Boolean) as string[]
+  if (providerIds.length === 0) return []
+
+  // Step 2: get categories for those verified providers
   const { data: rows, error } = await supabase
     .from('provider_categories')
-    .select('category_id, providers!inner(district_id, verified)')
-    .eq('providers.district_id', districtId)
+    .select('category_id, providers!inner(verified)')
+    .in('provider_id', providerIds)
     .eq('providers.verified', true)
 
   if (error) {

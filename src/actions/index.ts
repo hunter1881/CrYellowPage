@@ -1,6 +1,7 @@
 import { ActionError, defineAction } from 'astro:actions'
 import { z } from 'astro/zod'
 import { createProviderRegistration } from '@lib/queries/providerRegistrations'
+import type { ServiceAreaInput } from '@lib/queries/providerRegistrations'
 import { selectedIncludesSinpe } from '@lib/queries/paymentMethods'
 import { insertReview } from '@lib/queries/reviews'
 
@@ -55,7 +56,26 @@ export const server = {
         .pipe(
           z.email('Correo electrónico inválido.').max(160, 'Correo electrónico demasiado largo.'),
         ),
-      districtId: z.uuid('Seleccione un distrito.'),
+      serviceAreaJson: z.preprocess(
+        (val) => {
+          if (typeof val !== 'string') return []
+          try {
+            return JSON.parse(val)
+          } catch {
+            return []
+          }
+        },
+        z
+          .array(
+            z.discriminatedUnion('level', [
+              z.object({ level: z.literal('country') }),
+              z.object({ level: z.literal('canton'), canton_id: z.string().uuid() }),
+              z.object({ level: z.literal('district'), district_id: z.string().uuid() }),
+            ]),
+          )
+          .min(1, 'Seleccione al menos un área de servicio.')
+          .max(50, 'Demasiadas áreas de servicio.'),
+      ),
       categoryIds: z
         .array(z.uuid())
         .min(1, 'Seleccione al menos una categoría.')
@@ -78,7 +98,7 @@ export const server = {
         phone: input.phone,
         whatsapp: input.whatsapp,
         email: input.email,
-        districtId: input.districtId,
+        serviceAreas: input.serviceAreaJson as ServiceAreaInput[],
         categoryIds: input.categoryIds,
         description: input.description,
         paymentMethodSlugs: input.paymentMethodSlugs,

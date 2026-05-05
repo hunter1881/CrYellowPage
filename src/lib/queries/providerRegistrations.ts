@@ -6,13 +6,18 @@ import type { Database } from '@generated/database.types'
 
 type ProviderRegistrationInsert = Database['public']['Tables']['provider_registrations']['Insert']
 
+export type ServiceAreaInput =
+  | { level: 'country' }
+  | { level: 'canton'; canton_id: string }
+  | { level: 'district'; district_id: string }
+
 export interface ProviderRegistrationInput {
   businessName: string
   contactName: string
   phone: string
   whatsapp?: string | null
   email: string
-  districtId: string
+  serviceAreas: ServiceAreaInput[]
   categoryIds: string[]
   description: string
   paymentMethodSlugs: string[]
@@ -22,21 +27,37 @@ export interface ProviderRegistrationInput {
 }
 
 export async function createProviderRegistration(input: ProviderRegistrationInput): Promise<{ id: string }> {
-  const [districtResult, categoriesResult] = await Promise.all([
-    supabase.from('districts').select('id').eq('id', input.districtId).maybeSingle(),
+  const cantonIds = input.serviceAreas
+    .filter((a): a is { level: 'canton'; canton_id: string } => a.level === 'canton')
+    .map((a) => a.canton_id)
+  const districtIds = input.serviceAreas
+    .filter((a): a is { level: 'district'; district_id: string } => a.level === 'district')
+    .map((a) => a.district_id)
+
+  const [cantonsResult, districtsResult, categoriesResult] = await Promise.all([
+    cantonIds.length > 0
+      ? supabase.from('cantons').select('id').in('id', cantonIds)
+      : Promise.resolve({ data: [], error: null }),
+    districtIds.length > 0
+      ? supabase.from('districts').select('id').in('id', districtIds)
+      : Promise.resolve({ data: [], error: null }),
     supabase.from('categories').select('id').in('id', input.categoryIds),
   ])
 
-  if (districtResult.error) {
-    logger.error('createProviderRegistration.district', {
-      districtId: input.districtId,
-      error: districtResult.error,
-    })
-    throw new ActionError({ code: 'INTERNAL_SERVER_ERROR', message: 'No pudimos validar el distrito.' })
+  if (cantonsResult.error) {
+    logger.error('createProviderRegistration.cantons', { cantonIds, error: cantonsResult.error })
+    throw new ActionError({ code: 'INTERNAL_SERVER_ERROR', message: 'No pudimos validar los cantones.' })
+  }
+  if ((cantonsResult.data?.length ?? 0) !== cantonIds.length) {
+    throw new ActionError({ code: 'BAD_REQUEST', message: 'Uno o más cantones seleccionados no existen.' })
   }
 
-  if (!districtResult.data) {
-    throw new ActionError({ code: 'BAD_REQUEST', message: 'El distrito seleccionado no existe.' })
+  if (districtsResult.error) {
+    logger.error('createProviderRegistration.districts', { districtIds, error: districtsResult.error })
+    throw new ActionError({ code: 'INTERNAL_SERVER_ERROR', message: 'No pudimos validar los distritos.' })
+  }
+  if ((districtsResult.data?.length ?? 0) !== districtIds.length) {
+    throw new ActionError({ code: 'BAD_REQUEST', message: 'Uno o más distritos seleccionados no existen.' })
   }
 
   if (categoriesResult.error) {
@@ -53,14 +74,14 @@ export async function createProviderRegistration(input: ProviderRegistrationInpu
   }
 
   const id = crypto.randomUUID()
-  const registration: ProviderRegistrationInsert = {
+  const registration = {
     id,
     business_name: input.businessName,
     contact_name: input.contactName,
     phone: input.phone,
     whatsapp: input.whatsapp || null,
     email: input.email,
-    district_id: input.districtId,
+    district_id: null,
     category_ids: input.categoryIds,
     description: input.description,
     accepts_sinpe: selectedIncludesSinpe(input.paymentMethodSlugs),
@@ -68,9 +89,12 @@ export async function createProviderRegistration(input: ProviderRegistrationInpu
     years_active: input.yearsActive,
     source_locale: input.sourceLocale,
     status: 'pending',
+    service_areas: input.serviceAreas,
   }
 
-  const { error } = await supabase.from('provider_registrations').insert(registration)
+  const { error } = await supabase
+    .from('provider_registrations')
+    .insert(registration)
 
   if (error) {
     // Postgres unique-violation code is 23505. Triggered by the partial unique
@@ -83,7 +107,7 @@ export async function createProviderRegistration(input: ProviderRegistrationInpu
         message: 'Ya tenemos una solicitud pendiente con este correo electrónico.',
       })
     }
-    logger.error('createProviderRegistration.insert', { districtId: input.districtId, error })
+    logger.error('createProviderRegistration.insert', { serviceAreas: input.serviceAreas, error })
     throw new ActionError({
       code: 'INTERNAL_SERVER_ERROR',
       message: 'No pudimos guardar la solicitud. Intentá de nuevo.',

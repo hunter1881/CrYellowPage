@@ -142,6 +142,7 @@ export const ui = {
   'form.phone': 'Teléfono',
   'form.district': 'Distrito donde atiende principalmente',
   'form.selectDistrict': 'Seleccione un distrito',
+  'form.serviceArea': 'Área de servicio',
   'form.serviceCategories': 'Categorías de servicio',
   'form.serviceDescription': 'Descripción corta del servicio',
   'form.yearsActive': 'Años de experiencia',

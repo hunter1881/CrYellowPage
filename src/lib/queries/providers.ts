@@ -56,35 +56,14 @@ export async function getProvidersByDistrictAndCategory(
 
   if (!district || !category) return []
 
-  const { data: providerCategories, error: providerCategoriesError } = await supabase
-    .from('provider_categories')
-    .select('provider_id, category_id')
-    .eq('category_id', category.id)
-
-  if (providerCategoriesError) {
-    logger.error('getProvidersByDistrictAndCategory.providerCategories', {
-      districtSlug,
-      categorySlug,
-      error: providerCategoriesError,
-    })
-    return []
-  }
-
-  const providerIds = (providerCategories ?? []).map((row) => row.provider_id)
-  if (providerIds.length === 0) return []
-
-  const { data, error } = await supabase
-    .from('providers')
-    .select(
-      'id, name, phone, whatsapp, description, photo_url, created_at, accepts_sinpe, works_weekends, years_active, completed_jobs',
-    )
-    .eq('district_id', district.id)
-    .eq('verified', true)
-    .in('id', providerIds)
-    .order('created_at', { ascending: false })
+  const { data, error } = await supabase.rpc('get_providers_for_listing', {
+    p_district_id: district.id,
+    p_category_id: category.id,
+  })
 
   if (error) {
-    logger.error('getProvidersByDistrictAndCategory.providers', {
+    logger.error('getProvidersByDistrictAndCategory', {
+      cantonSlug,
       districtSlug,
       categorySlug,
       error,
@@ -92,7 +71,7 @@ export async function getProvidersByDistrictAndCategory(
     return []
   }
 
-  return data ?? []
+  return (data ?? []) as ProviderListItem[]
 }
 
 export async function getProviderByRouteSlug(routeSlug: string): Promise<ProviderProfile | null> {
@@ -117,6 +96,10 @@ export async function getProviderByRouteSlug(routeSlug: string): Promise<Provide
   if (!provider) return null
 
   // Round 2: fetch district + provider_categories in parallel
+  // district_id is nullable since migration 20260506000000_service_areas.sql;
+  // providers without a primary district fall back to null → no profile page.
+  if (!provider.district_id) return null
+
   const [districtResult, providerCategoriesResult] = await Promise.all([
     supabase.from('districts').select('id, canton_id, name, slug').eq('id', provider.district_id).maybeSingle(),
     supabase.from('provider_categories').select('category_id').eq('provider_id', provider.id),
@@ -170,6 +153,7 @@ export async function getProviderStaticPaths(): Promise<Array<{ params: { id: st
     .from('providers')
     .select('id, name, district_id')
     .eq('verified', true)
+    .not('district_id', 'is', null)
 
   if (error) {
     logger.error('getProviderStaticPaths', { error })
@@ -258,16 +242,20 @@ export async function getProviderCountByDistrictIds(districtIds: string[]): Prom
   if (!isSupabaseConfigured) return mockProviders.length
   if (districtIds.length === 0) return 0
 
-  const { count, error } = await supabase
-    .from('providers')
-    .select('id', { count: 'exact', head: true })
-    .eq('verified', true)
+  // Count via provider_effective_districts so canton/country-level providers
+  // are included even though their providers.district_id is null.
+  const { data, error } = await supabase
+    .from('provider_effective_districts')
+    .select('provider_id')
     .in('district_id', districtIds)
 
   if (error) {
     logger.error('getProviderCountByDistrictIds', { districtIds, error })
     return 0
   }
-  return count ?? 0
+
+  // Deduplicate: a provider with country-level coverage appears once per district.
+  const unique = new Set((data ?? []).map((r) => r.provider_id))
+  return unique.size
 }
 
