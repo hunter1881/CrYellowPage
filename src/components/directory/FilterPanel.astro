@@ -4,16 +4,14 @@ import { t } from '@lib/i18n'
 
 interface FilterOption {
   key: string
-  es: string
-  en: string
+  label: string
   active?: boolean
   href: string
 }
 
 interface SortOption {
   value: string
-  es: string
-  en: string
+  label: string
   active?: boolean
   href: string
 }
@@ -46,7 +44,7 @@ const { filters, sortOptions } = Astro.props
           <span class="flex h-4 w-4 items-center justify-center rounded-civic border border-current text-[10px]">
             {filter.active ? '✓' : ''}
           </span>
-          {filter.es}
+          {filter.label}
         </a>
       ))
     }
@@ -65,7 +63,7 @@ const { filters, sortOptions } = Astro.props
             ]}
             href={option.href}
           >
-            {option.es}
+            {option.label}
           </a>
         ))
       }

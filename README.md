@@ -8,7 +8,7 @@ The product starts with Aserri / Vuelta de Jorco as the first usable district, b
 
 | Layer | Technology |
 | --- | --- |
-| Frontend | Astro 5 + Alpine.js |
+| Frontend | Astro 6 + Alpine.js |
 | Styling | Tailwind CSS |
 | Language | TypeScript strict |
 | Database | Supabase PostgreSQL |

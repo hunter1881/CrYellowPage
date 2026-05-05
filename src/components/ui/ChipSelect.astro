@@ -27,20 +27,19 @@ const {
 } = Astro.props
 ---
 
-<div
+<chip-select
   class="grid gap-1.5"
-  data-chip-select
   data-name={name}
   data-max={String(max)}
   data-selected={JSON.stringify(selected)}
   data-placeholder={placeholder}
+  data-options={JSON.stringify(options)}
 >
   <label class="text-sm font-semibold text-ink">
     {label}{required && <span class="ml-0.5 text-clay">*</span>}
   </label>
 
   <div class="relative">
-    {/* Chip bag + search input */}
     <div
       class="flex min-h-[44px] flex-wrap gap-1.5 rounded-civic border border-rule bg-surface px-2.5 py-2 cursor-text focus-within:border-ink transition-colors"
       data-chip-field
@@ -56,7 +55,6 @@ const {
       />
     </div>
 
-    {/* Filtered dropdown */}
     <ul
       class="absolute left-0 right-0 top-full z-50 mt-1 hidden max-h-56 overflow-y-auto rounded-civic border border-rule bg-surface shadow-civic-lg"
       data-chip-dropdown
@@ -64,64 +62,97 @@ const {
     ></ul>
   </div>
 
-  {/* Hidden inputs injected here by the script for form submission */}
   <div data-chip-hidden></div>
 
   {error && <span class="text-xs font-medium text-clay">{error}</span>}
-
-  {/* Options data scoped to this instance */}
-  <script type="application/json" data-chip-option-list set:html={JSON.stringify(options)} />
-</div>
+</chip-select>
 
 <script>
-  function norm(s: string): string {
-    return s
+  type ChipOption = { value: string; label: string }
+
+  function normalize(value: string): string {
+    return value
       .normalize('NFD')
       .replace(/\p{Diacritic}/gu, '')
       .replace(/[ñÑ]/g, 'n')
       .toLowerCase()
   }
 
-  interface ChipOption {
-    value: string
-    label: string
-  }
+  class ChipSelectElement extends HTMLElement {
+    private fieldName = ''
+    private max = 50
+    private defaultPlaceholder = 'Buscar y seleccionar…'
+    private allOptions: ChipOption[] = []
+    private labelMap = new Map<string, string>()
+    private selected = new Set<string>()
+    private field!: HTMLElement
+    private textInput!: HTMLInputElement
+    private dropdown!: HTMLUListElement
+    private hiddenContainer!: HTMLElement
 
-  function initChipSelect(root: HTMLElement): void {
-    if (root.dataset.chipInit === '1') return
-    root.dataset.chipInit = '1'
+    connectedCallback() {
+      const field = this.querySelector<HTMLElement>('[data-chip-field]')
+      const textInput = this.querySelector<HTMLInputElement>('[data-chip-text]')
+      const dropdown = this.querySelector<HTMLUListElement>('[data-chip-dropdown]')
+      const hiddenContainer = this.querySelector<HTMLElement>('[data-chip-hidden]')
+      if (!field || !textInput || !dropdown || !hiddenContainer) return
 
-    const fieldName = root.dataset.name!
-    const max = parseInt(root.dataset.max ?? '50', 10)
-    const defaultPlaceholder = root.dataset.placeholder ?? 'Buscar y seleccionar…'
+      this.field = field
+      this.textInput = textInput
+      this.dropdown = dropdown
+      this.hiddenContainer = hiddenContainer
+      this.fieldName = this.dataset.name ?? ''
+      this.max = parseInt(this.dataset.max ?? '50', 10)
+      this.defaultPlaceholder = this.dataset.placeholder ?? this.defaultPlaceholder
+      this.allOptions = this.parseJson<ChipOption[]>(this.dataset.options, [])
+      this.labelMap = new Map(this.allOptions.map((o) => [o.value, o.label]))
+      this.selected = new Set(this.parseJson<string[]>(this.dataset.selected, []))
 
-    const field = root.querySelector<HTMLElement>('[data-chip-field]')!
-    const textInput = root.querySelector<HTMLInputElement>('[data-chip-text]')!
-    const dropdown = root.querySelector<HTMLUListElement>('[data-chip-dropdown]')!
-    const hiddenContainer = root.querySelector<HTMLElement>('[data-chip-hidden]')!
-    const optionsEl = root.querySelector<HTMLScriptElement>('[data-chip-option-list]')
+      this.selected.forEach((v) => this.addChip(v))
+      this.syncPlaceholder()
 
-    const allOptions: ChipOption[] = optionsEl
-      ? (JSON.parse(optionsEl.textContent ?? '[]') as ChipOption[])
-      : []
-    const selected = new Set<string>(JSON.parse(root.dataset.selected ?? '[]') as string[])
-    const labelMap = new Map(allOptions.map((o) => [o.value, o.label]))
+      this.textInput.addEventListener('input', this.handleFilter)
+      this.textInput.addEventListener('focus', this.handleFilter)
+      this.textInput.addEventListener('blur', this.handleBlur)
+      this.field.addEventListener('click', this.focusInput)
+    }
 
-    // Render pre-selected chips (edit form)
-    selected.forEach((v) => addChipDOM(v))
-    syncPlaceholder()
+    private parseJson<T>(raw: string | undefined, fallback: T): T {
+      if (!raw) return fallback
+      try {
+        return JSON.parse(raw) as T
+      } catch {
+        return fallback
+      }
+    }
 
-    function addChipDOM(value: string): void {
-      const lbl = labelMap.get(value) ?? value
+    private focusInput = () => this.textInput.focus()
 
-      // Hidden input for form submission
+    private handleFilter = () => {
+      const q = normalize(this.textInput.value)
+      if (q) {
+        this.renderDropdown(
+          this.allOptions.filter((o) => normalize(o.label).includes(q)).slice(0, 20),
+        )
+      } else {
+        this.renderDropdown(this.allOptions.slice(0, 50))
+      }
+    }
+
+    private handleBlur = () => {
+      window.setTimeout(() => this.dropdown.classList.add('hidden'), 150)
+      this.textInput.value = ''
+    }
+
+    private addChip(value: string) {
+      const lbl = this.labelMap.get(value) ?? value
+
       const hidden = document.createElement('input')
       hidden.type = 'hidden'
-      hidden.name = fieldName
+      hidden.name = this.fieldName
       hidden.value = value
-      hiddenContainer.appendChild(hidden)
+      this.hiddenContainer.appendChild(hidden)
 
-      // Chip pill
       const chip = document.createElement('span')
       chip.dataset.chipValue = value
       chip.className =
@@ -136,91 +167,62 @@ const {
         'ml-0.5 rounded-full p-0.5 leading-none hover:bg-canopy/20 focus:outline-none'
       btn.setAttribute('aria-label', `Quitar ${lbl}`)
       btn.textContent = '✕'
-      btn.addEventListener('click', () => remove(value))
+      btn.addEventListener('click', () => this.removeChip(value))
 
-      chip.appendChild(text)
-      chip.appendChild(btn)
-      field.insertBefore(chip, textInput)
+      chip.append(text, btn)
+      this.field.insertBefore(chip, this.textInput)
     }
 
-    function remove(value: string): void {
-      selected.delete(value)
-      // Remove chip (iterate to avoid CSS selector escaping concerns)
-      for (const el of Array.from(field.querySelectorAll<HTMLElement>('[data-chip-value]'))) {
+    private removeChip(value: string) {
+      this.selected.delete(value)
+      for (const el of this.field.querySelectorAll<HTMLElement>('[data-chip-value]')) {
         if (el.dataset.chipValue === value) {
           el.remove()
           break
         }
       }
-      // Remove hidden input
-      for (const el of Array.from(hiddenContainer.querySelectorAll<HTMLInputElement>('input'))) {
+      for (const el of this.hiddenContainer.querySelectorAll<HTMLInputElement>('input')) {
         if (el.value === value) {
           el.remove()
           break
         }
       }
-      syncPlaceholder()
+      this.syncPlaceholder()
     }
 
-    function syncPlaceholder(): void {
-      textInput.placeholder = selected.size === 0 ? defaultPlaceholder : ''
+    private syncPlaceholder() {
+      this.textInput.placeholder = this.selected.size === 0 ? this.defaultPlaceholder : ''
     }
 
-    function renderDropdown(items: ChipOption[]): void {
-      dropdown.innerHTML = ''
-      const available = items.filter((o) => !selected.has(o.value))
+    private renderDropdown(items: ChipOption[]) {
+      this.dropdown.replaceChildren()
+      const available = items.filter((o) => !this.selected.has(o.value))
       if (!available.length) {
-        dropdown.classList.add('hidden')
+        this.dropdown.classList.add('hidden')
         return
       }
-      available.forEach((opt) => {
+      for (const opt of available) {
         const li = document.createElement('li')
         li.setAttribute('role', 'option')
         li.className =
           'flex cursor-pointer items-center px-4 py-2.5 text-sm text-ink hover:bg-surface-alt'
         li.textContent = opt.label
-        li.addEventListener('mousedown', (e) => {
-          e.preventDefault()
-          if (selected.size >= max) return
-          selected.add(opt.value)
-          addChipDOM(opt.value)
-          textInput.value = ''
-          dropdown.classList.add('hidden')
-          syncPlaceholder()
+        li.addEventListener('mousedown', (event) => {
+          event.preventDefault()
+          if (this.selected.size >= this.max) return
+          this.selected.add(opt.value)
+          this.addChip(opt.value)
+          this.textInput.value = ''
+          this.dropdown.classList.add('hidden')
+          this.syncPlaceholder()
         })
-        dropdown.appendChild(li)
-      })
-      dropdown.classList.remove('hidden')
-    }
-
-    function showFiltered(): void {
-      const q = norm(textInput.value)
-      if (q) {
-        const matches = allOptions.filter((o) => norm(o.label).includes(q)).slice(0, 20)
-        renderDropdown(matches)
-      } else {
-        // Show all unselected options when the field is empty
-        renderDropdown(allOptions.slice(0, 50))
+        this.dropdown.appendChild(li)
       }
+      this.dropdown.classList.remove('hidden')
     }
-
-    textInput.addEventListener('input', showFiltered)
-
-    textInput.addEventListener('focus', showFiltered)
-
-    textInput.addEventListener('blur', () => {
-      setTimeout(() => dropdown.classList.add('hidden'), 150)
-      textInput.value = ''
-    })
-
-    // Click anywhere in the chip bag focuses the input
-    field.addEventListener('click', () => textInput.focus())
   }
 
-  function initAll(): void {
-    document.querySelectorAll<HTMLElement>('[data-chip-select]').forEach(initChipSelect)
+  if (!customElements.get('chip-select')) {
+    customElements.define('chip-select', ChipSelectElement)
   }
-
-  document.addEventListener('astro:page-load', initAll)
-  initAll()
 </script>

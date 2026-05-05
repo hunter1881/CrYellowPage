@@ -3,7 +3,7 @@
 Applies to: `src/pages/`, `src/components/`, `src/layouts/`, `src/actions/`. See `architecture.md` for full rationale; this file is the quick rule sheet.
 
 ## Required
-- Astro 5+ with `output: 'static'` by default (SSG)
+- Astro 6+ with `output: 'static'` by default (SSG)
 - The `'hybrid'` output mode no longer exists. If we ever need on-demand pages, use `output: 'server'` and opt individual pages into prerendering with `export const prerender = true`
 - `getStaticPaths()` in EVERY dynamic route, and skip combinations with zero providers
 - Import the Supabase client only via `@lib/supabase` (path alias) — never instantiate directly

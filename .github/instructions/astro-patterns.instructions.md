@@ -4,7 +4,7 @@ applyTo: "src/**/*.astro,src/lib/**,src/actions/**"
 
 # Astro patterns for DirectorioLocal CR
 
-Use these copyable patterns when implementing Astro 5 + Supabase features.
+Use these copyable patterns when implementing Astro 6 + Supabase features.
 
 ## Singleton typed Supabase client
 

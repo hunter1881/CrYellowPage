@@ -12,7 +12,7 @@ import { providerDisplayMeta } from '@lib/providerPresentation'
 import { absoluteUrl } from '@lib/site'
 import { breadcrumbJsonLd } from '@lib/seo/breadcrumb'
 import { localBusinessJsonLd } from '@lib/seo/localBusiness'
-import { t } from '@lib/i18n'
+import { t, tpl } from '@lib/i18n'
 
 export const prerender = true
 
@@ -29,7 +29,7 @@ if (!provider) {
 
 const canonical = absoluteUrl(Astro.url.pathname, Astro.site)
 const breadcrumbs = [
-  { name: 'Inicio', url: absoluteUrl('/', Astro.site) },
+  { name: t('nav.home'), url: absoluteUrl('/', Astro.site) },
   { name: provider.district.canton.name, url: absoluteUrl(`/${provider.district.canton.slug}/`, Astro.site) },
   {
     name: provider.district.name,
@@ -41,7 +41,7 @@ const jsonLd = [
   localBusinessJsonLd({
     name: provider.name,
     phone: provider.phone,
-    description: provider.description ?? `Proveedor verificado que atiende ${provider.district.name}.`,
+    description: provider.description ?? tpl('provider.jsonLdDesc', { district: provider.district.name }),
     imageUrl: provider.photo_url,
     pageUrl: canonical,
     district: provider.district.name,
@@ -50,22 +50,22 @@ const jsonLd = [
   }),
   breadcrumbJsonLd(breadcrumbs),
 ]
-const pageTitleEs = `${provider.name} | Servicio local en ${provider.district.name}`
-const pageDescriptionEs = `${provider.name} es un proveedor local verificado que atiende ${provider.district.name}, ${provider.district.canton.name}.`
-const fallbackDescriptionEs = `Proveedor local que atiende ${provider.district.name}.`
+const pageTitle = tpl('provider.pageTitle', { name: provider.name, district: provider.district.name })
+const pageDescription = tpl('provider.pageDescription', { name: provider.name, district: provider.district.name, canton: provider.district.canton.name })
+const fallbackDescription = tpl('provider.fallbackDesc', { district: provider.district.name })
 const [reviewSummary, reviews] = await Promise.all([
   getReviewSummaryByProvider(provider.id),
   getReviewsByProvider(provider.id),
 ])
 const displayMeta = providerDisplayMeta(provider, reviewSummary)
 const featuredReview = reviews[0] ?? null
-const categoryLabel = provider.categories.map((category) => category.name).join(', ') || 'Servicio local'
+const categoryLabel = provider.categories.map((category) => category.name).join(', ') || t('provider.localService')
 const serviceAreas = [provider.district.name, provider.district.canton.name]
 ---
 
 <BaseLayout
-  title={pageTitleEs}
-  description={pageDescriptionEs}
+  title={pageTitle}
+  description={pageDescription}
   canonical={canonical}
   image={provider.photo_url ?? undefined}
   jsonLd={jsonLd}
@@ -91,7 +91,7 @@ const serviceAreas = [provider.district.name, provider.district.canton.name]
               />
             ) : (
               <div class="flex h-full w-full items-center justify-center bg-gradient-to-br from-canopy-ink to-canopy font-mono text-[10px] uppercase tracking-[0.5px] text-white/60">
-                Foto
+                {t('provider.photo')}
               </div>
             )
           }
@@ -102,7 +102,7 @@ const serviceAreas = [provider.district.name, provider.district.canton.name]
           </p>
           <h1 class="mt-1 text-3xl font-semibold leading-tight tracking-[-0.5px] text-ink md:text-4xl">{provider.name}</h1>
           <div class="mt-3 flex flex-wrap items-center gap-3">
-            <Badge label="Verificado" />
+            <Badge label={t('badge.verified')} />
             {displayMeta.rating !== null && (
               <span class="text-sm text-ink-2"><span class="text-star">★</span> {displayMeta.rating} · {displayMeta.reviewCount} {t('profile.reviews')}</span>
             )}
@@ -113,13 +113,13 @@ const serviceAreas = [provider.district.name, provider.district.canton.name]
       <article class="civic-card p-5">
         <p class="civic-meta mb-3">{t('profile.about')}</p>
         <p class="text-sm leading-7 text-ink-2">
-          {provider.description ?? fallbackDescriptionEs}
+          {provider.description ?? fallbackDescription}
         </p>
       </article>
 
       <dl class="mt-4 grid overflow-hidden rounded-civic border border-rule bg-surface text-sm sm:grid-cols-2 lg:grid-cols-4">
         <div class="border-b border-rule-soft p-4 sm:border-r lg:border-b-0">
-          <dt class="civic-meta">{`Años en ${provider.district.canton.name}`}</dt>
+          <dt class="civic-meta">{tpl('provider.yearsIn', { canton: provider.district.canton.name })}</dt>
           <dd class="mt-1 text-xl font-bold tracking-[-0.3px] text-ink">{displayMeta.yearsActive ?? '—'}</dd>
         </div>
         <div class="border-b border-rule-soft p-4 sm:border-b-0 lg:border-r">

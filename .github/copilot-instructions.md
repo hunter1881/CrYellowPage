@@ -3,7 +3,7 @@
 Hyperlocal services directory for Costa Rica. Launches with a single district; architecture supports every canton/district in the country from day one.
 
 ## Stack
-- **Frontend**: Astro 5 + Alpine.js (SSG-first, SEO-first, no heavy JS frameworks)
+- **Frontend**: Astro 6 + Alpine.js (SSG-first, SEO-first, no heavy JS frameworks)
 - **Database**: Supabase (PostgreSQL + Auth + Storage + auto-generated API)
 - **Hosting**: Vercel (deploy via git push)
 - **Styling**: Tailwind CSS
@@ -74,7 +74,7 @@ RLS enabled on every table. `providers` readable when `verified = true`; writes 
 ## Instruction files (apply automatically by file type)
 Detailed rules are in `.github/instructions/`:
 - `architecture.instructions.md` — full architecture rationale (applies to all files)
-- `astro.instructions.md` — Astro 5 rules (applies to `**/*.astro, astro.config.mjs`)
+- `astro.instructions.md` — Astro 6 rules (applies to `**/*.astro, astro.config.mjs`)
 - `multi-district.instructions.md` — multi-tenancy invariants (applies to all files)
 - `supabase.instructions.md` — Supabase query/auth/storage rules (applies to `src/lib/**`)
 - `astro-patterns.instructions.md` — copyable Astro code patterns

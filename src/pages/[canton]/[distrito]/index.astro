@@ -9,6 +9,7 @@ import BaseLayout from '@layouts/BaseLayout.astro'
 import { getCategoriesWithCountsByDistrictId } from '@lib/queries/categories'
 import { getDistrictBySlugs, getDistrictsByCantonId, getDistrictStaticPathsAll } from '@lib/queries/geography'
 import { absoluteUrl } from '@lib/site'
+import { t, tpl } from '@lib/i18n'
 import { breadcrumbJsonLd } from '@lib/seo/breadcrumb'
 import { placeJsonLd } from '@lib/seo/place'
 
@@ -31,7 +32,7 @@ const cantonDistricts = await getDistrictsByCantonId(district.canton.id)
 const nearbyDistricts = cantonDistricts.filter((item) => item.id !== district.id).slice(0, 5)
 const canonical = absoluteUrl(`/${district.canton.slug}/${district.slug}/`, Astro.site)
 const breadcrumbs = [
-  { name: 'Inicio', url: absoluteUrl('/', Astro.site) },
+  { name: t('nav.home'), url: absoluteUrl('/', Astro.site) },
   { name: district.canton.name, url: absoluteUrl(`/${district.canton.slug}/`, Astro.site) },
   { name: district.name, url: canonical },
 ]
@@ -39,35 +40,35 @@ const jsonLd = [
   placeJsonLd({ name: district.name, parentName: district.canton.name, url: canonical }),
   breadcrumbJsonLd(breadcrumbs),
 ]
-const pageTitleEs = `Servicios locales en ${district.name}, ${district.canton.name}`
-const pageDescriptionEs = `Explore categorías de servicios verificados para ${district.name}, ${district.canton.name}, cerca de su comunidad.`
-const headingEs = `Servicios locales en ${district.name}`
-const introEs = `Seleccione una categoría para comparar proveedores verificados que atienden ${district.name}, ${district.canton.name}.`
+const pageTitle = tpl('district.pageTitle', { name: district.name, canton: district.canton.name })
+const pageDescription = tpl('district.pageDescription', { name: district.name, canton: district.canton.name })
+const heading = tpl('district.heading', { name: district.name })
+const intro = tpl('district.intro', { name: district.name, canton: district.canton.name })
 ---
 
 <BaseLayout
-  title={pageTitleEs}
-  description={pageDescriptionEs}
+  title={pageTitle}
+  description={pageDescription}
   canonical={canonical}
   jsonLd={jsonLd}
 >
   <section class="border-b border-rule bg-surface">
     <div class="mx-auto max-w-6xl px-4 py-6 md:px-6">
       <Breadcrumbs items={breadcrumbs} />
-      <p class="civic-meta mt-5">Distrito · {district.canton.name}</p>
+      <p class="civic-meta mt-5">{t('district.meta')} · {district.canton.name}</p>
       <h1 class="mt-2 text-3xl font-semibold tracking-[-0.5px] text-ink md:text-4xl">
-        {headingEs}
+        {heading}
       </h1>
       <p class="mt-3 max-w-3xl text-sm leading-6 text-ink-2">
-        {introEs}
+        {intro}
       </p>
       <div class="mt-5">
         <StatsStrip
           items={[
-            { label: 'Proveedores en el distrito', value: categories.reduce((sum, cat) => sum + (cat.count ?? 0), 0) },
-            { label: 'Categorías disponibles', value: categories.length },
-            { label: 'Distrito', value: district.name },
-            { label: 'Cantón', value: district.canton.name },
+            { label: t('stats.providersInDistrict'), value: categories.reduce((sum, cat) => sum + (cat.count ?? 0), 0) },
+            { label: t('stats.availableCategories'), value: categories.length },
+            { label: t('stats.district'), value: district.name },
+            { label: t('stats.canton'), value: district.canton.name },
           ]}
         />
       </div>
@@ -86,21 +87,21 @@ const introEs = `Seleccione una categoría para comparar proveedores verificados
 
     <div class="order-1 md:order-2">
       <div class="mb-4 flex items-baseline justify-between">
-        <h2 class="text-xl font-semibold tracking-[-0.3px]">Categorías en este distrito</h2>
-        {categories.length > 0 && <span class="civic-meta">{categories.length} categorías</span>}
+        <h2 class="text-xl font-semibold tracking-[-0.3px]">{t('district.categoriesSectionHeading')}</h2>
+        {categories.length > 0 && <span class="civic-meta">{categories.length} {t('district.categoriesCount')}</span>}
       </div>
       {categories.length > 0 ? (
         <CategoryGrid categories={categories} basePath={`/${district.canton.slug}/${district.slug}`} />
       ) : (
         <EmptyState
-          titleEs={`Aún no hay categorías en ${district.name}`}
-          bodyEs={`Este distrito todavía está creciendo. Si ofrece un servicio en ${district.name}, puede registrar su negocio y aparecer aquí.`}
+          title={tpl('district.emptyTitle', { name: district.name })}
+          body={tpl('district.emptyBody', { name: district.name })}
           actionHref="/register-provider"
         />
       )}
 
       <div class="mt-8 rounded-civic border border-rule bg-surface-alt p-5">
-        <p class="civic-meta">Distritos cercanos</p>
+        <p class="civic-meta">{t('district.nearbySectionHeading')}</p>
         {
           nearbyDistricts.length > 0 ? (
             <div class="mt-3 flex flex-wrap gap-2">
@@ -115,7 +116,7 @@ const introEs = `Seleccione una categoría para comparar proveedores verificados
             </div>
           ) : (
             <p class="mt-2 text-sm leading-6 text-ink-2">
-              Aún no hay otros distritos publicados en este cantón.
+              {t('district.noNearbyCopy')}
             </p>
           )
         }

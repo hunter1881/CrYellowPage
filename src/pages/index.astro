@@ -40,8 +40,8 @@ const reviewSummaries = recentProviders.length > 0
 
 const canonical = absoluteUrl('/', Astro.site)
 const jsonLd = websiteJsonLd({ name: siteName, url: canonical })
-const districtsLabelEs = (count: number) =>
-  `${count} distrito${count === 1 ? '' : 's'} disponible${count === 1 ? '' : 's'}`
+const districtsLabel = (count: number) =>
+  `${count} ${count === 1 ? t('canton.district') : t('canton.districtsCount')} disponible${count === 1 ? '' : 's'}`
 ---
 
 <BaseLayout
@@ -62,10 +62,10 @@ const districtsLabelEs = (count: number) =>
         transition:persist
       />
       <ul class="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-ink-2">
-        <li class="flex items-center gap-1.5"><span class="font-semibold text-canopy">✓</span> Proveedores verificados</li>
-        <li class="flex items-center gap-1.5"><span class="font-semibold text-canopy">✓</span> Contacto directo por WhatsApp</li>
-        <li class="flex items-center gap-1.5"><span class="font-semibold text-canopy">✓</span> Filtrado por cantón y distrito</li>
-        <li class="flex items-center gap-1.5"><span class="font-semibold text-canopy">✓</span> Sin comisiones para el usuario</li>
+        <li class="flex items-center gap-1.5"><span class="font-semibold text-canopy">✓</span> {t('stats.verifiedProviders')}</li>
+        <li class="flex items-center gap-1.5"><span class="font-semibold text-canopy">✓</span> {t('home.whatsapp')}</li>
+        <li class="flex items-center gap-1.5"><span class="font-semibold text-canopy">✓</span> {t('home.featureFilter')}</li>
+        <li class="flex items-center gap-1.5"><span class="font-semibold text-canopy">✓</span> {t('home.featureFree')}</li>
       </ul>
     </div>
   </section>
@@ -73,7 +73,9 @@ const districtsLabelEs = (count: number) =>
   <section class="mx-auto grid max-w-6xl gap-8 px-4 py-8 md:grid-cols-[240px_1fr] md:px-6">
     <aside class="order-2 grid gap-6 md:order-1" id="home-district-aside"
       data-canton-slug={currentCanton?.slug ?? ''}
-      data-district-slug={currentDistrict?.slug ?? ''}>
+      data-district-slug={currentDistrict?.slug ?? ''}
+      data-i18n-heading={t('district.listHeading')}
+      data-i18n-view={t('district.view')}>
       {
         currentCanton && (
           <div id="home-district-list">
@@ -107,7 +109,10 @@ const districtsLabelEs = (count: number) =>
         if (!canton) return
 
         // Re-render district list for the selected canton
-        const heading = `<div class="civic-meta border-b border-rule pb-2">Distritos del cantón</div>`
+        const aside = document.getElementById('home-district-aside')
+        const i18nHeading = aside?.dataset.i18nHeading ?? ''
+        const i18nView = aside?.dataset.i18nView ?? ''
+        const heading = `<div class="civic-meta border-b border-rule pb-2">${i18nHeading}</div>`
         const links = canton.districts.map((d) => {
           const active = d.slug === opt.ds
           const cls = active
@@ -115,7 +120,7 @@ const districtsLabelEs = (count: number) =>
             : 'flex items-center justify-between gap-3 py-3 text-sm no-underline text-ink hover:text-canopy'
           return `<a class="${cls}" href="/${canton.slug}/${d.slug}/">
             <span>${d.name}</span>
-            <span class="font-mono text-[11px] uppercase tracking-[0.5px] text-ink-3">Ver</span>
+            <span class="font-mono text-[11px] uppercase tracking-[0.5px] text-ink-3">${i18nView}</span>
           </a>`
         }).join('')
         listContainer.innerHTML = `<div>${heading}<div class="divide-y divide-rule-soft">${links}</div></div>`
@@ -128,7 +133,7 @@ const districtsLabelEs = (count: number) =>
           <section id="categories">
             <div class="mb-4 flex items-baseline justify-between">
               <h2 class="text-xl font-semibold tracking-[-0.3px] text-ink">
-                {`Categorías en ${currentDistrict.name}`}
+                {`${t('home.categoriesIn')} ${currentDistrict.name}`}
               </h2>
               <span class="civic-meta">{currentCategories.length} {t('home.categoriesUnit')}</span>
             </div>
@@ -174,7 +179,7 @@ const districtsLabelEs = (count: number) =>
                   </a>
                 </h3>
                 <p class="civic-meta mt-2">
-                  {districtsLabelEs(canton.districts.length)}
+                  {districtsLabel(canton.districts.length)}
                 </p>
               </article>
             ))

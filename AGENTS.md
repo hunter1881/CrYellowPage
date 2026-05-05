@@ -3,7 +3,7 @@
 Hyperlocal services directory for Costa Rica. It starts with one district, but the architecture must support every canton and district in the country from day one.
 
 ## Stack
-- Frontend: Astro 5 + Alpine.js, SSG-first, SEO-first, no heavy JS frameworks
+- Frontend: Astro 6 + Alpine.js, SSG-first, SEO-first, no heavy JS frameworks
 - Database: Supabase, PostgreSQL, Auth, Storage, auto-generated API
 - Hosting: Vercel via git push
 - Styling: Tailwind CSS

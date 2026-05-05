@@ -30,12 +30,10 @@ const paymentOptions = paymentMethods.map((pm) => ({
   label: pm.name,
 }))
 
-// Flat district list for autocomplete — {d: name, c: canton, cs: cantonSlug, di: id}
 const districtOptions = cantons.flatMap((canton) =>
   canton.districts.map((d) => ({
     d: d.name,
     c: canton.name,
-    cs: canton.slug,
     di: d.id,
   })),
 )
@@ -67,8 +65,7 @@ const districtOptions = cantons.flatMap((canton) =>
 
   <div class="grid gap-4">
 
-    {/* ── Searchable district field ── */}
-    <div class="grid gap-1" data-district-field>
+    <district-autocomplete class="grid gap-1" data-options={JSON.stringify(districtOptions)}>
       <label class="text-sm font-semibold text-ink" for="district-text-input">
         {t('form.district')} <span class="text-clay">*</span>
       </label>
@@ -89,10 +86,9 @@ const districtOptions = cantons.flatMap((canton) =>
           role="listbox"
         ></ul>
       </div>
-      {/* Hidden input carries the actual district UUID for form submission */}
       <input type="hidden" name="districtId" data-district-id-input />
       {errorFor('districtId') && <span class="text-xs font-medium text-clay">{errorFor('districtId')}</span>}
-    </div>
+    </district-autocomplete>
 
     <ChipSelect
       name="categoryIds"
@@ -104,6 +100,14 @@ const districtOptions = cantons.flatMap((canton) =>
       error={errorFor('categoryIds')}
     />
 
+  <ChipSelect
+    name="paymentMethodSlugs"
+    label="Métodos de pago aceptados"
+    options={paymentOptions}
+    max={11}
+    placeholder="Buscar método de pago…"
+    error={errorFor('paymentMethodSlugs')}
+  />
     <Textarea
       label={t('form.serviceDescription')}
       name="description"
@@ -114,16 +118,6 @@ const districtOptions = cantons.flatMap((canton) =>
       error={errorFor('description')}
     />
   </div>
-
-  <ChipSelect
-    name="paymentMethodSlugs"
-    label="Métodos de pago aceptados"
-    options={paymentOptions}
-    max={11}
-    placeholder="Buscar método de pago…"
-    error={errorFor('paymentMethodSlugs')}
-  />
-
   <div class="grid gap-4 rounded-civic border border-rule bg-surface-alt p-4 md:grid-cols-2">
     <Input label={t('form.yearsActive')} name="yearsActive" type="number" value="1" />
     <Checkbox name="worksWeekends" value="true" label={t('form.worksWeekends')} variant="plain" class="self-end pb-2" />
@@ -140,76 +134,107 @@ const districtOptions = cantons.flatMap((canton) =>
   </Button>
 </form>
 
-<script is:inline type="application/json" data-form-district-options set:html={JSON.stringify(districtOptions)} />
+<script>
+  type DistrictOption = { d: string; c: string; di: string }
 
-<script is:inline>
-  (function () {
-    const container = document.querySelector('[data-district-field]')
-    if (!container) return
+  function normalize(value: string): string {
+    return value
+      .normalize('NFD')
+      .replace(/\p{Diacritic}/gu, '')
+      .replace(/[ñÑ]/g, 'n')
+      .toLowerCase()
+  }
 
-    const textInput  = container.querySelector('[data-district-text]')
-    const idInput    = container.querySelector('[data-district-id-input]')
-    const dropdown   = container.querySelector('[data-district-dropdown]')
-    if (!textInput || !idInput || !dropdown) return
+  class DistrictAutocomplete extends HTMLElement {
+    private options: DistrictOption[] = []
+    private textInput!: HTMLInputElement
+    private idInput!: HTMLInputElement
+    private dropdown!: HTMLUListElement
 
-    const options = JSON.parse(document.querySelector('[data-form-district-options]')?.textContent ?? '[]')
-
-    function norm(v) {
-      return v.normalize('NFD').replace(/\p{Diacritic}/gu, '').replace(/[ñÑ]/g, 'n').toLowerCase()
+    connectedCallback() {
+      const text = this.querySelector<HTMLInputElement>('[data-district-text]')
+      const id = this.querySelector<HTMLInputElement>('[data-district-id-input]')
+      const dropdown = this.querySelector<HTMLUListElement>('[data-district-dropdown]')
+      if (!text || !id || !dropdown) return
+      this.textInput = text
+      this.idInput = id
+      this.dropdown = dropdown
+      try {
+        this.options = JSON.parse(this.dataset.options ?? '[]')
+      } catch {
+        this.options = []
+      }
+      this.textInput.addEventListener('input', this.handleInput)
+      this.textInput.addEventListener('focus', this.handleFocus)
+      this.textInput.addEventListener('blur', this.handleBlur)
     }
 
-    function renderDropdown(items) {
-      dropdown.innerHTML = ''
-      if (!items.length) { dropdown.classList.add('hidden'); return }
-      items.forEach(function (opt) {
+    private handleInput = () => {
+      this.idInput.value = ''
+      this.textInput.classList.remove('border-canopy')
+      this.textInput.classList.add('border-rule')
+      const q = normalize(this.textInput.value)
+      if (!q) {
+        this.dropdown.classList.add('hidden')
+        return
+      }
+      this.renderDropdown(this.findMatches(q))
+    }
+
+    private handleFocus = () => {
+      if (this.textInput.value && !this.idInput.value) {
+        this.renderDropdown(this.findMatches(normalize(this.textInput.value)))
+      }
+    }
+
+    private handleBlur = () => {
+      window.setTimeout(() => this.dropdown.classList.add('hidden'), 150)
+      if (this.textInput.value && !this.idInput.value) {
+        this.textInput.value = ''
+        this.textInput.classList.remove('border-canopy')
+        this.textInput.classList.add('border-rule')
+      }
+    }
+
+    private findMatches(q: string): DistrictOption[] {
+      return this.options
+        .filter((o) => normalize(o.d).includes(q) || normalize(o.c).includes(q))
+        .slice(0, 12)
+    }
+
+    private renderDropdown(items: DistrictOption[]) {
+      this.dropdown.replaceChildren()
+      if (!items.length) {
+        this.dropdown.classList.add('hidden')
+        return
+      }
+      for (const opt of items) {
         const li = document.createElement('li')
         li.setAttribute('role', 'option')
-        li.className = 'flex cursor-pointer items-baseline justify-between gap-3 px-4 py-2.5 text-sm hover:bg-mist'
-        li.innerHTML = '<span class="font-semibold text-ink">' + opt.d + '</span><span class="font-mono text-[10px] uppercase tracking-[0.5px] text-ink-3">' + opt.c + '</span>'
-        li.addEventListener('mousedown', function (e) {
-          e.preventDefault()
-          textInput.value = opt.d + ', ' + opt.c
-          idInput.value   = opt.di
-          dropdown.classList.add('hidden')
-          // visual feedback: green border
-          textInput.classList.add('border-canopy')
-          textInput.classList.remove('border-rule')
+        li.className =
+          'flex cursor-pointer items-baseline justify-between gap-3 px-4 py-2.5 text-sm hover:bg-mist'
+        const name = document.createElement('span')
+        name.className = 'font-semibold text-ink'
+        name.textContent = opt.d
+        const canton = document.createElement('span')
+        canton.className = 'font-mono text-[10px] uppercase tracking-[0.5px] text-ink-3'
+        canton.textContent = opt.c
+        li.append(name, canton)
+        li.addEventListener('mousedown', (event) => {
+          event.preventDefault()
+          this.textInput.value = `${opt.d}, ${opt.c}`
+          this.idInput.value = opt.di
+          this.dropdown.classList.add('hidden')
+          this.textInput.classList.add('border-canopy')
+          this.textInput.classList.remove('border-rule')
         })
-        dropdown.appendChild(li)
-      })
-      dropdown.classList.remove('hidden')
+        this.dropdown.appendChild(li)
+      }
+      this.dropdown.classList.remove('hidden')
     }
+  }
 
-    textInput.addEventListener('input', function () {
-      idInput.value = '' // clear until a new option is selected
-      textInput.classList.remove('border-canopy')
-      textInput.classList.add('border-rule')
-      const q = norm(textInput.value)
-      if (!q) { dropdown.classList.add('hidden'); return }
-      const matches = options.filter(function (o) {
-        return norm(o.d).includes(q) || norm(o.c).includes(q)
-      }).slice(0, 12)
-      renderDropdown(matches)
-    })
-
-    textInput.addEventListener('focus', function () {
-      if (textInput.value && !idInput.value) {
-        const q = norm(textInput.value)
-        const matches = options.filter(function (o) {
-          return norm(o.d).includes(q) || norm(o.c).includes(q)
-        }).slice(0, 12)
-        renderDropdown(matches)
-      }
-    })
-
-    textInput.addEventListener('blur', function () {
-      setTimeout(function () { dropdown.classList.add('hidden') }, 150)
-      // If the user typed something but didn't pick an option, reset field
-      if (textInput.value && !idInput.value) {
-        textInput.value = ''
-        textInput.classList.remove('border-canopy')
-        textInput.classList.add('border-rule')
-      }
-    })
-  })()
+  if (!customElements.get('district-autocomplete')) {
+    customElements.define('district-autocomplete', DistrictAutocomplete)
+  }
 </script>

@@ -1,6 +1,6 @@
 # Architecture rules — DirectorioLocal CR
 
-This is the source of truth for architectural decisions. All other agent and rule files defer to this when there's any conflict. Verified against current Astro 5 and Supabase docs (2026).
+This is the source of truth for architectural decisions. All other agent and rule files defer to this when there's any conflict. Verified against current Astro 6 and Supabase docs (2026).
 
 ---
 
@@ -23,7 +23,7 @@ The page shell stays static (good for SEO); the island fetches on demand at requ
 - **Phase 3 (build > 5 min)**: enable Vercel ISR with `adapter: vercel({ isr: true })` so changes propagate without full rebuild
 - **Phase 4 (auth, geo redirects)**: add Astro middleware with `middlewareMode: 'edge'`
 
-`output: 'hybrid'` no longer exists in Astro 5. Don't reach for it.
+`output: 'hybrid'` no longer exists in Astro 6. Don't reach for it.
 
 ---
 
@@ -254,7 +254,7 @@ Programmatic SEO works in 2026 only if pages have real content. Enforce:
 
 ## 7. Forms — Astro Actions, not API routes
 
-Astro Actions (since v4.15) replace API routes for frontend-driven mutations. Benefits over `src/pages/api/*`:
+Astro Actions replace API routes for frontend-driven mutations. Benefits over `src/pages/api/*`:
 - Type inference end-to-end (client sees the same input/output types as the handler)
 - Built-in Zod validation
 - Standardized `ActionError` for client error handling

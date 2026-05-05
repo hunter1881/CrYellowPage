@@ -67,7 +67,7 @@ const { data: registration } = await supabase
               <h2 class="mt-1 text-lg font-semibold text-ink">{provider.name}</h2>
             </div>
             {provider.verified
-              ? <Badge label="Verificado" variant="verified" />
+              ? <Badge label={t('badge.verified')} variant="verified" />
               : <Badge label={t('common.pending')} variant="pending" />
             }
           </div>
@@ -84,7 +84,7 @@ const { data: registration } = await supabase
       ) : (
         <div class="civic-card flex flex-col items-center justify-center gap-3 p-8 text-center">
           <p class="text-sm text-ink-2">
-            Aún no tenés un perfil activo en el directorio.
+            {t('account.noProfile')}
           </p>
           <Button variant="primary" href="/register-provider" class="text-sm">
             {t('common.registerService')}
@@ -109,7 +109,7 @@ const { data: registration } = await supabase
             )}
           </div>
           <p class="mt-3 text-sm text-ink-3">
-            Revisamos las solicitudes en 1–2 días hábiles.
+            {t('account.reviewNotice')}
           </p>
         </div>
       )}

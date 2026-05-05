@@ -3,14 +3,14 @@ import Button from '@components/ui/Button.astro'
 import { t } from '@lib/i18n'
 
 interface Props {
-  titleEs?: string
-  bodyEs?: string
+  title?: string
+  body?: string
   actionHref?: string
 }
 
 const {
-  titleEs = t('empty.defaultTitle'),
-  bodyEs = t('empty.defaultBody'),
+  title = t('empty.defaultTitle'),
+  body = t('empty.defaultBody'),
   actionHref = '/#provider-signup',
 } = Astro.props
 ---
@@ -20,10 +20,10 @@ const {
     {t('empty.label')}
   </p>
   <h2 class="mt-3 text-xl font-semibold tracking-[-0.3px] text-ink">
-    {titleEs}
+    {title}
   </h2>
   <p class="mx-auto mt-3 max-w-xl text-sm leading-6 text-ink-2">
-    {bodyEs}
+    {body}
   </p>
   <Button variant="primary" href={actionHref} class="mt-5">
     {t('empty.registerCta')}

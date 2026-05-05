@@ -4,7 +4,7 @@ applyTo: "**"
 
 # Architecture rules — DirectorioLocal CR
 
-This is the source of truth for architectural decisions. Verified against Astro 5 and Supabase docs (2026).
+This is the source of truth for architectural decisions. Verified against Astro 6 and Supabase docs (2026).
 
 ---
 
@@ -25,7 +25,7 @@ Use `server:defer` on components whose content changes faster than the build cyc
 - **Phase 3 (build > 5 min)**: enable Vercel ISR with `adapter: vercel({ isr: true })`
 - **Phase 4 (auth, geo redirects)**: add Astro middleware with `middlewareMode: 'edge'`
 
-`output: 'hybrid'` no longer exists in Astro 5. Don't reach for it.
+`output: 'hybrid'` no longer exists in Astro 6. Don't reach for it.
 
 ---
 

@@ -60,6 +60,32 @@ export const ui = {
   // ─── Filter panel ─────────────────────────────────────────────────────────
   'filter.heading': 'Filtros',
   'filter.sort': 'Ordenar',
+  'filter.sinpe': 'Acepta SINPE',
+  'filter.weekend': 'Atiende fines de semana',
+  'filter.fast': 'Respuesta rápida',
+  'sort.rating': 'Mejor calificados',
+  'sort.newest': 'Más recientes',
+  'sort.fast': 'Respuesta rápida',
+  'sort.experience': 'Más experiencia',
+
+  // ─── Stats strip ─────────────────────────────────────────────────────────
+  'stats.verifiedProviders': 'Proveedores verificados',
+  'stats.districts': 'Distritos',
+  'stats.activeCategories': 'Categorías activas',
+  'stats.canton': 'Cantón',
+  'stats.providersInDistrict': 'Proveedores en el distrito',
+  'stats.availableCategories': 'Categorías disponibles',
+  'stats.district': 'Distrito',
+
+  // ─── Canton page ──────────────────────────────────────────────────────────
+  'canton.meta': 'Cantón',
+  'canton.categoriesAvailable': 'categorías disponibles para comparar proveedores locales.',
+
+  // ─── District page ────────────────────────────────────────────────────────
+  'district.meta': 'Distrito',
+  'district.categoriesSectionHeading': 'Categorías en este distrito',
+  'district.nearbySectionHeading': 'Distritos cercanos',
+  'district.noNearbyCopy': 'Aún no hay otros distritos publicados en este cantón.',
 
   // ─── Provider card ────────────────────────────────────────────────────────
   'provider.defaultDescription': 'Proveedor local verificado disponible en este distrito.',
@@ -201,6 +227,84 @@ export const ui = {
   'footer.tagline': 'El directorio de servicios verificados de Costa Rica, organizado por cantón y distrito.',
   'footer.copyright': '© 2026 DirectorioLocal.cr',
 
+  // ─── Nav breadcrumbs ──────────────────────────────────────────────────────
+  'nav.home': 'Inicio',
+
+  // ─── Home page features ───────────────────────────────────────────────────
+  'home.featureFilter': 'Filtrado por cantón y distrito',
+  'home.featureFree': 'Sin comisiones para el usuario',
+  'home.categoriesIn': 'Categorías en',
+
+  // ─── Register provider page ───────────────────────────────────────────────
+  'register.subheading': 'Complete la solicitud para revisión. Validamos los datos antes de publicar cualquier proveedor en el directorio.',
+  'register.successBody': 'Recibimos la información. Revisaremos el proveedor antes de publicarlo.',
+  'register.curationNote': 'Por ahora la solicitud no crea una página pública automáticamente. Eso evita spam y mantiene el directorio curado.',
+
+  // ─── Cantones page ────────────────────────────────────────────────────────
+  'cantones.meta': 'Directorio · Costa Rica',
+  'cantones.heading': 'Cantones de Costa Rica',
+  'cantones.introBody': 'cantones del país y seleccione uno para ver los distritos y servicios disponibles en su área.',
+  'cantones.searchPlaceholder': 'Buscar cantón…',
+  'cantones.searchAriaLabel': 'Buscar cantón',
+  'cantones.countLabel': 'cantones',
+
+  // ─── Categorias page ──────────────────────────────────────────────────────
+  'categorias.meta': 'Directorio · Servicios',
+  'categorias.heading': 'Categorías de servicios',
+  'categorias.introBody': 'categorías disponibles. Busque una categoría y seleccione su cantón y distrito para ver proveedores verificados cerca de usted.',
+  'categorias.searchPlaceholder': 'Buscar categoría…',
+  'categorias.searchAriaLabel': 'Buscar categoría',
+
+  // ─── Canton landing page ──────────────────────────────────────────────────
+  'canton.pageTitle': 'Servicios locales en {name}, Costa Rica',
+  'canton.pageDescription': 'Explore proveedores locales verificados por distrito en {name}, Costa Rica.',
+  'canton.heading': 'Servicios locales en {name}',
+  'canton.intro': 'Elija un distrito en {name} para encontrar proveedores verificados cerca de su comunidad.',
+  'canton.district': 'distrito',
+  'canton.districtsCount': 'distritos',
+  'canton.aboutPrefix': 'Sobre',
+  'canton.aboutBody': '{name} agrupa comunidades con necesidades distintas de servicios del hogar y mantenimiento. DirectorioLocal organiza la búsqueda por distrito para que cada proveedor aparezca donde realmente atiende.',
+
+  // ─── District landing page ────────────────────────────────────────────────
+  'district.pageTitle': 'Servicios locales en {name}, {canton}',
+  'district.pageDescription': 'Explore categorías de servicios verificados para {name}, {canton}, cerca de su comunidad.',
+  'district.heading': 'Servicios locales en {name}',
+  'district.intro': 'Seleccione una categoría para comparar proveedores verificados que atienden {name}, {canton}.',
+  'district.categoriesCount': 'categorías',
+  'district.emptyTitle': 'Aún no hay categorías en {name}',
+  'district.emptyBody': 'Este distrito todavía está creciendo. Si ofrece un servicio en {name}, puede registrar su negocio y aparecer aquí.',
+
+  // ─── Provider listing page ─────────────────────────────────────────────────
+  'listing.pageTitle': '{category} en {district}, {canton}',
+  'listing.pageDescription': 'Compare proveedores verificados de {category} que atienden {district}, {canton}.',
+  'listing.heading': '{category} en {district}',
+  'listing.intro': 'Compare proveedores locales verificados que atienden {district}, {canton}.',
+  'listing.results': 'resultados',
+  'listing.nearbyEmpty': 'Aún no hay distritos cercanos publicados.',
+  'listing.relatedHeading': 'Otras categorías en este distrito',
+  'listing.relatedEmpty': 'Publicaremos más categorías cuando haya suficientes proveedores verificados.',
+
+  // ─── Provider profile page ─────────────────────────────────────────────────
+  'provider.pageTitle': '{name} | Servicio local en {district}',
+  'provider.pageDescription': '{name} es un proveedor local verificado que atiende {district}, {canton}.',
+  'provider.fallbackDesc': 'Proveedor local que atiende {district}.',
+  'provider.jsonLdDesc': 'Proveedor verificado que atiende {district}.',
+  'provider.localService': 'Servicio local',
+  'provider.yearsIn': 'Años en {canton}',
+
+  // ─── Search results ───────────────────────────────────────────────────────
+  'search.resultsFor': 'resultado para',
+  'search.resultsForPlural': 'resultados para',
+  'search.noResultsFor': 'Sin resultados para',
+  'search.emptyTitle': 'No encontramos resultados para',
+  'search.emptyBody': 'Probá con otras palabras o navegá por categoría desde la página principal.',
+
+  // ─── Login error / success messages ──────────────────────────────────────
+  'login.validEmailError': 'Ingresá un correo electrónico válido.',
+  'login.sendError': 'No pudimos enviar el enlace. Intentá de nuevo.',
+  'login.successBodyPrefix': 'Enviamos un enlace a',
+  'login.successBodySuffix': 'Revisá tu correo.',
+
   // ─── Badge ────────────────────────────────────────────────────────────────
   'badge.verified': 'Verificado',
 } as const
@@ -215,6 +319,20 @@ export type UiKey = keyof typeof ui
  */
 export function t(key: UiKey): string {
   return ui[key] as string
+}
+
+/**
+ * Interpolates a UI template string with runtime values.
+ * Replaces `{placeholder}` tokens with the corresponding values.
+ *
+ * @example tpl('canton.pageTitle', { name: 'Cartago' })
+ */
+export function tpl(key: UiKey, vars: Record<string, string | number>): string {
+  let str = ui[key] as string
+  for (const [k, v] of Object.entries(vars)) {
+    str = str.replace(`{${k}}`, String(v))
+  }
+  return str
 }
 
 // English translations preserved for future URL-based i18n

@@ -43,7 +43,7 @@ const districtOptions = cantons.flatMap((canton) =>
           autocomplete="off"
           placeholder={t('search.locationPlaceholder')}
           data-location-input
-          aria-label="Ubicación"
+          aria-label={t('common.location')}
           aria-autocomplete="list"
           aria-haspopup="listbox"
         />
@@ -67,7 +67,7 @@ const districtOptions = cantons.flatMap((canton) =>
       name="q"
       placeholder={t('search.inputPlaceholder')}
     />
-    <button class="flex items-center bg-canopy px-4 text-white hover:bg-canopy-ink" type="submit" aria-label="Buscar">
+    <button class="flex items-center bg-canopy px-4 text-white hover:bg-canopy-ink" type="submit" aria-label={t('common.search')}>
       <Icon name="arrow" size={18} />
     </button>
   </form>
@@ -99,7 +99,7 @@ const districtOptions = cantons.flatMap((canton) =>
           autocomplete="off"
           placeholder={t('search.locationPlaceholder')}
           data-location-input
-          aria-label="Ubicación"
+          aria-label={t('common.location')}
           aria-autocomplete="list"
           aria-haspopup="listbox"
         />

@@ -27,7 +27,7 @@ if (Astro.request.method === 'POST') {
   const email = String(formData.get('email') ?? '').trim().toLowerCase()
 
   if (!email || !email.includes('@')) {
-    errorMessage = 'Ingresá un correo electrónico válido.'
+    errorMessage = t('login.validEmailError')
   } else {
     // Use the current request's origin so the link works in dev, staging, and prod
     const redirectTo = new URL('/account/', Astro.url.origin).href
@@ -36,7 +36,7 @@ if (Astro.request.method === 'POST') {
       options: { emailRedirectTo: redirectTo },
     })
     if (error) {
-      errorMessage = 'No pudimos enviar el enlace. Intentá de nuevo.'
+      errorMessage = t('login.sendError')
     } else {
       successMessage = email
     }
@@ -57,14 +57,14 @@ if (Astro.request.method === 'POST') {
           {t('login.title')}
         </h1>
         <p class="mt-2 text-sm text-ink-2">
-          Te enviamos un enlace mágico al correo. Sin contraseña.
+          {t('login.subtitle')}
         </p>
       </div>
 
       {successMessage && (
         <Alert variant="success" class="mb-5">
           <p class="font-semibold">{t('login.checkEmail')}</p>
-          {`Enviamos un enlace a ${successMessage}. Revisá tu correo.`}
+          {`${t('login.successBodyPrefix')} ${successMessage}. ${t('login.successBodySuffix')}`}
         </Alert>
       )}
 

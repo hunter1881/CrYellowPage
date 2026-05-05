@@ -3,7 +3,7 @@
 Hyperlocal "yellow pages"-style services directory for Costa Rica. It launches with a single district, but the architecture supports every canton/district in the country from day one.
 
 ## Stack
-- **Frontend**: Astro 5 + Alpine.js (no heavy JS frameworks, SSG-first, SEO-first)
+- **Frontend**: Astro 6 + Alpine.js (no heavy JS frameworks, SSG-first, SEO-first)
 - **Database**: Supabase (PostgreSQL + Auth + Storage + auto-generated API)
 - **Hosting**: Vercel (deploy via git push)
 - **Styling**: Tailwind CSS

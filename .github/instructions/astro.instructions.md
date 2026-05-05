@@ -5,7 +5,7 @@ applyTo: "**/*.astro,astro.config.mjs"
 # Astro rules for DirectorioLocal CR
 
 ## Required
-- Astro 5+ with `output: 'static'` by default (SSG)
+- Astro 6+ with `output: 'static'` by default (SSG)
 - `'hybrid'` output mode no longer exists. Use `output: 'server'` + `export const prerender = true` per page if needed
 - `getStaticPaths()` in EVERY dynamic route; skip combinations with zero providers
 - Import the Supabase client only via `@lib/supabase` — never instantiate directly

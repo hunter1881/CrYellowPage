@@ -53,7 +53,7 @@ const titleEs = q ? `"${q}" — Búsqueda | DirectorioLocal CR` : 'Buscar provee
           name="q"
           type="search"
           value={q}
-          placeholder="Ej: fontanero, electricista…"
+          placeholder={t('search.inputPlaceholder')}
           class="flex-1"
         />
         <Button type="submit" class="shrink-0">{t('search.submit')}</Button>
@@ -76,8 +76,8 @@ const titleEs = q ? `"${q}" — Búsqueda | DirectorioLocal CR` : 'Buscar provee
         <div class="mb-4 flex items-baseline justify-between">
           <h1 class="text-lg font-semibold text-ink">
             {results.length > 0
-              ? `${results.length} resultado${results.length === 1 ? '' : 's'} para "${q}"`
-              : `Sin resultados para "${q}"`
+              ? `${results.length} ${results.length === 1 ? t('search.resultsFor') : t('search.resultsForPlural')} "${q}"`
+              : `${t('search.noResultsFor')} "${q}"`
             }
           </h1>
         </div>
@@ -93,8 +93,8 @@ const titleEs = q ? `"${q}" — Búsqueda | DirectorioLocal CR` : 'Buscar provee
           </div>
         ) : (
           <EmptyState
-            titleEs={`No encontramos resultados para "${q}"`}
-            bodyEs="Probá con otras palabras o navegá por categoría desde la página principal."
+            title={`${t('search.emptyTitle')} "${q}"`}
+            body={t('search.emptyBody')}
             actionHref="/"
           />
         )}

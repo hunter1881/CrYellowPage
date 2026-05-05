@@ -8,6 +8,7 @@ import { getCategoriesByDistrictId, getCategoryBySlug } from '@lib/queries/categ
 import { getDistrictBySlugs, getDistrictsByCantonId } from '@lib/queries/geography'
 import { getListingStaticPaths, getProvidersByDistrictAndCategory } from '@lib/queries/providers'
 import { getReviewSummariesByProviderIds } from '@lib/queries/reviews'
+import { t, tpl } from '@lib/i18n'
 import { absoluteUrl } from '@lib/site'
 import { breadcrumbJsonLd } from '@lib/seo/breadcrumb'
 import { itemListJsonLd } from '@lib/seo/itemList'
@@ -55,33 +56,15 @@ function listingUrl(nextParams: Record<string, string | null>) {
 }
 
 const filterOptions = [
-  {
-    key: 'sinpe',
-    es: 'Acepta SINPE',
-    en: 'Accepts SINPE',
-    active: activeFilters.sinpe,
-    href: listingUrl({ sinpe: activeFilters.sinpe ? null : '1' }),
-  },
-  {
-    key: 'weekend',
-    es: 'Atiende fines de semana',
-    en: 'Works weekends',
-    active: activeFilters.weekend,
-    href: listingUrl({ weekend: activeFilters.weekend ? null : '1' }),
-  },
-  {
-    key: 'fast',
-    es: 'Respuesta rápida',
-    en: 'Fast reply',
-    active: activeFilters.fast,
-    href: listingUrl({ fast: activeFilters.fast ? null : '1' }),
-  },
+  { key: 'sinpe', label: t('filter.sinpe'), active: activeFilters.sinpe, href: listingUrl({ sinpe: activeFilters.sinpe ? null : '1' }) },
+  { key: 'weekend', label: t('filter.weekend'), active: activeFilters.weekend, href: listingUrl({ weekend: activeFilters.weekend ? null : '1' }) },
+  { key: 'fast', label: t('filter.fast'), active: activeFilters.fast, href: listingUrl({ fast: activeFilters.fast ? null : '1' }) },
 ]
 const sortOptions = [
-  { value: 'rating', es: 'Mejor calificados', en: 'Top rated', active: activeSort === 'rating', href: listingUrl({ sort: 'rating' }) },
-  { value: 'newest', es: 'Más recientes', en: 'Newest', active: activeSort === 'newest', href: listingUrl({ sort: 'newest' }) },
-  { value: 'fast', es: 'Respuesta rápida', en: 'Fast reply', active: activeSort === 'fast', href: listingUrl({ sort: 'fast' }) },
-  { value: 'experience', es: 'Más experiencia', en: 'Most experienced', active: activeSort === 'experience', href: listingUrl({ sort: 'experience' }) },
+  { value: 'rating', label: t('sort.rating'), active: activeSort === 'rating', href: listingUrl({ sort: 'rating' }) },
+  { value: 'newest', label: t('sort.newest'), active: activeSort === 'newest', href: listingUrl({ sort: 'newest' }) },
+  { value: 'fast', label: t('sort.fast'), active: activeSort === 'fast', href: listingUrl({ sort: 'fast' }) },
+  { value: 'experience', label: t('sort.experience'), active: activeSort === 'experience', href: listingUrl({ sort: 'experience' }) },
 ]
 const visibleProviders = providers
   .filter((provider) => !activeFilters.sinpe || provider.accepts_sinpe)
@@ -108,14 +91,14 @@ const relatedCategoryLinks = relatedCategories
   .slice(0, 5)
 const canonical = absoluteUrl(`/${district.canton.slug}/${district.slug}/${category.slug}`, Astro.site)
 const breadcrumbs = [
-  { name: 'Inicio', url: absoluteUrl('/', Astro.site) },
+  { name: t('nav.home'), url: absoluteUrl('/', Astro.site) },
   { name: district.canton.name, url: absoluteUrl(`/${district.canton.slug}/`, Astro.site) },
   { name: district.name, url: absoluteUrl(`/${district.canton.slug}/${district.slug}/`, Astro.site) },
   { name: category.name, url: canonical },
 ]
 const jsonLd = [
   itemListJsonLd({
-    name: `${category.name} en ${district.name}`,
+    name: tpl('listing.heading', { category: category.name, district: district.name }),
     items: visibleProviders.map((provider) => ({
       name: provider.name,
       url: absoluteUrl(providerUrl(provider.id, provider.name), Astro.site),
@@ -123,15 +106,15 @@ const jsonLd = [
   }),
   breadcrumbJsonLd(breadcrumbs),
 ]
-const pageTitleEs = `${category.name} en ${district.name}, ${district.canton.name}`
-const pageDescriptionEs = `Compare proveedores verificados de ${category.name.toLowerCase()} que atienden ${district.name}, ${district.canton.name}.`
-const headingEs = `${category.name} en ${district.name}`
-const introEs = `Compare proveedores locales verificados que atienden ${district.name}, ${district.canton.name}.`
+const pageTitle = tpl('listing.pageTitle', { category: category.name, district: district.name, canton: district.canton.name })
+const pageDescription = tpl('listing.pageDescription', { category: category.name.toLowerCase(), district: district.name, canton: district.canton.name })
+const heading = tpl('listing.heading', { category: category.name, district: district.name })
+const intro = tpl('listing.intro', { district: district.name, canton: district.canton.name })
 ---
 
 <BaseLayout
-  title={pageTitleEs}
-  description={pageDescriptionEs}
+  title={pageTitle}
+  description={pageDescription}
   canonical={canonical}
   jsonLd={jsonLd}
 >
@@ -145,12 +128,12 @@ const introEs = `Compare proveedores locales verificados que atienden ${district
         <div>
           <p class="civic-meta">{district.canton.name} · {district.name}</p>
           <h1 class="text-3xl font-semibold tracking-[-0.5px] text-ink">
-            {headingEs}
+            {heading}
           </h1>
         </div>
       </div>
       <p class="mt-3 max-w-3xl text-sm leading-6 text-ink-2">
-        {introEs}
+        {intro}
       </p>
     </div>
   </section>
@@ -175,7 +158,7 @@ const introEs = `Compare proveedores locales verificados que atienden ${district
                 ]}
                 href={filter.href}
               >
-                {filter.es}
+                {filter.label}
               </a>
             ))
           }
@@ -183,14 +166,14 @@ const introEs = `Compare proveedores locales verificados que atienden ${district
       </div>
 
       <div class="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <span class="civic-meta">{visibleProviders.length} resultados</span>
+        <span class="civic-meta">{visibleProviders.length} {t('listing.results')}</span>
         <label class="flex items-center gap-2 text-xs font-semibold text-ink-2">
-          <span class="civic-meta">Ordenar</span>
+          <span class="civic-meta">{t('filter.sort')}</span>
           <select class="rounded-civic border border-rule bg-surface px-3 py-1.5 text-xs font-semibold text-ink outline-none" name="sort" data-sort-select>
             {
               sortOptions.map((option) => (
                 <option value={option.href} selected={option.active}>
-                  {option.es}
+                  {option.label}
                 </option>
               ))
             }
@@ -206,7 +189,7 @@ const introEs = `Compare proveedores locales verificados que atienden ${district
       )}
       <div class="mt-8 grid gap-4 rounded-civic border border-rule bg-surface-alt p-4 md:grid-cols-2">
         <div>
-          <p class="civic-meta">Distritos cercanos</p>
+          <p class="civic-meta">{t('district.nearbySectionHeading')}</p>
           {
             nearbyDistrictLinks.length > 0 ? (
               <div class="mt-3 flex flex-wrap gap-2">
@@ -221,13 +204,13 @@ const introEs = `Compare proveedores locales verificados que atienden ${district
               </div>
             ) : (
               <p class="mt-2 text-sm leading-6 text-ink-2">
-                Aún no hay distritos cercanos publicados.
+                {t('listing.nearbyEmpty')}
               </p>
             )
           }
         </div>
         <div>
-          <p class="civic-meta">Otras categorías en este distrito</p>
+          <p class="civic-meta">{t('listing.relatedHeading')}</p>
           {
             relatedCategoryLinks.length > 0 ? (
               <div class="mt-3 flex flex-wrap gap-2">
@@ -242,7 +225,7 @@ const introEs = `Compare proveedores locales verificados que atienden ${district
               </div>
             ) : (
               <p class="mt-2 text-sm leading-6 text-ink-2">
-                Publicaremos más categorías cuando haya suficientes proveedores verificados.
+                {t('listing.relatedEmpty')}
               </p>
             )
           }
