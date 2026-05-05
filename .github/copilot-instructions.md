@@ -73,10 +73,13 @@ RLS enabled on every table. `providers` readable when `verified = true`; writes 
 
 ## Instruction files (apply automatically by file type)
 Detailed rules are in `.github/instructions/`:
-- `architecture.instructions.md` — full architecture rationale (applies to all files)
-- `astro.instructions.md` — Astro 6 rules (applies to `**/*.astro, astro.config.mjs`)
-- `multi-district.instructions.md` — multi-tenancy invariants (applies to all files)
-- `supabase.instructions.md` — Supabase query/auth/storage rules (applies to `src/lib/**`)
+- `architecture.instructions.md` — full architecture rationale (`applyTo: "**"`)
+- `antipatterns.instructions.md` — 15 concrete before/after patterns to never introduce (`applyTo: "**"`)
+- `performance.instructions.md` — render hierarchy, image rules, JS bundle, perf budgets (`applyTo: "**"`)
+- `queries.instructions.md` — Supabase query rules: columns, batching, indexes, RLS (`applyTo: "src/lib/queries/**,src/actions/**,src/lib/supabase.ts"`)
+- `astro.instructions.md` — Astro 6 rules (`applyTo: "**/*.astro,astro.config.mjs"`)
+- `multi-district.instructions.md` — multi-tenancy invariants (`applyTo: "**"`)
+- `supabase.instructions.md` — Supabase query/auth/storage rules (`applyTo: "src/lib/**"`)
 - `astro-patterns.instructions.md` — copyable Astro code patterns
 - `astro-seo.instructions.md` — SEO templates and JSON-LD patterns
 - `cr-geo.instructions.md` — Costa Rica geography and slug conventions
@@ -88,7 +91,8 @@ Detailed rules are in `.github/instructions/`:
 - `/new-district` — add a new canton/district to the system
 
 ## Agents (custom modes in Copilot)
-- `code-reviewer` — security, SEO, convention review before commit
+- `code-reviewer` — reviews against antipatterns/performance/queries/security/SEO rules. Run before every commit.
+- `performance-auditor` — site-speed audit (LCP/INP/CLS, bundle, query count) for a specific page or component
 - `db-architect` — schema, migrations, RLS, indexes, type generation
 - `frontend-dev` — Astro components, pages, layouts, Tailwind UI
 - `seo-agent` — meta tags, JSON-LD, sitemaps, local search optimization

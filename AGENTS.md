@@ -79,16 +79,28 @@ All tables have RLS enabled. `providers` and `categories` are publicly readable 
 - Never hardcode canton, district, or category IDs.
 - Dynamic Astro routes must use generic `getStaticPaths()` and should skip empty or thin-content combinations.
 
-## Source Of Truth
-- Full architecture rationale: `.agents/rules/architecture.md`
-- Astro quick rules: `.agents/rules/astro.md`
-- Supabase quick rules: `.agents/rules/supabase.md`
-- Multi-district invariants: `.agents/rules/multi-district.md`
-- Copyable Astro and Supabase patterns: `.agents/skills/astro-patterns/SKILL.md`
-- SEO templates: `.agents/skills/astro-seo/SKILL.md`
-- Supabase query/storage patterns: `.agents/skills/supabase-patterns/SKILL.md`
+## Source Of Truth (read before non-trivial changes)
+Rules:
+- `.agents/rules/architecture.md` — full architecture rationale
+- `.agents/rules/antipatterns.md` — 15 concrete before/after patterns to never introduce
+- `.agents/rules/performance.md` — render hierarchy, image rules, JS bundle, perf budgets (LCP < 1.8s, JS < 50 KB)
+- `.agents/rules/queries.md` — Supabase query rules: columns, batching, indexes, RLS write rules
+- `.agents/rules/astro.md` — Astro quick rules
+- `.agents/rules/supabase.md` — Supabase quick rules
+- `.agents/rules/multi-district.md` — multi-tenancy invariants
 
-Read the architecture and relevant skill files before non-trivial changes.
+Skills:
+- `.agents/skills/astro-patterns/SKILL.md` — copyable Astro patterns
+- `.agents/skills/astro-seo/SKILL.md` — SEO templates and JSON-LD
+- `.agents/skills/supabase-patterns/SKILL.md` — Supabase query/storage patterns
+- `.agents/skills/supabase-postgres-best-practices/SKILL.md` — Postgres optimization references
+
+Agents (delegate explicitly):
+- `code-reviewer` — antipatterns/performance/queries/security/SEO review before commit
+- `performance-auditor` — site-speed audit for a specific page or component
+- `db-architect` — schema, migrations, RLS, indexes
+- `frontend-dev` — Astro components, pages, layouts
+- `seo-agent` — meta tags, JSON-LD, sitemaps
 
 ## Checks
 - Build: `npm run build`

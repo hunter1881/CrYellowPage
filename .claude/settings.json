@@ -3,18 +3,21 @@
     "allow": [
       "Bash(npm run dev)",
       "Bash(npm run build)",
+      "Bash(npm run check)",
+      "Bash(npm run db:types)",
       "Bash(npx astro *)",
       "Bash(git status)",
       "Bash(git diff *)",
+      "Bash(git log *)",
       "Bash(git add *)",
       "Bash(git commit *)",
       "Bash(git push)",
-      "Bash(cat *)",
-      "Bash(ls *)"
+      "Bash(node .claude/hooks/*)"
     ],
     "deny": [
       "Bash(rm -rf *)",
       "Bash(curl * | bash)",
+      "Bash(curl * | sh)",
       "Bash(sudo *)"
     ]
   },
@@ -25,7 +28,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo 'File modified: verify Supabase imports use src/lib/supabase.js'"
+            "command": "node .claude/hooks/check-antipatterns.mjs",
+            "timeout": 5
           }
         ]
       }

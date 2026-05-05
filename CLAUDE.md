@@ -67,5 +67,19 @@ All tables have RLS enabled. `providers` and `categories` are publicly readable 
 - Environment variables: `PUBLIC_SUPABASE_URL` and `PUBLIC_SUPABASE_ANON_KEY` in `.env`. `SUPABASE_SERVICE_ROLE_KEY` in Vercel only — never `PUBLIC_*`, never committed.
 - Mutations (registration, reviews, photo upload) go through Astro Actions in `src/actions/`, not API routes
 
-## Architectural decisions
-The full architecture rationale, RLS policies, SEO patterns, build performance strategy, and deployment phases are in **`.claude/rules/architecture.md`**. Code patterns (typed queries, Astro Actions, JSON-LD generators, sitemap config) are in **`.claude/skills/astro-patterns/SKILL.md`**. Read those before making non-trivial changes.
+## Rules (read before making non-trivial changes)
+- **`.claude/rules/architecture.md`** — full rationale: rendering strategy, project structure, RLS, SEO, build perf, deployment phases
+- **`.claude/rules/antipatterns.md`** — concrete before/after patterns to never introduce (15 entries, with real-from-the-repo examples)
+- **`.claude/rules/performance.md`** — render hierarchy, image rules, JS bundle hygiene, perf budgets (LCP < 1.8s, JS < 50 KB)
+- **`.claude/rules/queries.md`** — Supabase query rules: explicit columns, batching, indexes, RLS write rules, pagination
+- **`.claude/rules/astro.md`** — Astro quick rule sheet
+- **`.claude/rules/supabase.md`** — Supabase quick rule sheet
+- **`.claude/rules/multi-district.md`** — multi-tenancy invariants
+- **`.claude/skills/astro-patterns/SKILL.md`** — copyable code patterns (typed queries, Astro Actions, JSON-LD, sitemap)
+
+## Agents (delegate explicitly)
+- **`code-reviewer`** — reviews against antipatterns/performance/queries/security rules. Run before every commit.
+- **`performance-auditor`** — site-speed audit (LCP/INP/CLS, bundle, query count) for a specific page or component.
+- **`db-architect`** — schema, migrations, RLS, indexes, type generation.
+- **`frontend-dev`** — Astro components, pages, layouts.
+- **`seo-agent`** — meta tags, JSON-LD, sitemaps.
