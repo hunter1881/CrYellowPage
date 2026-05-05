@@ -15,44 +15,86 @@ function HomePage({ theme, t, lang, isMobile, density, onNav, onLocationOpen, on
     <div>
       {/* Search-first hero — directorio, no marketing */}
       <section style={{
-        background: theme.surface,
+        background: theme.surfaceAlt,
         borderBottom: `1px solid ${theme.rule}`,
-        padding: isMobile ? '16px 14px 18px' : '28px 24px 32px',
+        padding: isMobile ? '20px 14px 24px' : '40px 24px 44px',
+        position: 'relative',
+        overflow: 'hidden',
       }}>
-        <div style={{ maxWidth: 1180, margin: '0 auto' }}>
+        {/* Subtle decorative dot grid */}
+        {!isMobile && (
+          <div style={{
+            position: 'absolute', top: 0, right: 0, bottom: 0, width: '40%',
+            backgroundImage: `radial-gradient(${theme.ink3}22 1px, transparent 1px)`,
+            backgroundSize: '24px 24px',
+            maskImage: 'linear-gradient(to left, black, transparent 80%)',
+            WebkitMaskImage: 'linear-gradient(to left, black, transparent 80%)',
+            pointerEvents: 'none',
+          }}></div>
+        )}
+        <div style={{ maxWidth: 1180, margin: '0 auto', position: 'relative' }}>
           <div style={{
             display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: isMobile ? 'flex-start' : 'flex-end',
-            flexDirection: isMobile ? 'column' : 'row',
+            alignItems: 'center',
             gap: 8,
-            marginBottom: isMobile ? 12 : 16,
+            marginBottom: 14,
+            fontSize: 12,
+            color: theme.ink3,
           }}>
-            <div>
-              <div style={{ fontSize: 11, fontFamily: theme.fontMono, color: theme.ink3, letterSpacing: theme.metaSpacing, textTransform: theme.metaCase, marginBottom: 4, fontWeight: 600 }}>
-                {lang === 'es' ? 'Directorio de servicios' : 'Services directory'}
-              </div>
-              <h1 style={{
-                fontSize: isMobile ? 22 : 30,
-                fontWeight: 600,
-                margin: 0,
-                letterSpacing: -0.6,
-                lineHeight: 1.15,
-                fontFamily: theme.fontDisplay || theme.font,
-                color: theme.ink,
-              }}>
-                {lang === 'es' ? 'Encontrá un servicio en' : 'Find a service in'}<br/>
-                <span style={{ color: theme.brand }}>{distrito.nombre}, {canton.nombre}</span>
-              </h1>
-            </div>
-            {!isMobile && (
-              <div style={{ fontSize: 12, color: theme.ink3, fontFamily: theme.fontMono, textAlign: 'right' }}>
-                <div>17 {lang === 'es' ? 'proveedores en este distrito' : 'providers in this district'}</div>
-                <div style={{ marginTop: 2 }}>89 {lang === 'es' ? 'en todo el cantón Aserrí' : 'across canton Aserrí'}</div>
-              </div>
-            )}
+            <span style={{
+              display: 'inline-flex', alignItems: 'center', gap: 5,
+              background: theme.surface, border: `1px solid ${theme.rule}`,
+              padding: '4px 10px', borderRadius: 999, fontWeight: 500,
+            }}>
+              <span style={{ width: 6, height: 6, borderRadius: 3, background: theme.brand }}></span>
+              {lang === 'es' ? 'Directorio local · Costa Rica' : 'Local directory · Costa Rica'}
+            </span>
           </div>
+          <h1 style={{
+            fontSize: isMobile ? 28 : 44,
+            fontWeight: 600,
+            margin: 0,
+            letterSpacing: -1,
+            lineHeight: 1.05,
+            fontFamily: theme.fontDisplay || theme.font,
+            color: theme.ink,
+            maxWidth: 720,
+            marginBottom: isMobile ? 6 : 10,
+          }}>
+            {lang === 'es' ? 'Servicios verificados en' : 'Verified services in'} <span style={{ color: theme.brand, position: 'relative', whiteSpace: 'nowrap' }}>{distrito.nombre}<span style={{ position: 'absolute', left: 0, right: 0, bottom: -2, height: 4, background: theme.brand, opacity: .15, borderRadius: 2 }}></span></span>{lang === 'es' ? ', ' : ', '}{canton.nombre}.
+          </h1>
+          <p style={{
+            fontSize: isMobile ? 14 : 16,
+            color: theme.ink2,
+            margin: 0,
+            marginBottom: isMobile ? 18 : 24,
+            lineHeight: 1.5,
+            maxWidth: 560,
+          }}>
+            {lang === 'es'
+              ? 'Encontrá fontaneros, electricistas y más con cédula confirmada. Contactalos directo por WhatsApp.'
+              : 'Find plumbers, electricians and more with verified ID. Contact them directly via WhatsApp.'}
+          </p>
           <SearchModule theme={theme} t={t} lang={lang} canton={canton} distrito={distrito} onLocationOpen={onLocationOpen} isMobile={isMobile} />
+
+          <div style={{
+            display: 'flex', flexWrap: 'wrap', gap: isMobile ? 16 : 28,
+            marginTop: isMobile ? 16 : 22,
+            fontSize: 13, color: theme.ink2,
+          }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ color: theme.brand }}>{window.Icon.shield(14)}</span>
+              <span><strong style={{ color: theme.ink, fontWeight: 600 }}>17</strong> {lang === 'es' ? 'verificados en' : 'verified in'} {distrito.nombre}</span>
+            </span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ color: theme.brand }}>{window.Icon.pin(14)}</span>
+              <span><strong style={{ color: theme.ink, fontWeight: 600 }}>89</strong> {lang === 'es' ? 'en cantón Aserrí' : 'across canton Aserrí'}</span>
+            </span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ color: theme.brand }}>{window.Icon.clock(14)}</span>
+              <span>{lang === 'es' ? 'Responden en ~12 min' : 'Respond in ~12 min'}</span>
+            </span>
+          </div>
         </div>
       </section>
 
@@ -66,9 +108,8 @@ function HomePage({ theme, t, lang, isMobile, density, onNav, onLocationOpen, on
         {/* Sidebar / mobile-bottom: distritos del cantón */}
         <aside style={{ order: isMobile ? 2 : 0 }}>
           <div style={{
-            fontSize: 11, fontFamily: theme.fontMono, color: theme.ink3,
-            letterSpacing: theme.metaSpacing, textTransform: theme.metaCase,
-            paddingBottom: 8, borderBottom: `1px solid ${theme.rule}`, marginBottom: 6,
+            fontSize: 11, color: theme.ink3,
+                        paddingBottom: 8, borderBottom: `1px solid ${theme.rule}`, marginBottom: 6,
             fontWeight: 600,
           }}>
             {lang === 'es' ? 'Distritos de Aserrí' : 'Districts of Aserrí'}
@@ -84,7 +125,7 @@ function HomePage({ theme, t, lang, isMobile, density, onNav, onLocationOpen, on
                 textAlign: 'left',
               }}>
                 <span style={{ color: d.slug === distrito.slug ? theme.brand : theme.ink, fontWeight: d.slug === distrito.slug ? 600 : 400 }}>{d.nombre}</span>
-                <span style={{ color: theme.ink3, fontFamily: theme.fontMono, fontSize: 11 }}>{d.proveedores}</span>
+                <span style={{ color: theme.ink3, fontSize: 11 }}>{d.proveedores}</span>
               </button>
             ))}
           </div>
@@ -95,7 +136,7 @@ function HomePage({ theme, t, lang, isMobile, density, onNav, onLocationOpen, on
             border: `1px solid ${theme.brand}`,
             borderRadius: theme.radius,
           }}>
-            <div style={{ fontSize: 11, fontFamily: theme.fontMono, color: theme.brandInk, letterSpacing: theme.metaSpacing, textTransform: theme.metaCase, marginBottom: 4, fontWeight: 600 }}>
+            <div style={{ fontSize: 11, color: theme.brandInk, marginBottom: 4, fontWeight: 600 }}>
               {lang === 'es' ? '¿Sos proveedor?' : 'Are you a provider?'}
             </div>
             <div style={{ fontSize: 13, color: theme.ink, lineHeight: 1.45, marginBottom: 10 }}>
@@ -115,7 +156,7 @@ function HomePage({ theme, t, lang, isMobile, density, onNav, onLocationOpen, on
             <h2 style={{ fontSize: isMobile ? 16 : 18, fontWeight: 600, margin: 0, letterSpacing: -0.3, fontFamily: theme.fontDisplay || theme.font }}>
               {lang === 'es' ? 'Categorías en este distrito' : 'Categories in this district'}
             </h2>
-            <span style={{ fontSize: 11, color: theme.ink3, fontFamily: theme.fontMono, letterSpacing: theme.metaSpacing, textTransform: theme.metaCase }}>
+            <span style={{ fontSize: 11, color: theme.ink3 }}>
               {data.categorias.length} {lang === 'es' ? 'categorías' : 'categories'}
             </span>
           </div>
@@ -173,7 +214,7 @@ function CantonPage({ theme, t, lang, isMobile, density, onNav }) {
       </div>
       <div style={{ background: theme.surface, borderBottom: `1px solid ${theme.rule}`, padding: isMobile ? '20px 14px' : '32px 24px' }}>
         <div style={{ maxWidth: 1180, margin: '0 auto' }}>
-          <div style={{ fontSize: 11, fontFamily: theme.fontMono, color: theme.ink3, letterSpacing: theme.metaSpacing, textTransform: theme.metaCase, marginBottom: 6, fontWeight: 600 }}>
+          <div style={{ fontSize: 11, color: theme.ink3, marginBottom: 6, fontWeight: 600 }}>
             {lang === 'es' ? 'Cantón' : 'Canton'} · {data.cantonActual.provincia}
           </div>
           <h1 style={{ fontSize: isMobile ? 24 : 32, fontWeight: 600, margin: 0, letterSpacing: -0.6, fontFamily: theme.fontDisplay || theme.font }}>
@@ -212,7 +253,7 @@ function CantonPage({ theme, t, lang, isMobile, density, onNav }) {
               onMouseLeave={(e) => e.currentTarget.style.borderColor = theme.rule}
             >
               <div style={{ fontSize: 15, fontWeight: 600, color: theme.ink, letterSpacing: -0.2 }}>{d.nombre}</div>
-              <div style={{ fontSize: 11, color: theme.ink3, fontFamily: theme.fontMono, letterSpacing: theme.metaSpacing, textTransform: theme.metaCase, marginTop: 4, display: 'flex', justifyContent: 'space-between' }}>
+              <div style={{ fontSize: 11, color: theme.ink3, marginTop: 4, display: 'flex', justifyContent: 'space-between' }}>
                 <span>{d.proveedores} {lang === 'es' ? 'proveedores' : 'providers'}</span>
                 <span>{window.Icon.arrow(11)}</span>
               </div>
@@ -256,7 +297,7 @@ function DistrictPage({ theme, t, lang, isMobile, density, onNav }) {
       </div>
       <div style={{ background: theme.surface, borderBottom: `1px solid ${theme.rule}`, padding: isMobile ? '20px 14px' : '32px 24px' }}>
         <div style={{ maxWidth: 1180, margin: '0 auto' }}>
-          <div style={{ fontSize: 11, fontFamily: theme.fontMono, color: theme.ink3, letterSpacing: theme.metaSpacing, textTransform: theme.metaCase, marginBottom: 6, fontWeight: 600 }}>
+          <div style={{ fontSize: 11, color: theme.ink3, marginBottom: 6, fontWeight: 600 }}>
             {lang === 'es' ? 'Distrito' : 'District'} · {data.cantonActual.nombre}
           </div>
           <h1 style={{ fontSize: isMobile ? 24 : 32, fontWeight: 600, margin: 0, letterSpacing: -0.6, fontFamily: theme.fontDisplay || theme.font }}>
@@ -275,7 +316,7 @@ function DistrictPage({ theme, t, lang, isMobile, density, onNav }) {
               [lang === 'es' ? 'Calificación promedio' : 'Avg rating', '4.7'],
             ].map(([k, v]) => (
               <div key={k}>
-                <div style={{ fontSize: 11, fontFamily: theme.fontMono, color: theme.ink3, letterSpacing: theme.metaSpacing, textTransform: theme.metaCase, fontWeight: 600 }}>{k}</div>
+                <div style={{ fontSize: 11, color: theme.ink3, fontWeight: 600 }}>{k}</div>
                 <div style={{ fontSize: isMobile ? 18 : 22, fontWeight: 700, color: theme.ink, letterSpacing: -0.4, fontFamily: theme.fontDisplay || theme.font }}>{v}</div>
               </div>
             ))}
@@ -303,7 +344,7 @@ function DistrictPage({ theme, t, lang, isMobile, density, onNav }) {
           background: theme.surfaceAlt, border: `1px solid ${theme.rule}`,
           borderRadius: theme.radius,
         }}>
-          <div style={{ fontSize: 11, fontFamily: theme.fontMono, color: theme.ink3, letterSpacing: theme.metaSpacing, textTransform: theme.metaCase, marginBottom: 6, fontWeight: 600 }}>
+          <div style={{ fontSize: 11, color: theme.ink3, marginBottom: 6, fontWeight: 600 }}>
             {lang === 'es' ? 'Distritos cercanos' : 'Nearby districts'}
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -313,7 +354,7 @@ function DistrictPage({ theme, t, lang, isMobile, density, onNav }) {
                 border: `1px solid ${theme.rule}`, borderRadius: theme.radius * 4,
                 color: theme.ink2, background: theme.surface, cursor: 'pointer',
                 fontFamily: 'inherit',
-              }}>{d.nombre} <span style={{ color: theme.ink3, fontFamily: theme.fontMono, marginLeft: 2 }}>{d.proveedores}</span></button>
+              }}>{d.nombre} <span style={{ color: theme.ink3, marginLeft: 2 }}>{d.proveedores}</span></button>
             ))}
           </div>
         </div>
@@ -362,7 +403,7 @@ function CategoryPage({ theme, t, lang, isMobile, density, cat, onNav, onContact
               {window.catIcon(cat.slug, 18)}
             </div>
             <div>
-              <div style={{ fontSize: 11, fontFamily: theme.fontMono, color: theme.ink3, letterSpacing: theme.metaSpacing, textTransform: theme.metaCase, fontWeight: 600 }}>
+              <div style={{ fontSize: 11, color: theme.ink3, fontWeight: 600 }}>
                 {data.cantonActual.nombre} · {data.distritoActual.nombre}
               </div>
               <h1 style={{ fontSize: isMobile ? 22 : 28, fontWeight: 600, margin: '2px 0 0', letterSpacing: -0.5, fontFamily: theme.fontDisplay || theme.font }}>
@@ -386,7 +427,7 @@ function CategoryPage({ theme, t, lang, isMobile, density, cat, onNav, onContact
         {/* Filters: drawer en mobile, sidebar en desktop */}
         {!isMobile && (
           <aside>
-            <div style={{ fontSize: 11, fontFamily: theme.fontMono, color: theme.ink3, letterSpacing: theme.metaSpacing, textTransform: theme.metaCase, paddingBottom: 8, borderBottom: `1px solid ${theme.rule}`, marginBottom: 10, fontWeight: 600 }}>{t.filtros}</div>
+            <div style={{ fontSize: 11, color: theme.ink3, paddingBottom: 8, borderBottom: `1px solid ${theme.rule}`, marginBottom: 10, fontWeight: 600 }}>{t.filtros}</div>
             {[
               { k: 'hoy', l: t.hoy },
               { k: 'verif', l: t.soloVerif },
@@ -408,7 +449,7 @@ function CategoryPage({ theme, t, lang, isMobile, density, cat, onNav, onContact
                 {f.l}
               </label>
             ))}
-            <div style={{ marginTop: 18, fontSize: 11, fontFamily: theme.fontMono, color: theme.ink3, letterSpacing: theme.metaSpacing, textTransform: theme.metaCase, paddingBottom: 8, borderBottom: `1px solid ${theme.rule}`, marginBottom: 10, fontWeight: 600 }}>{t.ordenar}</div>
+            <div style={{ marginTop: 18, fontSize: 11, color: theme.ink3, paddingBottom: 8, borderBottom: `1px solid ${theme.rule}`, marginBottom: 10, fontWeight: 600 }}>{t.ordenar}</div>
             {[
               { k: 'rating', l: t.mejores },
               { k: 'years', l: lang === 'es' ? 'Más años' : 'Most years' },
@@ -434,7 +475,7 @@ function CategoryPage({ theme, t, lang, isMobile, density, cat, onNav, onContact
             </div>
           )}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-            <span style={{ fontSize: 12, fontFamily: theme.fontMono, color: theme.ink3, letterSpacing: theme.metaSpacing, textTransform: theme.metaCase, fontWeight: 600 }}>
+            <span style={{ fontSize: 12, color: theme.ink3, fontWeight: 600 }}>
               {empty ? '0' : providers.length} {lang === 'es' ? 'resultados' : 'results'}
             </span>
             {!isMobile && (
@@ -462,7 +503,7 @@ function CategoryPage({ theme, t, lang, isMobile, density, cat, onNav, onContact
 
           {/* Distritos vecinos / categorías relacionadas */}
           <div style={{ marginTop: 32, padding: isMobile ? 14 : 18, background: theme.surfaceAlt, border: `1px solid ${theme.rule}`, borderRadius: theme.radius }}>
-            <div style={{ fontSize: 11, fontFamily: theme.fontMono, color: theme.ink3, letterSpacing: theme.metaSpacing, textTransform: theme.metaCase, marginBottom: 8, fontWeight: 600 }}>
+            <div style={{ fontSize: 11, color: theme.ink3, marginBottom: 8, fontWeight: 600 }}>
               {lang === 'es' ? `${cat.nombre} en distritos cercanos` : `${cat.en} in nearby districts`}
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -517,7 +558,7 @@ function ProviderPage({ theme, t, lang, isMobile, p, onNav, onContact }) {
               <div style={window.photoSwatch(p.foto, theme, { big: true })}>FOTO</div>
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 11, fontFamily: theme.fontMono, color: theme.ink3, letterSpacing: theme.metaSpacing, textTransform: theme.metaCase, marginBottom: 4, fontWeight: 600 }}>
+              <div style={{ fontSize: 11, color: theme.ink3, marginBottom: 4, fontWeight: 600 }}>
                 {lang === 'es' ? cat.nombre : cat.en} · {data.cantonActual.nombre} · {data.distritoActual.nombre}
               </div>
               <h1 style={{ fontSize: isMobile ? 22 : 30, fontWeight: 600, margin: 0, letterSpacing: -0.5, lineHeight: 1.15, fontFamily: theme.fontDisplay || theme.font }}>{p.nombre}</h1>
@@ -534,7 +575,7 @@ function ProviderPage({ theme, t, lang, isMobile, p, onNav, onContact }) {
 
           {/* About */}
           <div style={{ background: theme.surface, border: theme.cardBorder, borderRadius: theme.radius, padding: 16, marginBottom: 14, boxShadow: theme.shadow }}>
-            <div style={{ fontSize: 11, fontFamily: theme.fontMono, color: theme.ink3, letterSpacing: theme.metaSpacing, textTransform: theme.metaCase, marginBottom: 8, fontWeight: 600 }}>{t.acerca}</div>
+            <div style={{ fontSize: 11, color: theme.ink3, marginBottom: 8, fontWeight: 600 }}>{t.acerca}</div>
             <p style={{ margin: 0, fontSize: 14, lineHeight: 1.6, color: theme.ink }}>{p.desc}</p>
           </div>
 
@@ -562,7 +603,7 @@ function ProviderPage({ theme, t, lang, isMobile, p, onNav, onContact }) {
                 borderBottom: isMobile && i < 2 ? `1px solid ${theme.ruleSoft}` : 'none',
                 borderRight: isMobile ? (i % 2 === 0 ? `1px solid ${theme.ruleSoft}` : 'none') : (i < 3 ? `1px solid ${theme.ruleSoft}` : 'none'),
               }}>
-                <div style={{ fontSize: 10, fontFamily: theme.fontMono, color: theme.ink3, letterSpacing: theme.metaSpacing, textTransform: theme.metaCase, marginBottom: 4, fontWeight: 600 }}>{k}</div>
+                <div style={{ fontSize: 10, color: theme.ink3, marginBottom: 4, fontWeight: 600 }}>{k}</div>
                 <div style={{ fontSize: 20, fontWeight: 700, color: theme.ink, letterSpacing: -0.4, fontFamily: theme.fontDisplay || theme.font }}>{v}</div>
               </div>
             ))}
@@ -570,7 +611,7 @@ function ProviderPage({ theme, t, lang, isMobile, p, onNav, onContact }) {
 
           {/* Service area */}
           <div style={{ background: theme.surface, border: theme.cardBorder, borderRadius: theme.radius, padding: 16, marginBottom: 14, boxShadow: theme.shadow }}>
-            <div style={{ fontSize: 11, fontFamily: theme.fontMono, color: theme.ink3, letterSpacing: theme.metaSpacing, textTransform: theme.metaCase, marginBottom: 10, fontWeight: 600 }}>{t.areaServicio}</div>
+            <div style={{ fontSize: 11, color: theme.ink3, marginBottom: 10, fontWeight: 600 }}>{t.areaServicio}</div>
             <div style={{ marginBottom: 12 }}>
               <div style={{ fontSize: 11, color: theme.ink3, marginBottom: 4 }}>{lang === 'es' ? 'Cantones que atiende' : 'Cantons served'}</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -592,7 +633,7 @@ function ProviderPage({ theme, t, lang, isMobile, p, onNav, onContact }) {
           {/* Reviews */}
           <div style={{ background: theme.surface, border: theme.cardBorder, borderRadius: theme.radius, padding: 16, boxShadow: theme.shadow }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-              <div style={{ fontSize: 11, fontFamily: theme.fontMono, color: theme.ink3, letterSpacing: theme.metaSpacing, textTransform: theme.metaCase, fontWeight: 600 }}>{t.reseñasTitulo} · {p.reseñas}</div>
+              <div style={{ fontSize: 11, color: theme.ink3, fontWeight: 600 }}>{t.reseñasTitulo} · {p.reseñas}</div>
               <button style={{ fontSize: 12, color: theme.brand, background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600 }}>{t.verTodas} →</button>
             </div>
             <ReviewPreview theme={theme} p={p} lang={lang} />
@@ -609,7 +650,7 @@ function ProviderPage({ theme, t, lang, isMobile, p, onNav, onContact }) {
             position: 'sticky',
             top: 88,
           }}>
-            <div style={{ fontSize: 11, fontFamily: theme.fontMono, color: theme.ink3, letterSpacing: theme.metaSpacing, textTransform: theme.metaCase, marginBottom: 12, fontWeight: 600 }}>
+            <div style={{ fontSize: 11, color: theme.ink3, marginBottom: 12, fontWeight: 600 }}>
               {lang === 'es' ? 'Contactar al proveedor' : 'Contact provider'}
             </div>
             <button onClick={() => onContact(p, 'wa')} style={{
@@ -635,9 +676,8 @@ function ProviderPage({ theme, t, lang, isMobile, p, onNav, onContact }) {
           </div>
           <button style={{
             marginTop: 12, width: '100%', background: 'transparent', border: 'none',
-            color: theme.ink3, fontSize: 11, fontFamily: theme.fontMono,
-            letterSpacing: theme.metaSpacing, textTransform: theme.metaCase,
-            cursor: 'pointer', padding: 8, fontWeight: 600,
+            color: theme.ink3, fontSize: 11,
+                        cursor: 'pointer', padding: 8, fontWeight: 600,
           }}>{t.reportar}</button>
         </aside>
       </div>

@@ -50,6 +50,17 @@ const jsonLdItems = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : []
         <script is:inline type="application/ld+json" set:html={JSON.stringify(item)} />
       ))
     }
+    {/* Alpine.js — must load before body so x-data elements initialise correctly */}
+    <script>
+      import Alpine from 'alpinejs'
+      // Re-init Alpine on every Astro page transition (ClientRouter swaps the body)
+      document.addEventListener('astro:page-load', () => {
+        if (!window._alpineStarted) {
+          window._alpineStarted = true
+          Alpine.start()
+        }
+      })
+    </script>
   </head>
   <body class="min-h-screen">
     <div id="page-progress" aria-hidden="true"></div>

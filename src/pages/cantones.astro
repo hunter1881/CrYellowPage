@@ -1,0 +1,109 @@
+---
+import Breadcrumbs from '@components/seo/Breadcrumbs.astro'
+import BaseLayout from '@layouts/BaseLayout.astro'
+import { getCantonsWithDistricts } from '@lib/queries/geography'
+import { absoluteUrl } from '@lib/site'
+import { breadcrumbJsonLd } from '@lib/seo/breadcrumb'
+
+export const prerender = true
+
+const cantons = await getCantonsWithDistricts()
+
+// Group by province
+const byProvince = new Map<string, { provinceName: string; cantons: typeof cantons }>()
+for (const canton of cantons) {
+  const provId = canton.province_id
+  const provName = canton.province?.name ?? 'Sin provincia'
+  if (!byProvince.has(provId)) {
+    byProvince.set(provId, { provinceName: provName, cantons: [] })
+  }
+  byProvince.get(provId)!.cantons.push(canton)
+}
+const provinces = [...byProvince.values()].sort((a, b) => a.provinceName.localeCompare(b.provinceName, 'es'))
+
+const canonical = absoluteUrl('/cantones/', Astro.site)
+const breadcrumbs = [
+  { name: 'Inicio', url: absoluteUrl('/', Astro.site) },
+  { name: 'Cantones', url: canonical },
+]
+const jsonLd = breadcrumbJsonLd(breadcrumbs)
+
+// Precompute normalised names for Alpine filtering
+function norm(s: string) {
+  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+}
+---
+
+<BaseLayout
+  title="Cantones de Costa Rica | DirectorioLocal CR"
+  description="Explore todos los cantones de Costa Rica y encuentre proveedores de servicios verificados por distrito."
+  canonical={canonical}
+  jsonLd={jsonLd}
+>
+  <section class="border-b border-rule bg-surface">
+    <div class="mx-auto max-w-6xl px-4 py-6 md:px-6">
+      <Breadcrumbs items={breadcrumbs} />
+      <p class="civic-meta mt-5">Directorio · Costa Rica</p>
+      <h1 class="mt-2 text-3xl font-semibold tracking-[-0.5px] text-ink md:text-4xl">
+        Cantones de Costa Rica
+      </h1>
+      <p class="mt-3 max-w-3xl text-sm leading-6 text-ink-2">
+        Explore los {cantons.length} cantones del país y seleccione uno para ver los distritos y servicios disponibles en su área.
+      </p>
+    </div>
+  </section>
+
+  <div
+    class="mx-auto max-w-6xl px-4 py-8 md:px-6"
+    x-data="{
+      query: '',
+      matches(n) {
+        if (!this.query.trim()) return true
+        return n.includes(this.query.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''))
+      }
+    }"
+  >
+    <!-- Search input -->
+    <div class="relative mb-8 max-w-sm">
+      <input
+        type="search"
+        placeholder="Buscar cantón…"
+        class="w-full rounded-civic border border-rule bg-surface py-2.5 pl-9 pr-4 text-sm text-ink placeholder:text-ink-3 focus:border-canopy focus:outline-none"
+        x-model="query"
+        aria-label="Buscar cantón"
+      />
+      <svg xmlns="http://www.w3.org/2000/svg" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+      </svg>
+    </div>
+
+    {provinces.map(({ provinceName, cantons: provCantons }) => (
+      <section class="mb-10">
+        <div class="mb-4 flex items-baseline gap-3 border-b border-rule pb-3">
+          <h2 class="text-lg font-semibold tracking-[-0.3px] text-ink">{provinceName}</h2>
+          <span class="civic-meta">{provCantons.length} cantones</span>
+        </div>
+        <div class="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {provCantons.map((canton) => (
+            <a
+              href={`/${canton.slug}/`}
+              data-norm={norm(canton.name)}
+              x-show={`matches('${norm(canton.name)}')`}
+              class="civic-card civic-card-hover flex items-center justify-between gap-3 p-4 text-ink no-underline"
+            >
+              <span>
+                <span class="block text-[15px] font-semibold tracking-[-0.1px]">{canton.name}</span>
+                <span class="civic-meta mt-1 block">
+                  {canton.districts.length} {canton.districts.length === 1 ? 'distrito' : 'distritos'}
+                </span>
+              </span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-ink-3" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+              </svg>
+            </a>
+          ))}
+        </div>
+      </section>
+    ))}
+  </div>
+</BaseLayout>

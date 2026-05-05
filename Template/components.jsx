@@ -12,11 +12,12 @@ function LangSwitcher({ theme, lang, onChange, variant = 'inline' }) {
       <div style={{
         display: 'inline-flex',
         border: `1px solid ${theme.rule}`,
-        borderRadius: theme.radius,
-        fontFamily: theme.fontMono,
-        fontSize: 11,
+        borderRadius: 999,
+        fontSize: 12,
+        fontWeight: 600,
         overflow: 'hidden',
         userSelect: 'none',
+        background: theme.surface,
       }}>
         {['es', 'en'].map((l) => (
           <button
@@ -26,7 +27,7 @@ function LangSwitcher({ theme, lang, onChange, variant = 'inline' }) {
               background: lang === l ? theme.ink : 'transparent',
               color: lang === l ? '#fff' : theme.ink2,
               border: 'none',
-              padding: '5px 10px',
+              padding: '6px 12px',
               cursor: 'pointer',
               fontFamily: 'inherit',
               fontWeight: 500,
@@ -44,7 +45,7 @@ function LangSwitcher({ theme, lang, onChange, variant = 'inline' }) {
 // VERIFIED BADGE
 // ============================================================
 function VerifiedBadge({ theme, size = 'sm', showLabel = true }) {
-  const s = size === 'sm' ? { p: '2px 6px', f: 10, ic: 10 } : { p: '4px 9px', f: 11, ic: 12 };
+  const s = size === 'sm' ? { p: '3px 8px', f: 11, ic: 11 } : { p: '5px 10px', f: 12, ic: 12 };
   return (
     <span style={{
       display: 'inline-flex',
@@ -53,16 +54,15 @@ function VerifiedBadge({ theme, size = 'sm', showLabel = true }) {
       background: theme.brandSoft,
       color: theme.brand,
       padding: s.p,
-      borderRadius: theme.radius,
+      borderRadius: 999,
       fontSize: s.f,
-      fontFamily: theme.fontMono,
+      fontFamily: theme.font,
       fontWeight: 600,
-      letterSpacing: theme.metaSpacing,
-      textTransform: theme.metaCase,
+      letterSpacing: -0.1,
       whiteSpace: 'nowrap',
     }}>
       {window.Icon.shield(s.ic)}
-      {showLabel && (theme.metaCase === 'uppercase' ? 'VERIFICADO' : 'Verificado')}
+      {showLabel && 'Verificado'}
     </span>
   );
 }
@@ -79,24 +79,7 @@ function Header({ theme, t, lang, onLang, onNav, onMenuOpen, current, isMobile }
       top: 0,
       zIndex: 50,
     }}>
-      {!isMobile && (
-        <div style={{
-          background: theme.brandInk,
-          color: 'rgba(255,255,255,.75)',
-          fontSize: 11,
-          padding: '4px 24px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          fontFamily: theme.fontMono,
-          letterSpacing: 0.3,
-        }}>
-          <span style={{ textTransform: theme.metaCase }}>{lang === 'es' ? 'Directorio Local · Costa Rica' : 'Local Directory · Costa Rica'}</span>
-          <span style={{ display: 'flex', gap: 16 }}>
-            <a onClick={() => onNav('register')} style={{ color: 'inherit', cursor: 'pointer', textDecoration: 'none' }}>{t.registrarse}</a>
-            <span>+506 0000-0000</span>
-          </span>
-        </div>
-      )}
+
       <div style={{
         padding: isMobile ? '12px 14px' : '14px 24px',
         display: 'flex',
@@ -107,29 +90,23 @@ function Header({ theme, t, lang, onLang, onNav, onMenuOpen, current, isMobile }
       }}>
         <a onClick={() => onNav('home')} style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', textDecoration: 'none', color: 'inherit' }}>
           <div style={{
-            width: 30, height: 30,
-            background: theme.brand,
+            width: 32, height: 32,
+            background: `linear-gradient(135deg, ${theme.brand}, ${theme.brandInk})`,
             color: '#fff',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontWeight: 700, fontSize: 13, letterSpacing: -0.5,
             borderRadius: theme.radius,
             fontFamily: theme.fontBody || theme.font,
+            boxShadow: '0 2px 8px rgba(14,90,63,.25)',
           }}>DL</div>
-          <div>
-            <div style={{
-              fontSize: isMobile ? 15 : 16,
-              fontWeight: 600,
-              color: theme.ink,
-              letterSpacing: -0.3,
-              lineHeight: 1.1,
-              fontFamily: theme.fontDisplay || theme.font,
-            }}>DirectorioLocal<span style={{ color: theme.brand }}>.cr</span></div>
-            {!isMobile && (
-              <div style={{ fontSize: 11, color: theme.ink3, fontFamily: theme.fontMono, letterSpacing: theme.metaSpacing, textTransform: theme.metaCase, marginTop: 1 }}>
-                {lang === 'es' ? 'Servicios verificados por cantón' : 'Verified services by canton'}
-              </div>
-            )}
-          </div>
+          <div style={{
+            fontSize: isMobile ? 16 : 17,
+            fontWeight: 600,
+            color: theme.ink,
+            letterSpacing: -0.3,
+            lineHeight: 1.1,
+            fontFamily: theme.fontDisplay || theme.font,
+          }}>DirectorioLocal<span style={{ color: theme.brand }}>.cr</span></div>
         </a>
         <div style={{ flex: 1 }} />
         {!isMobile && (
@@ -204,43 +181,48 @@ function SearchModule({ theme, t, lang, canton, distrito, onLocationOpen, isMobi
   if (isMobile || compact) {
     // Stacked vertical
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         <button onClick={onLocationOpen} style={{
           display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px',
           background: theme.surface, border: `1px solid ${theme.rule}`,
-          borderRadius: theme.radius, cursor: 'pointer', textAlign: 'left',
+          borderRadius: theme.radiusLg, cursor: 'pointer', textAlign: 'left',
           color: theme.ink, fontFamily: 'inherit', fontSize: 13,
+          boxShadow: theme.shadow,
         }}>
           <span style={{ color: theme.brand }}>{window.Icon.pin(15)}</span>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 10, color: theme.ink3, fontFamily: theme.fontMono, letterSpacing: theme.metaSpacing, textTransform: theme.metaCase }}>{t.ubicacion}</div>
+            <div style={{ fontSize: 11, color: theme.ink3, fontWeight: 500 }}>{t.ubicacion}</div>
             <div style={{ fontSize: 14, fontWeight: 600, color: theme.ink, marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {distrito.nombre} · {canton.nombre}
             </div>
           </div>
-          <span style={{ fontSize: 11, color: theme.brand, fontFamily: theme.fontMono, fontWeight: 600, letterSpacing: theme.metaSpacing, textTransform: theme.metaCase }}>{t.cambiar}</span>
+          <span style={{ fontSize: 12, color: theme.brand, fontWeight: 600 }}>{t.cambiar}</span>
         </button>
         <div style={{
-          display: 'flex', alignItems: 'center', gap: 8,
-          padding: '12px 14px',
+          display: 'flex', alignItems: 'center', gap: 10,
+          padding: '6px 6px 6px 14px',
           background: theme.surface,
-          border: `1.5px solid ${theme.ink}`,
-          borderRadius: theme.radius,
+          border: `1px solid ${theme.rule}`,
+          borderRadius: theme.radiusLg,
+          boxShadow: theme.shadowLg,
         }}>
-          <span style={{ color: theme.ink2 }}>{window.Icon.search(15)}</span>
+          <span style={{ color: theme.ink3 }}>{window.Icon.search(16)}</span>
           <input
             value={q} onChange={(e) => setQ(e.target.value)}
             placeholder={t.buscarPlaceholder}
             style={{
               flex: 1, border: 'none', outline: 'none', background: 'transparent',
               fontFamily: 'inherit', fontSize: 14, color: theme.ink, minWidth: 0,
+              padding: '8px 0',
             }}
           />
           <button style={{
             background: theme.brand, color: '#fff', border: 'none',
-            width: 32, height: 32, borderRadius: theme.radius, cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>{window.Icon.arrow(14)}</button>
+            height: 36, padding: '0 14px', borderRadius: 999, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+            fontFamily: 'inherit', fontSize: 13, fontWeight: 600,
+            boxShadow: '0 2px 8px rgba(14,90,63,.25)',
+          }}>{window.Icon.search(13)}</button>
         </div>
       </div>
     );
@@ -251,35 +233,37 @@ function SearchModule({ theme, t, lang, canton, distrito, onLocationOpen, isMobi
     <div style={{
       display: 'grid',
       gridTemplateColumns: '1.4fr 1fr 1fr auto',
-      border: `1.5px solid ${theme.ink}`,
-      borderRadius: theme.radius,
+      border: `1px solid ${theme.rule}`,
+      borderRadius: theme.radiusLg,
       overflow: 'hidden',
       background: theme.surface,
+      boxShadow: theme.shadowLg,
     }}>
-      <div style={{ padding: '12px 16px', borderRight: `1px solid ${theme.rule}`, display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div style={{ padding: '14px 18px', borderRight: `1px solid ${theme.ruleSoft}`, display: 'flex', alignItems: 'center', gap: 10 }}>
         <span style={{ color: theme.ink3 }}>{window.Icon.search(16)}</span>
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 10, fontFamily: theme.fontMono, color: theme.ink3, letterSpacing: theme.metaSpacing, textTransform: theme.metaCase, fontWeight: 600 }}>{lang === 'es' ? 'Servicio' : 'Service'}</div>
+          <div style={{ fontSize: 11, color: theme.ink3, fontWeight: 500 }}>{lang === 'es' ? 'Servicio' : 'Service'}</div>
           <input
             value={q} onChange={(e) => setQ(e.target.value)}
             placeholder={t.buscarPlaceholder}
-            style={{ border: 'none', outline: 'none', fontSize: 14, color: theme.ink, fontFamily: 'inherit', width: '100%', padding: 0, marginTop: 1, background: 'transparent' }}
+            style={{ border: 'none', outline: 'none', fontSize: 14, color: theme.ink, fontFamily: 'inherit', width: '100%', padding: 0, marginTop: 2, background: 'transparent' }}
           />
         </div>
       </div>
-      <button onClick={onLocationOpen} style={{ padding: '12px 16px', borderRight: `1px solid ${theme.rule}`, background: 'transparent', cursor: 'pointer', textAlign: 'left', border: 'none', borderRight: `1px solid ${theme.rule}` }}>
-        <div style={{ fontSize: 10, fontFamily: theme.fontMono, color: theme.ink3, letterSpacing: theme.metaSpacing, textTransform: theme.metaCase, fontWeight: 600 }}>{t.canton}</div>
-        <div style={{ fontSize: 14, fontWeight: 600, color: theme.ink, marginTop: 1 }}>{canton.nombre}, {canton.provincia}</div>
+      <button onClick={onLocationOpen} style={{ padding: '14px 18px', background: 'transparent', cursor: 'pointer', textAlign: 'left', border: 'none', borderRight: `1px solid ${theme.ruleSoft}` }}>
+        <div style={{ fontSize: 11, color: theme.ink3, fontWeight: 500 }}>{t.canton}</div>
+        <div style={{ fontSize: 14, fontWeight: 600, color: theme.ink, marginTop: 2 }}>{canton.nombre}, {canton.provincia}</div>
       </button>
-      <button onClick={onLocationOpen} style={{ padding: '12px 16px', borderRight: `1px solid ${theme.rule}`, background: 'transparent', cursor: 'pointer', textAlign: 'left', border: 'none', borderRight: `1px solid ${theme.rule}` }}>
-        <div style={{ fontSize: 10, fontFamily: theme.fontMono, color: theme.ink3, letterSpacing: theme.metaSpacing, textTransform: theme.metaCase, fontWeight: 600 }}>{t.distrito}</div>
-        <div style={{ fontSize: 14, fontWeight: 600, color: theme.ink, marginTop: 1 }}>{distrito.nombre}</div>
+      <button onClick={onLocationOpen} style={{ padding: '14px 18px', background: 'transparent', cursor: 'pointer', textAlign: 'left', border: 'none', borderRight: `1px solid ${theme.ruleSoft}` }}>
+        <div style={{ fontSize: 11, color: theme.ink3, fontWeight: 500 }}>{t.distrito}</div>
+        <div style={{ fontSize: 14, fontWeight: 600, color: theme.ink, marginTop: 2 }}>{distrito.nombre}</div>
       </button>
       <button style={{
-        background: theme.brand, color: '#fff', border: 'none', padding: '0 28px',
+        background: theme.brand, color: '#fff', border: 'none', padding: '0 32px',
         fontSize: 14, fontWeight: 600, letterSpacing: -0.2, cursor: 'pointer',
         fontFamily: 'inherit',
-      }}>{lang === 'es' ? 'Buscar' : 'Search'}</button>
+        display: 'flex', alignItems: 'center', gap: 8,
+      }}>{window.Icon.search(14)} {lang === 'es' ? 'Buscar' : 'Search'}</button>
     </div>
   );
 }
@@ -308,7 +292,7 @@ function LocationModal({ theme, t, open, onClose, lang }) {
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <div>
-            <div style={{ fontSize: 11, color: theme.ink3, fontFamily: theme.fontMono, letterSpacing: theme.metaSpacing, textTransform: theme.metaCase }}>
+            <div style={{ fontSize: 12, color: theme.ink3, fontWeight: 500 }}>
               {lang === 'es' ? 'Cambiar ubicación' : 'Change location'}
             </div>
             <div style={{ fontSize: 18, fontWeight: 600, marginTop: 2, fontFamily: theme.fontDisplay || theme.font }}>
@@ -322,7 +306,7 @@ function LocationModal({ theme, t, open, onClose, lang }) {
           <input placeholder={lang === 'es' ? 'Buscar cantón o distrito…' : 'Search canton or district…'} style={{ flex: 1, border: 'none', outline: 'none', fontSize: 14, fontFamily: 'inherit', background: 'transparent' }}/>
         </div>
         <div style={{ overflow: 'auto', flex: 1 }}>
-          <div style={{ fontSize: 11, color: theme.ink3, fontFamily: theme.fontMono, letterSpacing: theme.metaSpacing, textTransform: theme.metaCase, marginBottom: 8 }}>
+          <div style={{ fontSize: 12, color: theme.ink3, fontWeight: 500, marginBottom: 10 }}>
             {lang === 'es' ? 'Cantón actual: Aserrí · San José' : 'Current canton: Aserrí · San José'}
           </div>
           {data.distritos.map((d) => (
@@ -338,7 +322,7 @@ function LocationModal({ theme, t, open, onClose, lang }) {
                 {d.slug === 'vuelta-de-jorco' && <span style={{ color: theme.brand }}>{window.Icon.pin(13)}</span>}
                 {d.nombre}
               </span>
-              <span style={{ fontSize: 11, color: theme.ink3, fontFamily: theme.fontMono }}>{d.proveedores} {t.proveedores}</span>
+              <span style={{ fontSize: 12, color: theme.ink3 }}>{d.proveedores} {t.proveedores}</span>
             </button>
           ))}
         </div>
@@ -354,10 +338,8 @@ function Breadcrumbs({ theme, items, onNav }) {
   return (
     <nav aria-label="breadcrumbs" style={{
       display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 6,
-      fontSize: 12, color: theme.ink3,
-      fontFamily: theme.fontMono,
-      letterSpacing: theme.metaSpacing,
-      textTransform: theme.metaCase,
+      fontSize: 13, color: theme.ink3,
+      fontFamily: theme.font,
     }}>
       {items.map((it, i) => (
         <React.Fragment key={i}>
@@ -384,38 +366,38 @@ function CategoryCard({ theme, lang, cat, density = 'normal', onClick }) {
       flexDirection: compact ? 'row' : 'column',
       alignItems: compact ? 'center' : 'flex-start',
       gap: compact ? 12 : 14,
-      padding: compact ? '12px 14px' : '18px 16px',
+      padding: compact ? '14px 16px' : '20px 18px',
       background: theme.surface,
       border: theme.cardBorder,
-      borderRadius: theme.radius,
+      borderRadius: theme.radiusLg,
       cursor: 'pointer',
       textAlign: 'left',
       fontFamily: 'inherit',
-      transition: 'border-color .15s, transform .15s',
+      transition: 'border-color .2s, transform .2s, box-shadow .2s',
       width: '100%',
       boxShadow: theme.shadow,
     }}
-      onMouseEnter={(e) => e.currentTarget.style.borderColor = theme.brand}
-      onMouseLeave={(e) => e.currentTarget.style.borderColor = theme.rule}
+      onMouseEnter={(e) => { e.currentTarget.style.borderColor = theme.brand + '60'; e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = theme.shadowLg; }}
+      onMouseLeave={(e) => { e.currentTarget.style.borderColor = theme.rule; e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = theme.shadow; }}
     >
       <div style={{
-        width: compact ? 32 : 40, height: compact ? 32 : 40,
+        width: compact ? 36 : 44, height: compact ? 36 : 44,
         background: theme.brandSoft, color: theme.brand,
         borderRadius: theme.radius,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         flexShrink: 0,
       }}>
-        {window.catIcon(cat.slug, compact ? 16 : 20)}
+        {window.catIcon(cat.slug, compact ? 17 : 22)}
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: compact ? 14 : 15, fontWeight: 600, color: theme.ink, letterSpacing: -0.1 }}>
+        <div style={{ fontSize: compact ? 14.5 : 16, fontWeight: 600, color: theme.ink, letterSpacing: -0.2 }}>
           {lang === 'es' ? cat.nombre : cat.en}
         </div>
-        <div style={{ fontSize: 11, color: theme.ink3, marginTop: 2, fontFamily: theme.fontMono, letterSpacing: theme.metaSpacing, textTransform: theme.metaCase }}>
+        <div style={{ fontSize: 12.5, color: theme.ink3, marginTop: 3 }}>
           {cat.count} {lang === 'es' ? 'proveedores' : 'providers'}
         </div>
       </div>
-      {compact && <span style={{ color: theme.ink3 }}>{window.Icon.chevron(10)}</span>}
+      {compact && <span style={{ color: theme.ink3 }}>{window.Icon.chevron(11)}</span>}
     </button>
   );
 }
@@ -425,35 +407,35 @@ function CategoryCard({ theme, lang, cat, density = 'normal', onClick }) {
 // ============================================================
 function ProviderCard({ theme, t, lang, p, density = 'normal', onClick, onContact }) {
   const compact = density === 'compact';
-  const photoSize = compact ? 56 : 80;
+  const photoSize = compact ? 56 : 88;
 
   return (
     <article style={{
       display: 'flex',
-      gap: compact ? 12 : 14,
-      padding: compact ? '12px' : '16px',
+      gap: compact ? 12 : 16,
+      padding: compact ? '12px' : '18px',
       background: theme.surface,
       border: theme.cardBorder,
-      borderRadius: theme.radius,
+      borderRadius: theme.radiusLg,
       boxShadow: theme.shadow,
       cursor: 'pointer',
-      transition: 'box-shadow .15s, border-color .15s',
+      transition: 'box-shadow .2s, transform .2s, border-color .2s',
     }}
       onClick={onClick}
-      onMouseEnter={(e) => { e.currentTarget.style.boxShadow = theme.shadowLg; }}
-      onMouseLeave={(e) => { e.currentTarget.style.boxShadow = theme.shadow; }}
+      onMouseEnter={(e) => { e.currentTarget.style.boxShadow = theme.shadowLg; e.currentTarget.style.borderColor = theme.brand + '40'; }}
+      onMouseLeave={(e) => { e.currentTarget.style.boxShadow = theme.shadow; e.currentTarget.style.borderColor = theme.rule; }}
     >
-      <div style={{ width: photoSize, height: photoSize, flexShrink: 0 }}>
-        <div style={window.photoSwatch(p.foto, theme)}>FOTO</div>
+      <div style={{ width: photoSize, height: photoSize, flexShrink: 0, borderRadius: theme.radius, overflow: 'hidden' }}>
+        <div style={{ ...window.photoSwatch(p.foto, theme), borderRadius: theme.radius }}>FOTO</div>
       </div>
       <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: compact ? 4 : 6 }}>
         <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
           <h3 style={{
             margin: 0,
-            fontSize: compact ? 14 : 16,
+            fontSize: compact ? 14 : 17,
             fontWeight: 600,
             color: theme.ink,
-            letterSpacing: -0.2,
+            letterSpacing: -0.3,
             fontFamily: theme.fontDisplay || theme.font,
           }}>{p.nombre}</h3>
           {p.verificado && <VerifiedBadge theme={theme} />}
@@ -461,9 +443,9 @@ function ProviderCard({ theme, t, lang, p, density = 'normal', onClick, onContac
         {!compact && (
           <p style={{
             margin: 0,
-            fontSize: 13,
+            fontSize: 13.5,
             color: theme.ink2,
-            lineHeight: 1.45,
+            lineHeight: 1.5,
             display: '-webkit-box',
             WebkitLineClamp: 2,
             WebkitBoxOrient: 'vertical',
@@ -471,19 +453,24 @@ function ProviderCard({ theme, t, lang, p, density = 'normal', onClick, onContac
           }}>{p.desc}</p>
         )}
         <div style={{
-          display: 'flex', flexWrap: 'wrap', gap: compact ? 8 : 14,
-          fontSize: 11, color: theme.ink3,
-          fontFamily: theme.fontMono,
-          letterSpacing: theme.metaSpacing,
-          textTransform: theme.metaCase,
+          display: 'flex', flexWrap: 'wrap', gap: compact ? 10 : 14,
+          fontSize: 12.5, color: theme.ink3,
+          fontFamily: theme.font,
+          alignItems: 'center',
         }}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: theme.star }}>
-            {window.Icon.star(11)}<span style={{ fontWeight: 600 }}>{p.rating}</span>
-            <span style={{ color: theme.ink3 }}>({p.reseñas})</span>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: theme.ink2 }}>
+            <span style={{ color: theme.star }}>{window.Icon.star(12)}</span>
+            <span style={{ fontWeight: 600, color: theme.ink }}>{p.rating}</span>
+            <span>({p.reseñas})</span>
           </span>
+          <span style={{ width: 3, height: 3, borderRadius: 2, background: theme.ink3, opacity: .4 }}></span>
           <span>{p.años} {lang === 'es' ? 'años en' : 'yrs in'} {p.cantonAtiende[0]}</span>
-          {!compact && <span>{p.trabajos} {lang === 'es' ? 'trabajos' : 'jobs'}</span>}
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}>{window.Icon.clock(10)} {p.respuesta}</span>
+          {!compact && <>
+            <span style={{ width: 3, height: 3, borderRadius: 2, background: theme.ink3, opacity: .4 }}></span>
+            <span>{p.trabajos} {lang === 'es' ? 'trabajos' : 'jobs'}</span>
+          </>}
+          <span style={{ width: 3, height: 3, borderRadius: 2, background: theme.ink3, opacity: .4 }}></span>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>{window.Icon.clock(11)} {p.respuesta}</span>
         </div>
       </div>
       <div style={{
@@ -491,25 +478,26 @@ function ProviderCard({ theme, t, lang, p, density = 'normal', onClick, onContac
         flexDirection: 'column',
         gap: 6,
         flexShrink: 0,
-        alignSelf: compact ? 'center' : 'flex-end',
+        alignSelf: 'center',
       }}>
         <button onClick={(e) => { e.stopPropagation(); onContact && onContact(p, 'wa'); }} style={{
           background: theme.wa, color: '#fff', border: 'none',
-          padding: compact ? '8px 12px' : '10px 14px',
-          fontSize: 12, fontWeight: 600,
+          padding: compact ? '8px 14px' : '10px 16px',
+          fontSize: 13, fontWeight: 600,
           display: 'flex', alignItems: 'center', gap: 6,
-          borderRadius: theme.radius, cursor: 'pointer',
+          borderRadius: 999, cursor: 'pointer',
           fontFamily: 'inherit',
           whiteSpace: 'nowrap',
-        }}>{window.Icon.wa(12)} WhatsApp</button>
+          boxShadow: '0 2px 8px rgba(22,163,74,.25)',
+        }}>{window.Icon.wa(13)} WhatsApp</button>
         {!compact && (
           <button onClick={(e) => { e.stopPropagation(); onContact && onContact(p, 'phone'); }} style={{
-            background: theme.surface, color: theme.ink,
+            background: theme.surface, color: theme.ink2,
             border: `1px solid ${theme.rule}`,
-            padding: '10px 14px',
-            fontSize: 12, fontWeight: 500,
+            padding: '10px 16px',
+            fontSize: 13, fontWeight: 500,
             display: 'flex', alignItems: 'center', gap: 6,
-            borderRadius: theme.radius, cursor: 'pointer',
+            borderRadius: 999, cursor: 'pointer',
             fontFamily: 'inherit',
             whiteSpace: 'nowrap',
           }}>{window.Icon.phone(12)} {t.llamar}</button>
@@ -630,7 +618,7 @@ function ReviewPreview({ theme, p, lang }) {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
         <span style={{ fontSize: 14, fontWeight: 600, color: theme.ink }}>{p.reseña.autor}</span>
-        <span style={{ fontSize: 11, color: theme.ink3, fontFamily: theme.fontMono, letterSpacing: theme.metaSpacing, textTransform: theme.metaCase }}>{p.reseña.distrito}</span>
+        <span style={{ fontSize: 12, color: theme.ink3 }}>{p.reseña.distrito}</span>
       </div>
       <div style={{ display: 'flex', gap: 1, color: theme.star, marginBottom: 8 }}>
         {[1,2,3,4,5].map((i) => <span key={i}>{window.Icon.star(12)}</span>)}
@@ -659,7 +647,7 @@ function Footer({ theme, lang }) {
           </div>
         </div>
         <div>
-          <div style={{ fontSize: 11, color: theme.ink3, fontFamily: theme.fontMono, letterSpacing: theme.metaSpacing, textTransform: theme.metaCase, marginBottom: 8 }}>
+          <div style={{ fontSize: 12, color: theme.ink, fontWeight: 600, marginBottom: 12 }}>
             {lang === 'es' ? 'Directorio' : 'Directory'}
           </div>
           {['Cantones', 'Categorías', 'Distritos populares'].map((l) => (
@@ -667,7 +655,7 @@ function Footer({ theme, lang }) {
           ))}
         </div>
         <div>
-          <div style={{ fontSize: 11, color: theme.ink3, fontFamily: theme.fontMono, letterSpacing: theme.metaSpacing, textTransform: theme.metaCase, marginBottom: 8 }}>
+          <div style={{ fontSize: 12, color: theme.ink, fontWeight: 600, marginBottom: 12 }}>
             {lang === 'es' ? 'Para proveedores' : 'For providers'}
           </div>
           {[lang === 'es' ? 'Registrarme' : 'Register', 'FAQ', lang === 'es' ? 'Verificación' : 'Verification'].map((l) => (
@@ -675,7 +663,7 @@ function Footer({ theme, lang }) {
           ))}
         </div>
         <div>
-          <div style={{ fontSize: 11, color: theme.ink3, fontFamily: theme.fontMono, letterSpacing: theme.metaSpacing, textTransform: theme.metaCase, marginBottom: 8 }}>
+          <div style={{ fontSize: 12, color: theme.ink, fontWeight: 600, marginBottom: 12 }}>
             {lang === 'es' ? 'Legal' : 'Legal'}
           </div>
           {[lang === 'es' ? 'Términos' : 'Terms', lang === 'es' ? 'Privacidad' : 'Privacy', 'Reportar'].map((l) => (
@@ -683,7 +671,7 @@ function Footer({ theme, lang }) {
           ))}
         </div>
       </div>
-      <div style={{ borderTop: `1px solid ${theme.rule}`, marginTop: 20, paddingTop: 14, fontSize: 11, color: theme.ink3, fontFamily: theme.fontMono, display: 'flex', justifyContent: 'space-between' }}>
+      <div style={{ borderTop: `1px solid ${theme.rule}`, marginTop: 24, paddingTop: 16, fontSize: 12, color: theme.ink3, display: 'flex', justifyContent: 'space-between' }}>
         <span>© 2026 DirectorioLocal.cr</span>
         <span>{lang === 'es' ? 'Hecho en Costa Rica 🇨🇷' : 'Made in Costa Rica 🇨🇷'}</span>
       </div>

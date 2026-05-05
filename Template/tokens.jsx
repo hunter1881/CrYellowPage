@@ -2,35 +2,37 @@
 // A. Civic directory · B. Friendly marketplace · C. Premium verified
 
 window.THEMES = {
-  // A — Practical civic directory
-  // Verde institucional, tipografía utilitaria con mono para metadatos.
-  // Bordes nítidos, sin sombras suaves. Sensación de "página oficial del cantón".
+  // A — Modern civic directory
+  // Verde institucional moderno. Tipografía limpia sin uppercase pesado.
+  // Sombras sutiles, espaciado generoso, jerarquía clara.
   A: {
     name: 'Civic',
-    bg: '#F4F5F2',
+    bg: '#FBFBF9',
     surface: '#FFFFFF',
-    surfaceAlt: '#FAFBF8',
-    ink: '#1A1F1B',
-    ink2: '#4A524C',
-    ink3: '#7A8079',
-    rule: '#D9DCD6',
-    ruleSoft: '#E8EAE5',
+    surfaceAlt: '#F5F6F2',
+    ink: '#0F1410',
+    ink2: '#3D453F',
+    ink3: '#7E857F',
+    rule: '#E8EAE5',
+    ruleSoft: '#F0F1ED',
     brand: '#0E5A3F',
     brandInk: '#063B28',
-    brandSoft: '#E3EDE7',
+    brandSoft: '#E8F1EC',
     accent: '#B8462E',
-    accentSoft: '#F4E6E0',
+    accentSoft: '#F6EAE4',
     wa: '#16A34A',
-    star: '#C58A1E',
-    radius: 2,
-    radiusLg: 4,
+    star: '#D6A11C',
+    radius: 10,
+    radiusLg: 14,
     font: '"Inter", -apple-system, system-ui, sans-serif',
-    fontMono: '"JetBrains Mono", "SF Mono", ui-monospace, monospace',
-    shadow: 'none',
-    shadowLg: '0 1px 3px rgba(0,0,0,.06)',
-    cardBorder: '1px solid #D9DCD6',
-    metaCase: 'uppercase',
-    metaSpacing: '0.5px',
+    fontDisplay: '"Inter", -apple-system, system-ui, sans-serif',
+    fontBody: '"Inter", -apple-system, system-ui, sans-serif',
+    fontMono: '"Inter", system-ui, sans-serif',
+    shadow: '0 1px 2px rgba(15,20,16,.04)',
+    shadowLg: '0 6px 24px rgba(15,20,16,.06), 0 1px 2px rgba(15,20,16,.04)',
+    cardBorder: '1px solid #E8EAE5',
+    metaCase: 'none',
+    metaSpacing: '0',
   },
   // B — Friendly neighborhood marketplace
   // Verde cálido + clay accent. Más espacio, esquinas suaves, foto protagonista.
