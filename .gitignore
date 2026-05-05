@@ -17,3 +17,14 @@ skills-lock.json
 # Archivos generados por Playwright MCP (capturas de pruebas)
 .playwright-mcp/
 test-*.png
+
+# QA agent run artifacts — per-run screenshots, result.md files, evidence.
+# Test plans, test cases, and fixtures under qa/ ARE committed (source of truth);
+# only the per-run output folders are ephemeral and grow unboundedly.
+qa/runs/
+
+# Stock Playwright runner output (in case test-runner is added later)
+playwright-report/
+test-results/
+**/playwright/.cache/
+.last-run.json
