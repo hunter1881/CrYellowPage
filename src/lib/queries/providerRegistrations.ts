@@ -73,6 +73,16 @@ export async function createProviderRegistration(input: ProviderRegistrationInpu
   const { error } = await supabase.from('provider_registrations').insert(registration)
 
   if (error) {
+    // Postgres unique-violation code is 23505. Triggered by the partial unique
+    // index on (email) WHERE status='pending' — a duplicate pending application
+    // for the same email. Return a friendly Spanish message instead of leaking
+    // the raw DB error.
+    if (error.code === '23505') {
+      throw new ActionError({
+        code: 'CONFLICT',
+        message: 'Ya tenemos una solicitud pendiente con este correo electrónico.',
+      })
+    }
     logger.error('createProviderRegistration.insert', { districtId: input.districtId, error })
     throw new ActionError({
       code: 'INTERNAL_SERVER_ERROR',

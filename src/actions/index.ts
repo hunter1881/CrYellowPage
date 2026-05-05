@@ -4,30 +4,66 @@ import { createProviderRegistration } from '@lib/queries/providerRegistrations'
 import { selectedIncludesSinpe } from '@lib/queries/paymentMethods'
 import { insertReview } from '@lib/queries/reviews'
 
+// JS .trim() does not strip Unicode format characters (U+200B zero-width space,
+// U+200C/D zero-width joiners, etc.). A name of 3 zero-width spaces would pass
+// .trim().min(3). cleanText strips format chars BEFORE trimming so length checks
+// reflect visible content. Surfaced by qa-tester exploratory run 2026-05-05 (BUG-001).
+function cleanText(value: string): string {
+  return value.replace(/\p{Cf}/gu, '').trim()
+}
+
+// Coerce non-string inputs (null, undefined, number from coerce, etc.) to "" so
+// the type-check passes and the field-specific refinement can produce a Spanish
+// error. Without this, an empty form field that arrives as null would trigger
+// Zod's default English `invalid_type` message ("expected string, received null")
+// before any custom refinement runs. Surfaced by TC-RGR-004 verification run
+// 2026-05-05 (BUG-004 residual): only 10/12 rows of TC-RGR-004 passed because
+// the businessName/contactName empty-input cases hit the type-check path.
+const looseString = () =>
+  z.preprocess((value) => (typeof value === 'string' ? value : ''), z.string())
+
+const requiredText = (label: string, min: number, max: number) =>
+  looseString()
+    .transform(cleanText)
+    .refine((s) => s.length >= min, { message: `${label}: mínimo ${min} caracteres.` })
+    .refine((s) => s.length <= max, { message: `${label}: máximo ${max} caracteres.` })
+
 const optionalTrimmedString = z
   .string()
   .nullable()
   .optional()
   .transform((value) => {
-    const trimmed = value?.trim() ?? ''
-    return trimmed.length > 0 ? trimmed : null
+    const cleaned = cleanText(value ?? '')
+    return cleaned.length > 0 ? cleaned : null
   })
 
 export const server = {
   registerProvider: defineAction({
     accept: 'form',
     input: z.object({
-      businessName: z.string().trim().min(3).max(120),
-      contactName: z.string().trim().min(3).max(120),
-      phone: z.string().trim().regex(/^(?:\+506\s?)?\d{4}-?\d{4}$/),
+      businessName: requiredText('Nombre del negocio', 3, 120),
+      contactName: requiredText('Persona de contacto', 3, 120),
+      phone: looseString()
+        .transform((s) => s.trim())
+        .refine(
+          (s) => /^(?:\+506\s?)?\d{4}-?\d{4}$/.test(s),
+          'Teléfono inválido. Formato: 8888-8888 o +506 8888-8888.',
+        ),
       whatsapp: optionalTrimmedString,
-      email: z.string().trim().pipe(z.email().max(160)),
-      districtId: z.uuid(),
-      categoryIds: z.array(z.uuid()).min(1).max(4),
-      description: z.string().trim().min(30).max(500),
+      email: looseString()
+        .transform((s) => s.trim())
+        .pipe(
+          z.email('Correo electrónico inválido.').max(160, 'Correo electrónico demasiado largo.'),
+        ),
+      districtId: z.uuid('Seleccione un distrito.'),
+      categoryIds: z
+        .array(z.uuid())
+        .min(1, 'Seleccione al menos una categoría.')
+        .max(4, 'Máximo 4 categorías.'),
+      description: requiredText('Descripción', 30, 500),
       paymentMethodSlugs: z.array(z.string().trim().min(1)).max(11).default([]),
       worksWeekends: z.boolean().optional().default(false),
-      yearsActive: z.number().min(0).max(80).default(1),
+      yearsActive: z.number().min(0, 'Años no puede ser negativo.').max(80, 'Máximo 80 años.').default(1),
       sourceLocale: z.enum(['es', 'en']).default('es'),
       website: optionalTrimmedString,
     }),
@@ -56,12 +92,16 @@ export const server = {
   submitReview: defineAction({
     accept: 'form',
     input: z.object({
-      providerId: z.uuid(),
-      authorName: z.string().trim().min(1).max(80),
-      rating: z.coerce.number().int().min(1).max(5),
-      comment: z.string().trim().min(1).max(800),
+      providerId: z.uuid('Proveedor inválido.'),
+      authorName: requiredText('Nombre', 1, 80),
+      rating: z.coerce
+        .number({ message: 'Calificación inválida.' })
+        .int('La calificación debe ser un número entero.')
+        .min(1, 'Seleccione una calificación de 1 a 5 estrellas.')
+        .max(5, 'Calificación máxima: 5 estrellas.'),
+      comment: requiredText('Comentario', 1, 800),
       workConfirmed: z
-        .enum(['yes', 'no'])
+        .enum(['yes', 'no'], { message: 'Confirme si recibió el servicio.' })
         .transform((v) => v === 'yes'),
     }),
     handler: async (input) => {

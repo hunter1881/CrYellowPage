@@ -141,10 +141,17 @@ const jsonLdItems = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : []
         document.addEventListener('astro:before-preparation', start)
         document.addEventListener('astro:page-load', finish)
 
-        // Form submits (Astro Actions POST)
+        // Form submits (Astro Actions POST). Re-entry guard prevents double-submit
+        // duplicates from form.requestSubmit() calls or rapid double-clicks.
+        // Surfaced by qa-tester exploratory run 2026-05-05 (BUG-003).
         document.addEventListener('submit', function (event) {
           var form = event.target
           if (!form || form.method?.toLowerCase() === 'get') return
+          if (form.dataset.dlSubmitting === '1') {
+            event.preventDefault()
+            return
+          }
+          form.dataset.dlSubmitting = '1'
           start()
           var btn = form.querySelector('[type="submit"]')
           if (btn && !btn.classList.contains('btn-loading')) {
@@ -153,6 +160,16 @@ const jsonLdItems = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : []
             spinner.className = 'btn-spinner'
             spinner.setAttribute('aria-hidden', 'true')
             btn.appendChild(spinner)
+          }
+        })
+
+        // Reset the submit guard on every page load — covers SPA navigation
+        // (back/forward) and full reloads. Without this, a user who submits,
+        // then navigates back via ClientRouter, would see a permanently locked form.
+        document.addEventListener('astro:page-load', function () {
+          var forms = document.querySelectorAll('form[data-dl-submitting]')
+          for (var i = 0; i < forms.length; i++) {
+            forms[i].removeAttribute('data-dl-submitting')
           }
         })
       })()
