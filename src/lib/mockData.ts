@@ -36,8 +36,7 @@ export const mockProviders: ProviderListItem[] = [
     accepts_sinpe: true,
     works_weekends: true,
     years_active: 18,
-    completed_jobs: 230,
-    response_time_minutes: 35,
+    completed_jobs: 0,
   },
   {
     id: '00000000-0000-4000-8000-000000000302',
@@ -50,8 +49,7 @@ export const mockProviders: ProviderListItem[] = [
     accepts_sinpe: true,
     works_weekends: true,
     years_active: 9,
-    completed_jobs: 145,
-    response_time_minutes: 20,
+    completed_jobs: 0,
   },
   {
     id: '00000000-0000-4000-8000-000000000303',
@@ -64,8 +62,7 @@ export const mockProviders: ProviderListItem[] = [
     accepts_sinpe: false,
     works_weekends: true,
     years_active: 6,
-    completed_jobs: 88,
-    response_time_minutes: 45,
+    completed_jobs: 0,
   },
 ]
 

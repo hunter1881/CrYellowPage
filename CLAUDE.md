@@ -79,7 +79,15 @@ All tables have RLS enabled. `providers` and `categories` are publicly readable 
 
 ## Agents (delegate explicitly)
 - **`code-reviewer`** — reviews against antipatterns/performance/queries/security rules. Run before every commit.
-- **`performance-auditor`** — site-speed audit (LCP/INP/CLS, bundle, query count) for a specific page or component.
+- **`qa-tester`** — designs and executes tests via Playwright MCP + Chrome DevTools MCP against the dev server. Persistent test corpus lives in `qa/`. Modes: smoke, targeted feature, exploratory, regression codification, performance audit.
+- **`performance-auditor`** — static analysis of a page or component for speed (LCP/INP/CLS, bundle, query count). Complements `qa-tester` (which runs live Lighthouse).
 - **`db-architect`** — schema, migrations, RLS, indexes, type generation.
 - **`frontend-dev`** — Astro components, pages, layouts.
 - **`seo-agent`** — meta tags, JSON-LD, sitemaps.
+
+## QA system
+- **`qa/README.md`** — folder layout and test-case file format
+- **`qa/test-plan.md`** — master coverage matrix, risk register, performance budgets
+- **`qa/test-cases/`** — durable test corpus (smoke, forms, flows, accessibility, performance, regression)
+- **`qa/runs/`** — per-run results with screenshots and evidence
+- **`qa/fixtures/`** — test users and seed data references

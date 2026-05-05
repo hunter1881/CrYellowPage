@@ -153,12 +153,6 @@ const serviceAreas = [provider.district.name, provider.district.canton.name]
           <dt class="civic-meta">{t('profile.rating')}</dt>
           <dd class="mt-1 text-xl font-bold tracking-[-0.3px] text-ink">{displayMeta.rating ?? '—'}</dd>
         </div>
-        <div class="p-4">
-          <dt class="civic-meta">{t('profile.repliesIn')}</dt>
-          <dd class="mt-1 text-xl font-bold tracking-[-0.3px] text-ink">
-            {displayMeta.responseTimeEs !== null ? displayMeta.responseTimeEs : '—'}
-          </dd>
-        </div>
       </dl>
 
       <section class="civic-card mt-4 p-5">
@@ -201,8 +195,6 @@ const serviceAreas = [provider.district.name, provider.district.canton.name]
     <ProviderContactBox
       phone={provider.phone}
       whatsapp={provider.whatsapp}
-      responseTimeEs={displayMeta.responseTimeEs}
-      responseTimeEn={displayMeta.responseTimeEn}
       acceptsSinpe={displayMeta.acceptsSinpe}
       worksWeekends={displayMeta.worksWeekends}
     />

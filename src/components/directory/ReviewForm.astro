@@ -28,7 +28,7 @@ const formError = result?.error?.message ?? null
       method="POST"
       action={actions.submitReview}
       x-data="{ submitting: false }"
-      x-on:submit="submitting = true"
+      data-review-form
     >
       <input type="hidden" name="providerId" value={providerId} />
 
@@ -41,10 +41,10 @@ const formError = result?.error?.message ?? null
       {/* Star rating */}
       <div class="mb-4">
         <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.5px] text-ink-3">
-          {t('reviews.rating')}
+          {t('reviews.rating')}<span class="ml-0.5 text-clay">*</span>
         </label>
-        <star-rating data-name="rating">
-          <div class="flex gap-1" role="radiogroup" aria-label={t('reviews.rating')}>
+        <star-rating>
+          <div class="flex gap-1" role="radiogroup" aria-label={t('reviews.rating')} data-stars-container>
             {[1, 2, 3, 4, 5].map((n) => (
               <button
                 type="button"
@@ -56,17 +56,16 @@ const formError = result?.error?.message ?? null
               </button>
             ))}
           </div>
-          <input type="hidden" name="rating" value="" required />
+          <input type="hidden" name="rating" value="" />
           <p class="sr-only" aria-live="polite" data-star-label></p>
         </star-rating>
         <p class="mt-1 text-xs text-red-600 hidden" data-rating-error>{t('reviews.errorRequired')}</p>
       </div>
 
-      {/* Author name */}
+      {/* Author name — required */}
       <div class="mb-4">
         <label for="review-author" class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.5px] text-ink-3">
-          {t('reviews.yourName')}
-          <span class="ml-1 normal-case font-normal text-ink-3/70">({t('common.optional')})</span>
+          {t('reviews.yourName')}<span class="ml-0.5 text-clay">*</span>
         </label>
         <input
           id="review-author"
@@ -77,13 +76,13 @@ const formError = result?.error?.message ?? null
           autocomplete="name"
           class="w-full rounded-civic border border-rule bg-surface px-3 py-2 text-sm text-ink placeholder:text-ink-3/50 focus:border-canopy focus:outline-none focus:ring-1 focus:ring-canopy"
         />
+        <p class="mt-1 text-xs text-red-600 hidden" data-name-error>{t('reviews.errorName')}</p>
       </div>
 
-      {/* Comment */}
+      {/* Comment — required */}
       <div class="mb-4">
         <label for="review-comment" class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.5px] text-ink-3">
-          {t('reviews.yourComment')}
-          <span class="ml-1 normal-case font-normal text-ink-3/70">({t('common.optional')})</span>
+          {t('reviews.yourComment')}<span class="ml-0.5 text-clay">*</span>
         </label>
         <textarea
           id="review-comment"
@@ -93,25 +92,46 @@ const formError = result?.error?.message ?? null
           placeholder={t('reviews.commentPlaceholder')}
           class="w-full resize-none rounded-civic border border-rule bg-surface px-3 py-2 text-sm text-ink placeholder:text-ink-3/50 focus:border-canopy focus:outline-none focus:ring-1 focus:ring-canopy"
         ></textarea>
+        <p class="mt-1 text-xs text-red-600 hidden" data-comment-error>{t('reviews.errorComment')}</p>
       </div>
 
-      {/* Work confirmed */}
-      <label class="mb-5 flex cursor-pointer items-start gap-3 rounded-civic border border-rule bg-surface-alt p-3 has-[:checked]:border-canopy/40 has-[:checked]:bg-canopy-soft">
-        <input
-          type="checkbox"
-          name="workConfirmed"
-          value="on"
-          class="mt-0.5 h-4 w-4 shrink-0 accent-canopy"
-        />
-        <span>
-          <span class="block text-sm font-semibold text-ink">{t('reviews.workConfirmed')}</span>
-          <span class="mt-0.5 block text-xs leading-5 text-ink-3">{t('reviews.workConfirmedHelp')}</span>
-        </span>
-      </label>
+      {/* Work confirmed — required Yes / No */}
+      <div class="mb-5">
+        <p class="mb-2 text-xs font-semibold uppercase tracking-[0.5px] text-ink-3">
+          {t('reviews.workConfirmedQuestion')}<span class="ml-0.5 text-clay">*</span>
+        </p>
+        <div class="flex gap-3">
+          <label data-wc-label class="flex flex-1 cursor-pointer items-center gap-2.5 rounded-civic border border-rule bg-surface-alt p-3 has-[:checked]:border-canopy/40 has-[:checked]:bg-canopy-soft">
+            <input type="radio" name="workConfirmed" value="yes" class="accent-canopy" />
+            <span class="text-sm font-semibold text-ink">{t('reviews.workConfirmedYes')}</span>
+          </label>
+          <label data-wc-label class="flex flex-1 cursor-pointer items-center gap-2.5 rounded-civic border border-rule bg-surface-alt p-3 has-[:checked]:border-canopy/40 has-[:checked]:bg-canopy-soft">
+            <input type="radio" name="workConfirmed" value="no" class="accent-canopy" />
+            <span class="text-sm font-semibold text-ink">{t('reviews.workConfirmedNo')}</span>
+          </label>
+        </div>
+        <p class="mt-1 text-xs text-red-600 hidden" data-work-error>{t('reviews.errorWorkConfirmed')}</p>
+      </div>
 
       <button
-        type="submit"
+        type="button"
         x-bind:disabled="submitting"
+        x-on:click="
+          const form = $el.closest('form');
+          let ok = true;
+          const ri = form.querySelector('[name=rating]'), re = form.querySelector('[data-rating-error]'), sc = form.querySelector('[data-stars-container]');
+          if (!ri.value) { re.classList.remove('hidden'); sc.classList.add('border','border-clay','rounded-civic'); ok = false; } else { re.classList.add('hidden'); sc.classList.remove('border','border-clay','rounded-civic'); }
+          const ni = form.querySelector('[name=authorName]'), ne = form.querySelector('[data-name-error]');
+          if (!ni.value.trim()) { ne.classList.remove('hidden'); ni.classList.add('border-clay'); ni.classList.remove('border-rule'); ok = false; } else { ne.classList.add('hidden'); ni.classList.remove('border-clay'); ni.classList.add('border-rule'); }
+          const ci = form.querySelector('[name=comment]'), ce = form.querySelector('[data-comment-error]');
+          if (!ci.value.trim()) { ce.classList.remove('hidden'); ci.classList.add('border-clay'); ci.classList.remove('border-rule'); ok = false; } else { ce.classList.add('hidden'); ci.classList.remove('border-clay'); ci.classList.add('border-rule'); }
+          const wc = form.querySelector('[name=workConfirmed]:checked'), we = form.querySelector('[data-work-error]');
+          const wls = form.querySelectorAll('[data-wc-label]');
+          if (!wc) { we.classList.remove('hidden'); wls.forEach(l=>{l.classList.add('border-clay');l.classList.remove('border-rule');}); ok = false; } else { we.classList.add('hidden'); wls.forEach(l=>{l.classList.remove('border-clay');l.classList.add('border-rule');}); }
+          if (!ok) return;
+          submitting = true;
+          form.requestSubmit();
+        "
         class="w-full rounded-civic bg-canopy px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
       >
         <span x-show="!submitting">{t('reviews.submit')}</span>
@@ -127,7 +147,6 @@ const formError = result?.error?.message ?? null
       const hiddenInput = this.querySelector<HTMLInputElement>('input[type="hidden"]')
       const label = this.querySelector<HTMLElement>('[data-star-label]')
       const buttons = Array.from(this.querySelectorAll<HTMLButtonElement>('.star-btn'))
-      const errorEl = this.closest('form')?.querySelector<HTMLElement>('[data-rating-error]')
 
       if (!hiddenInput) return
 
@@ -142,7 +161,10 @@ const formError = result?.error?.message ?? null
       const setValue = (value: number) => {
         hiddenInput.value = String(value)
         if (label) label.textContent = `${value} estrella${value > 1 ? 's' : ''} seleccionada${value > 1 ? 's' : ''}`
-        if (errorEl) errorEl.classList.add('hidden')
+        const form = this.closest('form')
+        form?.querySelector('[data-rating-error]')?.classList.add('hidden')
+        const sc = form?.querySelector('[data-stars-container]')
+        sc?.classList.remove('border', 'border-clay', 'rounded-civic')
         highlight(value)
       }
 
@@ -151,16 +173,48 @@ const formError = result?.error?.message ?? null
         btn.addEventListener('mouseleave', () => highlight(hiddenInput.value ? Number(hiddenInput.value) : 0))
         btn.addEventListener('click', () => setValue(i + 1))
       })
-
-      // Validate on submit
-      this.closest('form')?.addEventListener('submit', (e) => {
-        if (!hiddenInput.value) {
-          e.preventDefault()
-          if (errorEl) errorEl.classList.remove('hidden')
-        }
-      })
     }
   }
 
   if (!customElements.get('star-rating')) customElements.define('star-rating', StarRating)
+
+  // Live-clear errors as the user fixes each field
+  function attachReviewFormListeners() {
+    document.querySelectorAll<HTMLFormElement>('[data-review-form]').forEach((form) => {
+      const nameInput = form.querySelector<HTMLInputElement>('[name=authorName]')
+      const nameError = form.querySelector<HTMLElement>('[data-name-error]')
+      nameInput?.addEventListener('input', () => {
+        if (nameInput.value.trim()) {
+          nameError?.classList.add('hidden')
+          nameInput.classList.remove('border-clay')
+          nameInput.classList.add('border-rule')
+        }
+      })
+
+      const commentInput = form.querySelector<HTMLTextAreaElement>('[name=comment]')
+      const commentError = form.querySelector<HTMLElement>('[data-comment-error]')
+      commentInput?.addEventListener('input', () => {
+        if (commentInput.value.trim()) {
+          commentError?.classList.add('hidden')
+          commentInput.classList.remove('border-clay')
+          commentInput.classList.add('border-rule')
+        }
+      })
+
+      form.querySelectorAll<HTMLInputElement>('[name=workConfirmed]').forEach((radio) => {
+        radio.addEventListener('change', () => {
+          form.querySelector('[data-work-error]')?.classList.add('hidden')
+          form.querySelectorAll<HTMLElement>('[data-wc-label]').forEach((l) => {
+            l.classList.remove('border-clay')
+            l.classList.add('border-rule')
+          })
+        })
+      })
+    })
+  }
+
+  // Run immediately on initial load (module scripts execute after DOM is ready)
+  attachReviewFormListeners()
+  // Re-run after view transition navigations
+  document.addEventListener('astro:page-load', attachReviewFormListeners)
 </script>

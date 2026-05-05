@@ -1802,24 +1802,24 @@ values
   ('Catering y cocina',     'catering-cocina',       '🍽️', 'Servicios de catering para eventos, cocina a domicilio y preparación de comidas.')
 on conflict (slug) do update set name = excluded.name, icon_emoji = excluded.icon_emoji, description = excluded.description;
 
-insert into public.providers (id, name, phone, whatsapp, description, district_id, verified, accepts_sinpe, works_weekends, years_active, completed_jobs, response_time_minutes)
-select '00000000-0000-4000-8000-000000000301'::uuid, 'Don Rafa Fontanería', '8712-4490', '50687124490', 'Fontanero con 18 años atendiendo Aserrí. Reparación de fugas, instalación de tanques y emergencias.', id, true, true, true, 18, 230, 35 from public.districts where postal_code = '10603'
-on conflict (id) do update set name = excluded.name, phone = excluded.phone, whatsapp = excluded.whatsapp, description = excluded.description, district_id = excluded.district_id, verified = excluded.verified, accepts_sinpe = excluded.accepts_sinpe, works_weekends = excluded.works_weekends, years_active = excluded.years_active, completed_jobs = excluded.completed_jobs, response_time_minutes = excluded.response_time_minutes;
+insert into public.providers (id, name, phone, whatsapp, description, district_id, verified, accepts_sinpe, works_weekends, years_active, completed_jobs)
+select '00000000-0000-4000-8000-000000000301'::uuid, 'Don Rafa Fontanería', '8712-4490', '50687124490', 'Fontanero con 18 años atendiendo Aserrí. Reparación de fugas, instalación de tanques y emergencias.', id, true, true, true, 18, 0 from public.districts where postal_code = '10603'
+on conflict (id) do update set name = excluded.name, phone = excluded.phone, whatsapp = excluded.whatsapp, description = excluded.description, district_id = excluded.district_id, verified = excluded.verified, accepts_sinpe = excluded.accepts_sinpe, works_weekends = excluded.works_weekends, years_active = excluded.years_active;
 insert into public.provider_categories (provider_id, category_id)
 select '00000000-0000-4000-8000-000000000301'::uuid, id from public.categories where slug = 'fontaneria'
 on conflict (provider_id, category_id) do nothing;
 insert into public.provider_categories (provider_id, category_id)
 select '00000000-0000-4000-8000-000000000301'::uuid, id from public.categories where slug = 'reparaciones'
 on conflict (provider_id, category_id) do nothing;
-insert into public.providers (id, name, phone, whatsapp, description, district_id, verified, accepts_sinpe, works_weekends, years_active, completed_jobs, response_time_minutes)
-select '00000000-0000-4000-8000-000000000302'::uuid, 'Fontanería Emergencia 24', '8990-1147', '50689901147', 'Servicio de emergencia 24/7 para fugas y obstrucciones en zona sur de San José.', id, true, true, true, 9, 145, 20 from public.districts where postal_code = '10603'
-on conflict (id) do update set name = excluded.name, phone = excluded.phone, whatsapp = excluded.whatsapp, description = excluded.description, district_id = excluded.district_id, verified = excluded.verified, accepts_sinpe = excluded.accepts_sinpe, works_weekends = excluded.works_weekends, years_active = excluded.years_active, completed_jobs = excluded.completed_jobs, response_time_minutes = excluded.response_time_minutes;
+insert into public.providers (id, name, phone, whatsapp, description, district_id, verified, accepts_sinpe, works_weekends, years_active, completed_jobs)
+select '00000000-0000-4000-8000-000000000302'::uuid, 'Fontanería Emergencia 24', '8990-1147', '50689901147', 'Servicio de emergencia 24/7 para fugas y obstrucciones en zona sur de San José.', id, true, true, true, 9, 0 from public.districts where postal_code = '10603'
+on conflict (id) do update set name = excluded.name, phone = excluded.phone, whatsapp = excluded.whatsapp, description = excluded.description, district_id = excluded.district_id, verified = excluded.verified, accepts_sinpe = excluded.accepts_sinpe, works_weekends = excluded.works_weekends, years_active = excluded.years_active;
 insert into public.provider_categories (provider_id, category_id)
 select '00000000-0000-4000-8000-000000000302'::uuid, id from public.categories where slug = 'fontaneria'
 on conflict (provider_id, category_id) do nothing;
-insert into public.providers (id, name, phone, whatsapp, description, district_id, verified, accepts_sinpe, works_weekends, years_active, completed_jobs, response_time_minutes)
-select '00000000-0000-4000-8000-000000000303'::uuid, 'Servicios Jorco', '7045-2218', '50670452218', 'Instalaciones, mantenimiento y reparaciones menores para hogares en Vuelta de Jorco.', id, true, false, true, 6, 88, 45 from public.districts where postal_code = '10603'
-on conflict (id) do update set name = excluded.name, phone = excluded.phone, whatsapp = excluded.whatsapp, description = excluded.description, district_id = excluded.district_id, verified = excluded.verified, accepts_sinpe = excluded.accepts_sinpe, works_weekends = excluded.works_weekends, years_active = excluded.years_active, completed_jobs = excluded.completed_jobs, response_time_minutes = excluded.response_time_minutes;
+insert into public.providers (id, name, phone, whatsapp, description, district_id, verified, accepts_sinpe, works_weekends, years_active, completed_jobs)
+select '00000000-0000-4000-8000-000000000303'::uuid, 'Servicios Jorco', '7045-2218', '50670452218', 'Instalaciones, mantenimiento y reparaciones menores para hogares en Vuelta de Jorco.', id, true, false, true, 6, 0 from public.districts where postal_code = '10603'
+on conflict (id) do update set name = excluded.name, phone = excluded.phone, whatsapp = excluded.whatsapp, description = excluded.description, district_id = excluded.district_id, verified = excluded.verified, accepts_sinpe = excluded.accepts_sinpe, works_weekends = excluded.works_weekends, years_active = excluded.years_active;
 insert into public.provider_categories (provider_id, category_id)
 select '00000000-0000-4000-8000-000000000303'::uuid, id from public.categories where slug = 'fontaneria'
 on conflict (provider_id, category_id) do nothing;

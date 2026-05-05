@@ -25,7 +25,7 @@ if (!user) return Astro.redirect('/account/login/')
 // Load provider — RLS enforces ownership
 const { data: provider, error: providerError } = await supabase
   .from('providers')
-  .select('id, name, description, phone, whatsapp, accepts_sinpe, works_weekends, years_active, response_time_minutes, owner_id')
+  .select('id, name, description, phone, whatsapp, accepts_sinpe, works_weekends, years_active, owner_id')
   .eq('id', providerId)
   .eq('owner_id', user.id)
   .maybeSingle()
@@ -66,7 +66,6 @@ if (Astro.request.method === 'POST') {
   const acceptsSinpe = selectedIncludesSinpe(paymentMethodSlugs)
   const worksWeekends = formData.get('worksWeekends') === 'on'
   const yearsActive = Math.max(0, parseInt(String(formData.get('yearsActive') ?? '0'), 10) || 0)
-  const responseTimeMinutes = parseInt(String(formData.get('responseTimeMinutes') ?? ''), 10)
   const selectedCategoryIds = formData.getAll('categoryIds').map(String).filter(Boolean)
 
   if (!phone) {
@@ -88,9 +87,6 @@ if (Astro.request.method === 'POST') {
           accepts_sinpe: acceptsSinpe,
           works_weekends: worksWeekends,
           years_active: yearsActive,
-          response_time_minutes: Number.isFinite(responseTimeMinutes) && responseTimeMinutes > 0
-            ? responseTimeMinutes
-            : null,
         })
         .eq('id', providerId)
         .eq('owner_id', user.id)
@@ -175,7 +171,6 @@ if (Astro.request.method === 'POST') {
 
       <div class="grid gap-4 sm:grid-cols-2">
         <Input label={t('edit.yearsActive')} name="yearsActive" type="number" value={provider.years_active ?? ''} />
-        <Input label={t('edit.responseTime')} name="responseTimeMinutes" type="number" placeholder="ej. 30" value={provider.response_time_minutes ?? ''} />
       </div>
 
       <ChipSelect

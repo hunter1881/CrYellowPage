@@ -57,30 +57,19 @@ export const server = {
     accept: 'form',
     input: z.object({
       providerId: z.uuid(),
-      authorName: z
-        .string()
-        .trim()
-        .max(80)
-        .optional()
-        .transform((v) => (v && v.length > 0 ? v : null)),
+      authorName: z.string().trim().min(1).max(80),
       rating: z.coerce.number().int().min(1).max(5),
-      comment: z
-        .string()
-        .trim()
-        .max(800)
-        .optional()
-        .transform((v) => (v && v.length > 0 ? v : null)),
+      comment: z.string().trim().min(1).max(800),
       workConfirmed: z
-        .string()
-        .optional()
-        .transform((v) => v === 'on'),
+        .enum(['yes', 'no'])
+        .transform((v) => v === 'yes'),
     }),
     handler: async (input) => {
       const result = await insertReview({
         providerId: input.providerId,
-        authorName: input.authorName ?? null,
+        authorName: input.authorName,
         rating: input.rating,
-        comment: input.comment ?? null,
+        comment: input.comment,
         workConfirmed: input.workConfirmed,
       })
 

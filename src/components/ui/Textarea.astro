@@ -33,7 +33,9 @@ const {
 <div class:list={['form-control w-full', className]}>
   {label && (
     <label class="label pb-1" for={name}>
-      <span class="label-text text-sm font-semibold text-ink">{label}</span>
+      <span class="label-text text-sm font-semibold text-ink">
+        {label}{required && <span class="ml-0.5 text-clay">*</span>}
+      </span>
     </label>
   )}
   <textarea

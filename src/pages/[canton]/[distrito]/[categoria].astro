@@ -50,7 +50,6 @@ const currentParams = Astro.url.searchParams
 const activeFilters = {
   sinpe: currentParams.get('sinpe') === '1',
   weekend: currentParams.get('weekend') === '1',
-  fast: currentParams.get('fast') === '1',
 }
 const activeSort = currentParams.get('sort') ?? 'rating'
 
@@ -70,23 +69,17 @@ function listingUrl(nextParams: Record<string, string | null>) {
 const filterOptions = [
   { key: 'sinpe', label: t('filter.sinpe'), active: activeFilters.sinpe, href: listingUrl({ sinpe: activeFilters.sinpe ? null : '1' }) },
   { key: 'weekend', label: t('filter.weekend'), active: activeFilters.weekend, href: listingUrl({ weekend: activeFilters.weekend ? null : '1' }) },
-  { key: 'fast', label: t('filter.fast'), active: activeFilters.fast, href: listingUrl({ fast: activeFilters.fast ? null : '1' }) },
 ]
 const sortOptions = [
   { value: 'rating', label: t('sort.rating'), active: activeSort === 'rating', href: listingUrl({ sort: 'rating' }) },
   { value: 'newest', label: t('sort.newest'), active: activeSort === 'newest', href: listingUrl({ sort: 'newest' }) },
-  { value: 'fast', label: t('sort.fast'), active: activeSort === 'fast', href: listingUrl({ sort: 'fast' }) },
   { value: 'experience', label: t('sort.experience'), active: activeSort === 'experience', href: listingUrl({ sort: 'experience' }) },
 ]
 const visibleProviders = providers
   .filter((provider) => !activeFilters.sinpe || provider.accepts_sinpe)
   .filter((provider) => !activeFilters.weekend || provider.works_weekends)
-  .filter((provider) => !activeFilters.fast || (provider.response_time_minutes ?? Number.POSITIVE_INFINITY) <= 45)
   .sort((a, b) => {
     if (activeSort === 'newest') return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    if (activeSort === 'fast') {
-      return (a.response_time_minutes ?? Number.POSITIVE_INFINITY) - (b.response_time_minutes ?? Number.POSITIVE_INFINITY)
-    }
     if (activeSort === 'experience') return (b.years_active ?? 0) - (a.years_active ?? 0)
 
     const ratingDelta = Number(reviewSummaries.get(b.id)?.rating ?? 0) - Number(reviewSummaries.get(a.id)?.rating ?? 0)

@@ -97,10 +97,18 @@ Skills:
 
 Agents (delegate explicitly):
 - `code-reviewer` — antipatterns/performance/queries/security/SEO review before commit
-- `performance-auditor` — site-speed audit for a specific page or component
+- `qa-tester` — designs and runs tests via Playwright + Chrome DevTools MCP, persists to `qa/`
+- `performance-auditor` — static analysis for speed (complements qa-tester live Lighthouse)
 - `db-architect` — schema, migrations, RLS, indexes
 - `frontend-dev` — Astro components, pages, layouts
 - `seo-agent` — meta tags, JSON-LD, sitemaps
+
+QA system (cross-tool):
+- `qa/README.md` — folder layout and test-case format
+- `qa/test-plan.md` — coverage matrix, risk register, performance budgets
+- `qa/test-cases/` — durable test corpus
+- `qa/runs/` — per-run results with evidence
+- `qa/fixtures/` — test users and seed data
 
 ## Checks
 - Build: `npm run build`

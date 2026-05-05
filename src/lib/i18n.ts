@@ -62,10 +62,8 @@ export const ui = {
   'filter.sort': 'Ordenar',
   'filter.sinpe': 'Acepta SINPE',
   'filter.weekend': 'Atiende fines de semana',
-  'filter.fast': 'Respuesta rápida',
   'sort.rating': 'Mejor calificados',
   'sort.newest': 'Más recientes',
-  'sort.fast': 'Respuesta rápida',
   'sort.experience': 'Más experiencia',
 
   // ─── Stats strip ─────────────────────────────────────────────────────────
@@ -117,11 +115,14 @@ export const ui = {
   'reviews.clientsHeading': 'Reseñas de clientes',
   'reviews.writeReview': 'Escribir una reseña',
   'reviews.yourName': 'Tu nombre',
-  'reviews.namePlaceholder': 'Anónimo',
+  'reviews.namePlaceholder': 'Ej: María García',
   'reviews.rating': 'Calificación',
   'reviews.yourComment': 'Comentario',
   'reviews.commentPlaceholder': 'Contá tu experiencia con este proveedor...',
   'reviews.workConfirmed': 'El trabajo fue realizado',
+  'reviews.workConfirmedQuestion': '¿El trabajo fue realizado?',
+  'reviews.workConfirmedYes': 'Sí',
+  'reviews.workConfirmedNo': 'No',
   'reviews.workConfirmedHelp': 'Confirmá esto para sumar al contador de trabajos completados del proveedor.',
   'reviews.submit': 'Publicar reseña',
   'reviews.submitSuccess': '¡Gracias! Tu reseña fue publicada.',
@@ -129,6 +130,9 @@ export const ui = {
   'reviews.anonymous': 'Cliente anónimo',
   'reviews.verifiedWork': 'Trabajo confirmado',
   'reviews.errorRequired': 'Seleccioná una calificación de 1 a 5 estrellas.',
+  'reviews.errorName': 'El nombre es obligatorio.',
+  'reviews.errorComment': 'El comentario es obligatorio.',
+  'reviews.errorWorkConfirmed': 'Indicá si el trabajo fue realizado o no.',
 
   // ─── Registration form ────────────────────────────────────────────────────
   'form.applicationMeta': 'Solicitud de proveedor',
@@ -212,7 +216,6 @@ export const ui = {
   'edit.description': 'Descripción',
   'edit.descriptionHint': 'Máx. 500 caracteres.',
   'edit.yearsActive': 'Años de experiencia',
-  'edit.responseTime': 'Tiempo de respuesta (min)',
   'edit.categories': 'Categorías (1–4)',
   'edit.options': 'Opciones',
   'edit.acceptsSinpe': 'Acepta SINPE Móvil',
@@ -228,7 +231,7 @@ export const ui = {
   'profile.listedServices': 'Servicios listados',
   'profile.jobs': 'Trabajos',
   'profile.rating': 'Calificación',
-  'profile.repliesIn': 'Responde en',
+
 
   // ─── Footer ───────────────────────────────────────────────────────────────
   'footer.directory': 'Directorio',
