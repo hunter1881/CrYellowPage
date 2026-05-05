@@ -22,6 +22,11 @@ Highest-risk areas first — these get P0 coverage and run on every smoke pass.
 | Mobile users can't tap CTA buttons | viewport, touch target size | Conversion blocker |
 | LCP > 2.5s on listing pages on 4G | Image weight, render strategy, critical CSS | SEO + UX |
 | Empty-state and zero-result pages indexable as thin content | `getStaticPaths` filter, `noindex` meta | SEO penalty |
+| Client-side form validation bypassable via `form.requestSubmit()` | `ReviewForm.astro` Alpine `x-on:click` on `<button type="button">`, no `<form onsubmit>` guard | Server Zod catches it, but UX shows generic error with no field-level feedback. Affects review submission flow. Surfaced by qa-tester Mode F on 2026-05-05. |
+| Zero-width space bypass of `.trim().min(3)` validation | `src/actions/index.ts` Zod schema for `businessName`/`contactName`/`description` | JS `.trim()` does not strip U+200B/ZWNJ/ZWJ; a name of 3 zero-width spaces passes min(3) and is stored in DB. Surfaced by exploratory run 2026-05-05. |
+| Zod validation error messages displayed in English | `src/pages/register-provider.astro`, `src/components/directory/ProviderRegistrationForm.astro` | All Zod field-level errors (e.g. "Too small: expected string to have >=3 characters") are in English; Spanish UI requires Spanish errors. Surfaced by exploratory run 2026-05-05. |
+| Double-submit creates duplicate `provider_registrations` rows | `src/actions/index.ts` handler, `src/lib/queries/providerRegistrations.ts` | `form.requestSubmit()` called twice creates two rows. No DB uniqueness constraint, no submit button disable, no idempotency key. Confirmed by exploratory run 2026-05-05. |
+| `requiredText()` null-coercion path outputs English Zod error | `src/actions/index.ts` `requiredText()` factory | HTML forms send `""` for empty fields; Astro coerces to `null`; `z.string()` fires English `"Invalid input: expected string, received null"` before transform/refine. Affects `businessName`, `contactName`. Found by TC-RGR-004 verification run 2026-05-05. BUG-004. |
 
 ---
 
@@ -32,12 +37,12 @@ Highest-risk areas first — these get P0 coverage and run on every smoke pass.
 | Feature | Smoke | Forms | Flows | A11y | Performance | Regression |
 |---|---|---|---|---|---|---|
 | Home page (`/`) | TC-SMK-001 | — | TC-FLW-001 | ❌ | ❌ | — |
-| Canton landing (`/{canton}/`) | ❌ | — | TC-FLW-001 | ❌ | ❌ | — |
-| District landing (`/{canton}/{distrito}/`) | ❌ | — | TC-FLW-001 | ❌ | ❌ | — |
+| Canton landing (`/{canton}/`) | TC-SMK-002 | — | TC-FLW-001 | ❌ | ❌ | — |
+| District landing (`/{canton}/{distrito}/`) | TC-SMK-002 | — | TC-FLW-001 | ❌ | ❌ | — |
 | Category listing (`/{canton}/{distrito}/{categoria}`) | ❌ | — | TC-FLW-002 | ❌ | ❌ | TC-RGR-001 |
-| Provider profile (`/proveedor/{id}-{slug}`) | ❌ | — | TC-FLW-003 | ❌ | ❌ | — |
+| Provider profile (`/proveedor/{id}-{slug}`) | TC-SMK-002 | — | TC-FLW-003 | ❌ | ❌ | — |
 | Search (`/search?q=`) | ❌ | ❌ | ❌ | ❌ | ❌ | — |
-| Provider registration (`/register-provider`) | ❌ | TC-FRM-001 | ❌ | ❌ | — | — |
+| Provider registration (`/register-provider`) | ❌ | TC-FRM-001 | ❌ | ❌ | — | TC-RGR-003, TC-RGR-004, TC-RGR-005 |
 | Magic-link login (`/account/login`) | ❌ | ❌ | ❌ | ❌ | — | — |
 | Edit profile (`/account/edit/[id]`) | ❌ | ❌ | ❌ | ❌ | — | — |
 | Account dashboard (`/account`) | ❌ | — | ❌ | ❌ | — | — |
@@ -135,13 +140,13 @@ Coverage target: **TC-PRF-001..004** (one per page type, missing).
 | Test class | Provider registration | Login | Edit profile | Review |
 |---|---|---|---|---|
 | All-empty submit | TC-FRM-001 | ❌ | ❌ | ❌ |
-| Whitespace-only required field | ❌ | ❌ | ❌ | ❌ |
-| Field over `maxlength` | ❌ | — | ❌ | ❌ |
-| Field below `minlength` | ❌ | — | ❌ | ❌ |
-| Invalid email format | ❌ | ❌ | — | ❌ |
-| Invalid phone format | ❌ | — | ❌ | — |
-| Honeypot field filled (spam guard) | ❌ | — | — | ❌ |
-| Double-submit | ❌ | ❌ | ❌ | ❌ |
+| Whitespace-only required field | TC-RGR-003 | ❌ | ❌ | ❌ |
+| Field over `maxlength` | TC-RGR-004 | — | ❌ | ❌ |
+| Field below `minlength` | TC-RGR-003, TC-RGR-004 | — | ❌ | ❌ |
+| Invalid email format | TC-RGR-004 | ❌ | — | ❌ |
+| Invalid phone format | TC-RGR-004 | — | ❌ | — |
+| Honeypot field filled (spam guard) | TC-FRM-001 | — | — | ❌ |
+| Double-submit | TC-RGR-005 | ❌ | ❌ | ❌ |
 | Network drops during submit | ❌ | ❌ | ❌ | ❌ |
 | 500 from action handler | ❌ | ❌ | ❌ | ❌ |
 | Locale mismatch (en form on es page) | ❌ | ❌ | — | ❌ |
@@ -162,11 +167,20 @@ The agent runs Tier 1 by default. Bumping to Tier 2 requires explicit user reque
 
 ## Open work (highest leverage first)
 
-1. Smoke suite for canton/district/listing/profile pages — currently only home is covered.
-2. Form validation suite for provider registration (TC-FRM-002..010 — boundary values, whitespace, double-submit).
-3. Performance baselines for the 4 page types — one Lighthouse run per page on Slow 4G.
-4. A11y baselines using `toMatchAriaSnapshot` on each page template.
-5. Auth happy-path E2E (TC-FLW-008) — magic link → session → logout.
-6. Search edge cases (no query, very short query, accent normalization, no results state).
+1. ~~Smoke suite for canton/district/profile pages~~ — covered by **TC-SMK-002** (2026-05-05). Category listing smoke still pending (TC-SMK-003).
+2. ~~`toE164` helper boundary values~~ — covered by **TC-RGR-002** (2026-05-05). Phase A unit-style + Phase B wiring verification. **End-to-end run verified PASS 2026-05-05** (11/11 unit cases + JSON-LD telephone + tel: href confirmed E.164).
+3. ~~**TC-RGR-003**: ZWSP bypass of `.trim().min(3)`~~ — verified PASS 2026-05-05. All 3 phases pass. Fix confirmed working.
+4. **TC-RGR-004**: Zod errors in Spanish — verified FAIL 2026-05-05. **BUG-004 found**: `businessName=empty` and `contactName=empty` still produce English `"Invalid input: expected string, received null"`. Fix incomplete: `requiredText()` needs `{ invalid_type_error: 'Campo requerido.' }` on `z.string()` call.
+5. ~~**TC-RGR-005**: Double-submit duplicates~~ — verified PASS 2026-05-05. All 4 phases pass. DB unique index + Spanish CONFLICT message confirmed.
+6. Form validation suite for provider registration (TC-FRM-003 — description boundary values).
+7. Review form coverage (TC-FRM-002): all invalid-input paths + bypass via `form.requestSubmit()` (see risk register).
+8. Performance baselines for the 4 page types — one Lighthouse run per page on Slow 4G (TC-PRF-001..004).
+9. A11y baselines using `toMatchAriaSnapshot` on each page template (TC-A11Y-001 for ProviderContactBox accessible names is highest priority — verified by context7 against WCAG ARIA14).
+10. Auth happy-path E2E (TC-FLW-008) — magic link → session → logout.
+11. Search edge cases (no query, very short query, accent normalization, no results state) — TC-FLW-003.
+12. RLS isolation (TC-RLS-001): anon vs authenticated-other-user vs owner can/cannot read draft providers.
+13. Custom element re-init after View Transition (TC-FLW-004 for ChipSelect, TC-FRM-004 for StarRating).
+14. Sitemap and robots.txt smoke (TC-SMK-003).
+15. Provider profile `?from=` back-link behavior (TC-FLW-002) — paired with TC-RGR-006 (Alpine x-init regex workaround, premise unverified per context7 2026-05-05).
 
 The agent should pick from this list in priority order when asked to "extend coverage" without a specific target.

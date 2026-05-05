@@ -8,8 +8,8 @@ preconditions:
   - dev server running on http://localhost:4321
   - DB has the seed data: Vuelta de Jorco district with category "reparaciones" having 2 verified providers
 created: 2026-05-05
-last_run: null
-last_status: new
+last_run: 2026-05-05
+last_status: pass
 related_files:
   - src/pages/[canton]/[distrito]/[categoria].astro
   - src/lib/queries/providers.ts
