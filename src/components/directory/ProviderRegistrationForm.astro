@@ -3,20 +3,33 @@ import { actions } from 'astro:actions'
 import { t } from '@lib/i18n'
 import type { Category } from '@lib/queries/categories'
 import type { CantonWithDistricts } from '@lib/queries/geography'
+import type { PaymentMethod } from '@lib/queries/paymentMethods'
+import { groupPaymentMethods } from '@lib/queries/paymentMethods'
 import Button from '@components/ui/Button.astro'
 import Checkbox from '@components/ui/Checkbox.astro'
 import Input from '@components/ui/Input.astro'
-import Select from '@components/ui/Select.astro'
 import Textarea from '@components/ui/Textarea.astro'
 
 interface Props {
   cantons: CantonWithDistricts[]
   categories: Category[]
+  paymentMethods: PaymentMethod[]
   inputErrors?: Record<string, string[] | undefined>
 }
 
-const { cantons, categories, inputErrors = {} } = Astro.props
+const { cantons, categories, paymentMethods, inputErrors = {} } = Astro.props
 const errorFor = (name: string) => inputErrors[name]?.join(', ')
+const paymentGroups = groupPaymentMethods(paymentMethods)
+
+// Flat district list for autocomplete — {d: name, c: canton, cs: cantonSlug, di: id}
+const districtOptions = cantons.flatMap((canton) =>
+  canton.districts.map((d) => ({
+    d: d.name,
+    c: canton.name,
+    cs: canton.slug,
+    di: d.id,
+  })),
+)
 ---
 
 <form class="civic-card grid gap-5 p-5" method="POST" action={actions.registerProvider}>
@@ -44,16 +57,33 @@ const errorFor = (name: string) => inputErrors[name]?.join(', ')
   </div>
 
   <div class="grid gap-4">
-    <Select label={t('form.district')} name="districtId" required error={errorFor('districtId')}>
-      <option value="">{t('form.selectDistrict')}</option>
-      {cantons.map((canton) => (
-        <optgroup label={`${canton.province?.name ?? 'Costa Rica'} · ${canton.name}`}>
-          {canton.districts.map((district) => (
-            <option value={district.id}>{district.name}</option>
-          ))}
-        </optgroup>
-      ))}
-    </Select>
+
+    {/* ── Searchable district field ── */}
+    <div class="grid gap-1" data-district-field>
+      <label class="text-sm font-semibold text-ink" for="district-text-input">
+        {t('form.district')} <span class="text-clay">*</span>
+      </label>
+      <div class="relative">
+        <input
+          id="district-text-input"
+          class="w-full rounded-civic border border-rule bg-surface px-3 py-2.5 text-sm font-semibold text-ink outline-none placeholder:font-normal placeholder:text-ink-3 focus:border-ink focus:ring-0"
+          type="text"
+          autocomplete="off"
+          placeholder="Escriba un distrito o cantón…"
+          data-district-text
+          aria-autocomplete="list"
+          aria-haspopup="listbox"
+        />
+        <ul
+          class="absolute left-0 right-0 top-full z-50 mt-1 hidden max-h-56 overflow-y-auto rounded-civic border border-rule bg-surface shadow-civic-lg"
+          data-district-dropdown
+          role="listbox"
+        ></ul>
+      </div>
+      {/* Hidden input carries the actual district UUID for form submission */}
+      <input type="hidden" name="districtId" data-district-id-input />
+      {errorFor('districtId') && <span class="text-xs font-medium text-clay">{errorFor('districtId')}</span>}
+    </div>
 
     <fieldset class="grid gap-2">
       <legend class="text-sm font-semibold text-ink">{t('form.serviceCategories')}</legend>
@@ -76,9 +106,24 @@ const errorFor = (name: string) => inputErrors[name]?.join(', ')
     />
   </div>
 
-  <div class="grid gap-4 rounded-civic border border-rule bg-surface-alt p-4 md:grid-cols-3">
+  {/* ── Payment methods (from DB) ── */}
+  <fieldset class="grid gap-3 rounded-civic border border-rule p-4">
+    <legend class="px-1 text-sm font-semibold text-ink">Métodos de pago aceptados</legend>
+    {paymentGroups.map((group) => (
+      <div>
+        <p class="civic-meta mb-2">{group.label}</p>
+        <div class="grid gap-2 sm:grid-cols-2">
+          {group.items.map((pm) => (
+            <Checkbox name="paymentMethodSlugs" value={pm.slug} label={pm.name} />
+          ))}
+        </div>
+      </div>
+    ))}
+    {errorFor('paymentMethodSlugs') && <span class="text-xs font-medium text-clay">{errorFor('paymentMethodSlugs')}</span>}
+  </fieldset>
+
+  <div class="grid gap-4 rounded-civic border border-rule bg-surface-alt p-4 md:grid-cols-2">
     <Input label={t('form.yearsActive')} name="yearsActive" type="number" value="1" />
-    <Checkbox name="acceptsSinpe" value="true" label={t('form.acceptsSinpe')} variant="plain" class="self-end pb-2" />
     <Checkbox name="worksWeekends" value="true" label={t('form.worksWeekends')} variant="plain" class="self-end pb-2" />
   </div>
 
@@ -92,3 +137,77 @@ const errorFor = (name: string) => inputErrors[name]?.join(', ')
     {t('form.submit')}
   </Button>
 </form>
+
+<script is:inline type="application/json" data-form-district-options set:html={JSON.stringify(districtOptions)} />
+
+<script is:inline>
+  (function () {
+    const container = document.querySelector('[data-district-field]')
+    if (!container) return
+
+    const textInput  = container.querySelector('[data-district-text]')
+    const idInput    = container.querySelector('[data-district-id-input]')
+    const dropdown   = container.querySelector('[data-district-dropdown]')
+    if (!textInput || !idInput || !dropdown) return
+
+    const options = JSON.parse(document.querySelector('[data-form-district-options]')?.textContent ?? '[]')
+
+    function norm(v) {
+      return v.normalize('NFD').replace(/\p{Diacritic}/gu, '').replace(/[ñÑ]/g, 'n').toLowerCase()
+    }
+
+    function renderDropdown(items) {
+      dropdown.innerHTML = ''
+      if (!items.length) { dropdown.classList.add('hidden'); return }
+      items.forEach(function (opt) {
+        const li = document.createElement('li')
+        li.setAttribute('role', 'option')
+        li.className = 'flex cursor-pointer items-baseline justify-between gap-3 px-4 py-2.5 text-sm hover:bg-mist'
+        li.innerHTML = '<span class="font-semibold text-ink">' + opt.d + '</span><span class="font-mono text-[10px] uppercase tracking-[0.5px] text-ink-3">' + opt.c + '</span>'
+        li.addEventListener('mousedown', function (e) {
+          e.preventDefault()
+          textInput.value = opt.d + ', ' + opt.c
+          idInput.value   = opt.di
+          dropdown.classList.add('hidden')
+          // visual feedback: green border
+          textInput.classList.add('border-canopy')
+          textInput.classList.remove('border-rule')
+        })
+        dropdown.appendChild(li)
+      })
+      dropdown.classList.remove('hidden')
+    }
+
+    textInput.addEventListener('input', function () {
+      idInput.value = '' // clear until a new option is selected
+      textInput.classList.remove('border-canopy')
+      textInput.classList.add('border-rule')
+      const q = norm(textInput.value)
+      if (!q) { dropdown.classList.add('hidden'); return }
+      const matches = options.filter(function (o) {
+        return norm(o.d).includes(q) || norm(o.c).includes(q)
+      }).slice(0, 12)
+      renderDropdown(matches)
+    })
+
+    textInput.addEventListener('focus', function () {
+      if (textInput.value && !idInput.value) {
+        const q = norm(textInput.value)
+        const matches = options.filter(function (o) {
+          return norm(o.d).includes(q) || norm(o.c).includes(q)
+        }).slice(0, 12)
+        renderDropdown(matches)
+      }
+    })
+
+    textInput.addEventListener('blur', function () {
+      setTimeout(function () { dropdown.classList.add('hidden') }, 150)
+      // If the user typed something but didn't pick an option, reset field
+      if (textInput.value && !idInput.value) {
+        textInput.value = ''
+        textInput.classList.remove('border-canopy')
+        textInput.classList.add('border-rule')
+      }
+    })
+  })()
+</script>

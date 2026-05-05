@@ -1,5 +1,6 @@
 import { ActionError } from 'astro:actions'
 import { logger } from '@lib/logger'
+import { selectedIncludesSinpe } from '@lib/queries/paymentMethods'
 import { supabase } from '@lib/supabase'
 import type { Database } from '@generated/database.types'
 
@@ -14,7 +15,7 @@ export interface ProviderRegistrationInput {
   districtId: string
   categoryIds: string[]
   description: string
-  acceptsSinpe: boolean
+  paymentMethodSlugs: string[]
   worksWeekends: boolean
   yearsActive: number
   sourceLocale: 'es' | 'en'
@@ -62,7 +63,7 @@ export async function createProviderRegistration(input: ProviderRegistrationInpu
     district_id: input.districtId,
     category_ids: input.categoryIds,
     description: input.description,
-    accepts_sinpe: input.acceptsSinpe,
+    accepts_sinpe: selectedIncludesSinpe(input.paymentMethodSlugs),
     works_weekends: input.worksWeekends,
     years_active: input.yearsActive,
     source_locale: input.sourceLocale,

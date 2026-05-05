@@ -5,13 +5,14 @@ import ProviderRegistrationForm from '@components/directory/ProviderRegistration
 import BaseLayout from '@layouts/BaseLayout.astro'
 import { getCategories } from '@lib/queries/categories'
 import { getCantonsWithDistricts } from '@lib/queries/geography'
+import { getPaymentMethods } from '@lib/queries/paymentMethods'
 import { absoluteUrl } from '@lib/site'
 import { t } from '@lib/i18n'
 
 export const prerender = false
 
 const canonical = absoluteUrl('/register-provider/', Astro.site)
-const [cantons, categories] = await Promise.all([getCantonsWithDistricts(), getCategories()])
+const [cantons, categories, paymentMethods] = await Promise.all([getCantonsWithDistricts(), getCategories(), getPaymentMethods()])
 const result = Astro.getActionResult(actions.registerProvider)
 const inputErrors = isInputError(result?.error) ? result.error.fields : {}
 ---
@@ -44,7 +45,7 @@ const inputErrors = isInputError(result?.error) ? result.error.fields : {}
       {result?.error && !isInputError(result.error) && (
         <Alert variant="error" class="mb-4">{result.error.message}</Alert>
       )}
-      <ProviderRegistrationForm cantons={cantons} categories={categories} inputErrors={inputErrors} />
+      <ProviderRegistrationForm cantons={cantons} categories={categories} paymentMethods={paymentMethods} inputErrors={inputErrors} />
     </div>
 
     <aside class="civic-card h-fit p-5">

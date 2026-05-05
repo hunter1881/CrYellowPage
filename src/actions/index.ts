@@ -1,6 +1,7 @@
 import { ActionError, defineAction } from 'astro:actions'
 import { z } from 'astro/zod'
 import { createProviderRegistration } from '@lib/queries/providerRegistrations'
+import { selectedIncludesSinpe } from '@lib/queries/paymentMethods'
 
 const optionalTrimmedString = z
   .string()
@@ -23,7 +24,7 @@ export const server = {
       districtId: z.uuid(),
       categoryIds: z.array(z.uuid()).min(1).max(4),
       description: z.string().trim().min(30).max(500),
-      acceptsSinpe: z.boolean().optional().default(false),
+      paymentMethodSlugs: z.array(z.string().trim().min(1)).max(11).default([]),
       worksWeekends: z.boolean().optional().default(false),
       yearsActive: z.number().min(0).max(80).default(1),
       sourceLocale: z.enum(['es', 'en']).default('es'),
@@ -43,7 +44,7 @@ export const server = {
         districtId: input.districtId,
         categoryIds: input.categoryIds,
         description: input.description,
-        acceptsSinpe: input.acceptsSinpe,
+        paymentMethodSlugs: input.paymentMethodSlugs,
         worksWeekends: input.worksWeekends,
         yearsActive: input.yearsActive,
         sourceLocale: input.sourceLocale,
