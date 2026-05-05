@@ -360,44 +360,68 @@ function Breadcrumbs({ theme, items, onNav }) {
 // ============================================================
 function CategoryCard({ theme, lang, cat, density = 'normal', onClick }) {
   const compact = density === 'compact';
+  const [hover, setHover] = useState(false);
   return (
     <button onClick={onClick} style={{
       display: 'flex',
-      flexDirection: compact ? 'row' : 'column',
-      alignItems: compact ? 'center' : 'flex-start',
-      gap: compact ? 12 : 14,
-      padding: compact ? '14px 16px' : '20px 18px',
-      background: theme.surface,
+      flexDirection: 'column',
+      alignItems: 'flex-start',
+      gap: compact ? 10 : 16,
+      padding: compact ? '14px' : '20px 18px 18px',
+      background: hover ? theme.brand : theme.surface,
       border: theme.cardBorder,
+      borderColor: hover ? theme.brand : theme.rule,
       borderRadius: theme.radiusLg,
       cursor: 'pointer',
       textAlign: 'left',
       fontFamily: 'inherit',
-      transition: 'border-color .2s, transform .2s, box-shadow .2s',
+      transition: 'background .25s, border-color .25s, transform .25s',
       width: '100%',
       boxShadow: theme.shadow,
+      transform: hover ? 'translateY(-2px)' : 'none',
+      minHeight: compact ? 'auto' : 130,
+      position: 'relative',
+      overflow: 'hidden',
     }}
-      onMouseEnter={(e) => { e.currentTarget.style.borderColor = theme.brand + '60'; e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = theme.shadowLg; }}
-      onMouseLeave={(e) => { e.currentTarget.style.borderColor = theme.rule; e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = theme.shadow; }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
     >
       <div style={{
         width: compact ? 36 : 44, height: compact ? 36 : 44,
-        background: theme.brandSoft, color: theme.brand,
+        background: hover ? 'rgba(255,255,255,.15)' : theme.brandSoft,
+        color: hover ? '#fff' : theme.brand,
         borderRadius: theme.radius,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         flexShrink: 0,
+        transition: 'background .25s, color .25s',
       }}>
-        {window.catIcon(cat.slug, compact ? 17 : 22)}
+        {window.catIcon(cat.slug, compact ? 18 : 24)}
       </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: compact ? 14.5 : 16, fontWeight: 600, color: theme.ink, letterSpacing: -0.2 }}>
+      <div style={{ flex: 1, minWidth: 0, marginTop: compact ? 0 : 'auto' }}>
+        <div style={{
+          fontSize: compact ? 14.5 : 17,
+          fontWeight: 600,
+          color: hover ? '#fff' : theme.ink,
+          letterSpacing: -0.3,
+          transition: 'color .25s',
+        }}>
           {lang === 'es' ? cat.nombre : cat.en}
         </div>
-        <div style={{ fontSize: 12.5, color: theme.ink3, marginTop: 3 }}>
-          {cat.count} {lang === 'es' ? 'proveedores' : 'providers'}
+        <div style={{
+          fontSize: 12.5,
+          color: hover ? 'rgba(255,255,255,.7)' : theme.ink3,
+          marginTop: 2,
+          transition: 'color .25s',
+          display: 'inline-flex', alignItems: 'center', gap: 5,
+        }}>
+          {cat.count} {lang === 'es' ? 'pros' : 'pros'}
+          <span style={{
+            display: 'inline-flex', alignItems: 'center',
+            opacity: hover ? 1 : 0, transform: hover ? 'translateX(0)' : 'translateX(-4px)',
+            transition: 'opacity .25s, transform .25s',
+          }}>{window.Icon.arrow(11)}</span>
         </div>
       </div>
-      {compact && <span style={{ color: theme.ink3 }}>{window.Icon.chevron(11)}</span>}
     </button>
   );
 }

@@ -13,183 +13,321 @@ function HomePage({ theme, t, lang, isMobile, density, onNav, onLocationOpen, on
 
   return (
     <div>
-      {/* Search-first hero — directorio, no marketing */}
+      {/* Hero — sobrio, editorial, pro */}
       <section style={{
         background: theme.surfaceAlt,
         borderBottom: `1px solid ${theme.rule}`,
-        padding: isMobile ? '20px 14px 24px' : '40px 24px 44px',
+        padding: isMobile ? '24px 14px 28px' : '52px 24px 56px',
         position: 'relative',
         overflow: 'hidden',
       }}>
-        {/* Subtle decorative dot grid */}
+        {/* Sutil grid de fondo */}
         {!isMobile && (
           <div style={{
-            position: 'absolute', top: 0, right: 0, bottom: 0, width: '40%',
-            backgroundImage: `radial-gradient(${theme.ink3}22 1px, transparent 1px)`,
-            backgroundSize: '24px 24px',
-            maskImage: 'linear-gradient(to left, black, transparent 80%)',
-            WebkitMaskImage: 'linear-gradient(to left, black, transparent 80%)',
+            position: 'absolute', inset: 0,
+            backgroundImage: `linear-gradient(${theme.rule} 1px, transparent 1px), linear-gradient(90deg, ${theme.rule} 1px, transparent 1px)`,
+            backgroundSize: '64px 64px',
+            opacity: .35,
+            maskImage: 'radial-gradient(ellipse at top right, black, transparent 70%)',
+            WebkitMaskImage: 'radial-gradient(ellipse at top right, black, transparent 70%)',
             pointerEvents: 'none',
           }}></div>
         )}
         <div style={{ maxWidth: 1180, margin: '0 auto', position: 'relative' }}>
+          {/* Eyebrow editorial */}
           <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            marginBottom: 14,
-            fontSize: 12,
-            color: theme.ink3,
+            display: 'flex', alignItems: 'center', gap: 12,
+            marginBottom: isMobile ? 18 : 26,
+            fontSize: 11.5, color: theme.ink3, fontWeight: 500,
+            letterSpacing: 0.6, textTransform: 'uppercase',
           }}>
-            <span style={{
-              display: 'inline-flex', alignItems: 'center', gap: 5,
-              background: theme.surface, border: `1px solid ${theme.rule}`,
-              padding: '4px 10px', borderRadius: 999, fontWeight: 500,
-            }}>
-              <span style={{ width: 6, height: 6, borderRadius: 3, background: theme.brand }}></span>
+            <span style={{ width: 24, height: 1, background: theme.ink3 }}></span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+              <span style={{ position: 'relative', display: 'inline-flex', width: 7, height: 7 }}>
+                <span style={{ position: 'absolute', inset: 0, borderRadius: 4, background: theme.brand, animation: 'pulse 2s infinite' }}></span>
+                <span style={{ position: 'relative', width: 7, height: 7, borderRadius: 4, background: theme.brand }}></span>
+              </span>
               {lang === 'es' ? 'Directorio local · Costa Rica' : 'Local directory · Costa Rica'}
             </span>
+            <span style={{ flex: 1, height: 1, background: theme.rule, maxWidth: 200 }}></span>
+            <span style={{ color: theme.ink3, fontWeight: 500, fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 11 }}>
+              {distrito.nombre.toUpperCase()} / {canton.nombre.toUpperCase()}
+            </span>
           </div>
+
           <h1 style={{
-            fontSize: isMobile ? 28 : 44,
+            fontSize: isMobile ? 30 : 52,
             fontWeight: 600,
             margin: 0,
-            letterSpacing: -1,
-            lineHeight: 1.05,
-            fontFamily: theme.fontDisplay || theme.font,
+            letterSpacing: isMobile ? -1 : -1.6,
+            lineHeight: 1.02,
             color: theme.ink,
-            maxWidth: 720,
-            marginBottom: isMobile ? 6 : 10,
+            maxWidth: 880,
+            marginBottom: isMobile ? 12 : 16,
+            fontFamily: 'Inter, system-ui, sans-serif',
           }}>
-            {lang === 'es' ? 'Servicios verificados en' : 'Verified services in'} <span style={{ color: theme.brand, position: 'relative', whiteSpace: 'nowrap' }}>{distrito.nombre}<span style={{ position: 'absolute', left: 0, right: 0, bottom: -2, height: 4, background: theme.brand, opacity: .15, borderRadius: 2 }}></span></span>{lang === 'es' ? ', ' : ', '}{canton.nombre}.
+            {lang === 'es' ? <>Servicios verificados en </> : <>Verified services in </>}
+            <span style={{ color: theme.brand, position: 'relative', whiteSpace: 'nowrap' }}>
+              {distrito.nombre}
+              <svg style={{ position: 'absolute', left: 0, right: 0, bottom: -6, width: '100%', height: 8 }} viewBox="0 0 200 8" preserveAspectRatio="none">
+                <path d="M0,5 Q50,1 100,4 T200,3" stroke={theme.brand} strokeWidth="2" fill="none" opacity=".4"/>
+              </svg>
+            </span>
+            {lang === 'es' ? `, ${canton.nombre}.` : `, ${canton.nombre}.`}
           </h1>
           <p style={{
-            fontSize: isMobile ? 14 : 16,
+            fontSize: isMobile ? 15 : 17,
             color: theme.ink2,
             margin: 0,
-            marginBottom: isMobile ? 18 : 24,
-            lineHeight: 1.5,
-            maxWidth: 560,
+            marginBottom: isMobile ? 22 : 30,
+            lineHeight: 1.55,
+            maxWidth: 580,
           }}>
             {lang === 'es'
-              ? 'Encontrá fontaneros, electricistas y más con cédula confirmada. Contactalos directo por WhatsApp.'
-              : 'Find plumbers, electricians and more with verified ID. Contact them directly via WhatsApp.'}
+              ? 'Fontaneros, electricistas y más con cédula confirmada. Contactalos directo por WhatsApp — sin intermediarios.'
+              : 'Plumbers, electricians and more with verified ID. Contact them directly via WhatsApp — no middlemen.'}
           </p>
+
           <SearchModule theme={theme} t={t} lang={lang} canton={canton} distrito={distrito} onLocationOpen={onLocationOpen} isMobile={isMobile} />
 
+          {/* Chips populares */}
           <div style={{
-            display: 'flex', flexWrap: 'wrap', gap: isMobile ? 16 : 28,
-            marginTop: isMobile ? 16 : 22,
-            fontSize: 13, color: theme.ink2,
+            display: 'flex', flexWrap: 'wrap', gap: 8,
+            marginTop: isMobile ? 14 : 18,
+            alignItems: 'center',
           }}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ color: theme.brand }}>{window.Icon.shield(14)}</span>
-              <span><strong style={{ color: theme.ink, fontWeight: 600 }}>17</strong> {lang === 'es' ? 'verificados en' : 'verified in'} {distrito.nombre}</span>
+            <span style={{ fontSize: 11.5, color: theme.ink3, fontWeight: 600, marginRight: 4, letterSpacing: 0.4, textTransform: 'uppercase' }}>
+              {lang === 'es' ? 'Popular' : 'Popular'}
             </span>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ color: theme.brand }}>{window.Icon.pin(14)}</span>
-              <span><strong style={{ color: theme.ink, fontWeight: 600 }}>89</strong> {lang === 'es' ? 'en cantón Aserrí' : 'across canton Aserrí'}</span>
-            </span>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ color: theme.brand }}>{window.Icon.clock(14)}</span>
-              <span>{lang === 'es' ? 'Responden en ~12 min' : 'Respond in ~12 min'}</span>
-            </span>
+            {data.categorias.slice(0, 5).map((c) => (
+              <button key={c.slug} onClick={() => onNav('category', { cat: c })} style={{
+                background: theme.surface, border: `1px solid ${theme.rule}`,
+                padding: '6px 12px 6px 9px', borderRadius: 999,
+                fontSize: 12.5, color: theme.ink, cursor: 'pointer', fontFamily: 'inherit',
+                display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 500,
+                transition: 'all .15s',
+              }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = theme.ink; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = theme.rule; }}
+              >
+                <span style={{ color: theme.brand }}>{window.catIcon(c.slug, 12)}</span>
+                {lang === 'es' ? c.nombre : c.en}
+                <span style={{ color: theme.ink3, fontSize: 11 }}>{c.count}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Stats strip */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
+            gap: 0,
+            marginTop: isMobile ? 24 : 40,
+            paddingTop: isMobile ? 20 : 24,
+            borderTop: `1px solid ${theme.rule}`,
+          }}>
+            {[
+              { n: '17', l: lang === 'es' ? `verificados en ${distrito.nombre}` : `verified in ${distrito.nombre}`, ic: window.Icon.shield(13) },
+              { n: '89', l: lang === 'es' ? 'en cantón Aserrí' : 'across canton Aserrí', ic: window.Icon.pin(13) },
+              { n: '~12 min', l: lang === 'es' ? 'tiempo de respuesta' : 'response time', ic: window.Icon.clock(13) },
+              { n: '4.7', sub: '★', l: lang === 'es' ? 'calificación promedio' : 'average rating', ic: window.Icon.star(13) },
+            ].map((s, i) => (
+              <div key={i} style={{
+                paddingRight: !isMobile && i < 3 ? 24 : 0,
+                paddingLeft: !isMobile && i > 0 ? 24 : 0,
+                paddingBottom: isMobile && i < 2 ? 14 : 0,
+                paddingTop: isMobile && i >= 2 ? 14 : 0,
+                borderRight: !isMobile && i < 3 ? `1px solid ${theme.rule}` : 'none',
+                borderBottom: isMobile && i < 2 ? `1px solid ${theme.rule}` : 'none',
+              }}>
+                <div style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  fontSize: 10.5, color: theme.ink3, fontWeight: 600,
+                  letterSpacing: 0.5, textTransform: 'uppercase', marginBottom: 6,
+                }}>
+                  <span style={{ color: theme.brand }}>{s.ic}</span>
+                  <span style={{ fontFamily: 'JetBrains Mono, monospace' }}>0{i+1}</span>
+                </div>
+                <div style={{
+                  fontSize: isMobile ? 22 : 28, fontWeight: 600,
+                  letterSpacing: -0.8, color: theme.ink, lineHeight: 1,
+                  display: 'flex', alignItems: 'baseline', gap: 4,
+                }}>
+                  {s.n}
+                  {s.sub && <span style={{ color: theme.yellow || '#F5C242', fontSize: isMobile ? 16 : 20 }}>{s.sub}</span>}
+                </div>
+                <div style={{ fontSize: 12, color: theme.ink3, marginTop: 4, lineHeight: 1.3 }}>{s.l}</div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       <div style={{
-        maxWidth: 1180, margin: '0 auto',
-        padding: isMobile ? '20px 14px' : '32px 24px',
-        display: 'grid',
-        gridTemplateColumns: isMobile ? '1fr' : '240px 1fr',
-        gap: isMobile ? 24 : 32,
+        maxWidth: 1240, margin: '0 auto',
+        padding: isMobile ? '28px 14px 40px' : '56px 24px 64px',
       }}>
-        {/* Sidebar / mobile-bottom: distritos del cantón */}
-        <aside style={{ order: isMobile ? 2 : 0 }}>
-          <div style={{
-            fontSize: 11, color: theme.ink3,
-                        paddingBottom: 8, borderBottom: `1px solid ${theme.rule}`, marginBottom: 6,
-            fontWeight: 600,
-          }}>
-            {lang === 'es' ? 'Distritos de Aserrí' : 'Districts of Aserrí'}
-          </div>
+        {/* CATEGORÍAS — section header */}
+        <div style={{
+          display: 'flex', justifyContent: 'space-between',
+          alignItems: 'flex-end', marginBottom: 24, gap: 16,
+          flexWrap: 'wrap',
+        }}>
           <div>
-            {data.distritos.map((d, i) => (
-              <button key={d.slug} onClick={() => onNav('district', { distrito: d })} style={{
-                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                width: '100%', padding: '8px 4px',
-                background: 'transparent', border: 'none',
-                borderBottom: i < data.distritos.length - 1 ? `1px solid ${theme.ruleSoft}` : 'none',
-                fontSize: 13, fontFamily: 'inherit', cursor: 'pointer',
-                textAlign: 'left',
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              fontSize: 11, color: theme.ink3, fontWeight: 600,
+              marginBottom: 10, letterSpacing: 0.6, textTransform: 'uppercase',
+            }}>
+              <span style={{ fontFamily: 'JetBrains Mono, monospace', color: theme.brand }}>01</span>
+              <span style={{ width: 16, height: 1, background: theme.rule }}></span>
+              {lang === 'es' ? 'Categorías' : 'Categories'}
+            </div>
+            <h2 style={{
+              fontSize: isMobile ? 22 : 28, fontWeight: 600, margin: 0,
+              letterSpacing: -0.6, lineHeight: 1.1,
+              color: theme.ink,
+            }}>
+              {lang === 'es' ? '¿Qué necesitás hoy?' : 'What do you need today?'}
+            </h2>
+          </div>
+          <span style={{ fontSize: 12.5, color: theme.ink3 }}>
+            {data.categorias.length} {lang === 'es' ? 'categorías · ' : 'categories · '}
+            <strong style={{ color: theme.ink, fontWeight: 600 }}>{distrito.nombre}</strong>
+          </span>
+        </div>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(5, 1fr)',
+          gap: density === 'compact' ? 8 : 12,
+          marginBottom: isMobile ? 40 : 64,
+        }}>
+          {data.categorias.map((c) => (
+            <CategoryCard key={c.slug} theme={theme} lang={lang} cat={c} density={density} onClick={() => onNav('category', { cat: c })} />
+          ))}
+        </div>
+
+        {/* SECTION SPLIT — providers + districts */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: isMobile ? '1fr' : '1fr 280px',
+          gap: isMobile ? 32 : 40,
+        }}>
+          <div>
+            {/* Recientes */}
+            <div style={{ marginBottom: 18 }}>
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: 8,
+                fontSize: 11, color: theme.ink3, fontWeight: 600,
+                marginBottom: 10, letterSpacing: 0.6, textTransform: 'uppercase',
               }}>
-                <span style={{ color: d.slug === distrito.slug ? theme.brand : theme.ink, fontWeight: d.slug === distrito.slug ? 600 : 400 }}>{d.nombre}</span>
-                <span style={{ color: theme.ink3, fontSize: 11 }}>{d.proveedores}</span>
-              </button>
-            ))}
-          </div>
-          <div style={{
-            marginTop: 18,
-            padding: 14,
-            background: theme.brandSoft,
-            border: `1px solid ${theme.brand}`,
-            borderRadius: theme.radius,
-          }}>
-            <div style={{ fontSize: 11, color: theme.brandInk, marginBottom: 4, fontWeight: 600 }}>
-              {lang === 'es' ? '¿Sos proveedor?' : 'Are you a provider?'}
+                <span style={{ fontFamily: 'JetBrains Mono, monospace', color: theme.brand }}>02</span>
+                <span style={{ width: 16, height: 1, background: theme.rule }}></span>
+                {lang === 'es' ? 'Verificados recientemente' : 'Recently verified'}
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+                <h2 style={{
+                  fontSize: isMobile ? 22 : 28, fontWeight: 600, margin: 0,
+                  letterSpacing: -0.6, lineHeight: 1.1, color: theme.ink,
+                }}>
+                  {lang === 'es' ? 'Proveedores que responden rápido' : 'Providers who respond fast'}
+                </h2>
+                <button onClick={() => onNav('category', { cat: data.categorias[0] })} style={{
+                  fontSize: 12.5, color: theme.ink, background: 'transparent',
+                  border: `1px solid ${theme.rule}`, padding: '7px 13px', borderRadius: 999,
+                  cursor: 'pointer', fontFamily: 'inherit', fontWeight: 500,
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                }}>{t.verTodos} {window.Icon.arrow(11)}</button>
+              </div>
             </div>
-            <div style={{ fontSize: 13, color: theme.ink, lineHeight: 1.45, marginBottom: 10 }}>
-              {lang === 'es' ? 'Registrate gratis y atendé clientes de tu cantón.' : 'Register free and serve clients in your canton.'}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: density === 'compact' ? 8 : 12 }}>
+              {data.proveedores.slice(0, 4).map((p) => (
+                <ProviderCard key={p.slug} theme={theme} t={t} lang={lang} p={p} density={density}
+                  onClick={() => onNav('provider', { provider: p })}
+                  onContact={onContact}
+                />
+              ))}
             </div>
-            <button onClick={() => onNav('register')} style={{
-              background: theme.brand, color: '#fff', border: 'none',
-              padding: '8px 12px', fontSize: 12, fontWeight: 600,
-              borderRadius: theme.radius, cursor: 'pointer', fontFamily: 'inherit',
-            }}>{t.registrarme}</button>
-          </div>
-        </aside>
-
-        <div>
-          {/* Categorías */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12 }}>
-            <h2 style={{ fontSize: isMobile ? 16 : 18, fontWeight: 600, margin: 0, letterSpacing: -0.3, fontFamily: theme.fontDisplay || theme.font }}>
-              {lang === 'es' ? 'Categorías en este distrito' : 'Categories in this district'}
-            </h2>
-            <span style={{ fontSize: 11, color: theme.ink3 }}>
-              {data.categorias.length} {lang === 'es' ? 'categorías' : 'categories'}
-            </span>
-          </div>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(180px, 1fr))',
-            gap: density === 'compact' ? 8 : 12,
-            marginBottom: 32,
-          }}>
-            {data.categorias.map((c) => (
-              <CategoryCard key={c.slug} theme={theme} lang={lang} cat={c} density={density} onClick={() => onNav('category', { cat: c })} />
-            ))}
           </div>
 
-          {/* Recientes */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12 }}>
-            <h2 style={{ fontSize: isMobile ? 16 : 18, fontWeight: 600, margin: 0, letterSpacing: -0.3, fontFamily: theme.fontDisplay || theme.font }}>
-              {lang === 'es' ? 'Últimos verificados' : 'Recently verified'}
-            </h2>
-            <button onClick={() => onNav('category', { cat: data.categorias[0] })} style={{
-              fontSize: 12, color: theme.brand, background: 'transparent', border: 'none',
-              cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600,
-              display: 'inline-flex', alignItems: 'center', gap: 4,
-            }}>{t.verTodos} {window.Icon.arrow(11)}</button>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: density === 'compact' ? 8 : 10 }}>
-            {data.proveedores.slice(0, 3).map((p) => (
-              <ProviderCard key={p.slug} theme={theme} t={t} lang={lang} p={p} density={density}
-                onClick={() => onNav('provider', { provider: p })}
-                onContact={onContact}
-              />
-            ))}
-          </div>
+          {/* Sidebar — distritos + provider CTA */}
+          <aside style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{
+              background: theme.surface, border: theme.cardBorder,
+              borderRadius: theme.radiusLg, padding: 18,
+            }}>
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: 8,
+                fontSize: 11, color: theme.ink3, fontWeight: 600,
+                marginBottom: 10, letterSpacing: 0.6, textTransform: 'uppercase',
+              }}>
+                <span style={{ fontFamily: 'JetBrains Mono, monospace', color: theme.brand }}>03</span>
+                <span style={{ width: 16, height: 1, background: theme.rule }}></span>
+                {lang === 'es' ? 'Distritos de Aserrí' : 'Districts of Aserrí'}
+              </div>
+              <div>
+                {data.distritos.map((d, i) => (
+                  <button key={d.slug} onClick={() => onNav('district', { distrito: d })} style={{
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    width: '100%', padding: '10px 0',
+                    background: 'transparent', border: 'none',
+                    borderBottom: i < data.distritos.length - 1 ? `1px solid ${theme.ruleSoft}` : 'none',
+                    fontSize: 13.5, fontFamily: 'inherit', cursor: 'pointer',
+                    textAlign: 'left',
+                  }}>
+                    <span style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 8,
+                      color: d.slug === distrito.slug ? theme.brand : theme.ink,
+                      fontWeight: d.slug === distrito.slug ? 600 : 400,
+                    }}>
+                      {d.slug === distrito.slug && <span style={{ width: 6, height: 6, borderRadius: 3, background: theme.brand }}></span>}
+                      {d.nombre}
+                    </span>
+                    <span style={{
+                      fontSize: 12, color: theme.ink3,
+                      background: theme.surfaceAlt, padding: '2px 8px', borderRadius: 999,
+                    }}>{d.proveedores}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div style={{
+              padding: 20,
+              background: theme.surfaceDark || '#0E1F18',
+              borderRadius: theme.radiusLg,
+              color: '#fff',
+              position: 'relative', overflow: 'hidden',
+            }}>
+              <div style={{
+                position: 'absolute', top: -40, right: -40, width: 120, height: 120,
+                background: `radial-gradient(circle, ${theme.brandBright || theme.brand}25, transparent 70%)`,
+                borderRadius: '50%',
+              }}></div>
+              <div style={{
+                fontSize: 11, color: theme.brandBright || theme.brand, marginBottom: 8, fontWeight: 600,
+                letterSpacing: 0.5, textTransform: 'uppercase', position: 'relative',
+              }}>
+                {lang === 'es' ? 'Para proveedores' : 'For providers'}
+              </div>
+              <div style={{
+                fontSize: 18, fontWeight: 600,
+                letterSpacing: -0.3, lineHeight: 1.25, marginBottom: 10,
+                position: 'relative',
+              }}>
+                {lang === 'es' ? 'Tu cantón te busca.' : 'Your canton is looking.'}
+              </div>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,.7)', lineHeight: 1.5, marginBottom: 14, position: 'relative' }}>
+                {lang === 'es' ? 'Registrate gratis y atendé clientes verificados.' : 'Register free and serve verified clients.'}
+              </div>
+              <button onClick={() => onNav('register')} style={{
+                background: theme.brandBright || '#16C97A', color: theme.surfaceDark || '#0E1F18',
+                border: 'none', padding: '10px 16px', fontSize: 13, fontWeight: 600,
+                borderRadius: 999, cursor: 'pointer', fontFamily: 'inherit',
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                position: 'relative',
+              }}>{t.registrarme} {window.Icon.arrow(12)}</button>
+            </div>
+          </aside>
         </div>
       </div>
     </div>
