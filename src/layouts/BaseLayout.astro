@@ -62,22 +62,35 @@ const jsonLdItems = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : []
     <script is:inline>
       // ── Page progress bar ──────────────────────────────────────────────────
       ;(function () {
+        // Guard: is:inline scripts can re-run on back/forward; init only once
+        if (window._dlProg) return
+        window._dlProg = true
+
         var bar = document.getElementById('page-progress')
         if (!bar) return
 
         function start() {
-          bar.className = ''
-          // Force reflow so the transition from 0% triggers
-          bar.getBoundingClientRect()
-          bar.classList.add('is-loading')
+          // Phase 1: instant snap to 8% — visible even if page loads in 50ms
+          bar.className = 'is-start'
+          void bar.offsetWidth // force reflow so phase-2 transition fires from here
+          // Phase 2: slow creep toward 85%
+          bar.className = 'is-loading'
         }
 
         function finish() {
-          bar.classList.remove('is-loading')
-          bar.classList.add('is-done')
-          bar.addEventListener('transitionend', function reset() {
-            bar.className = ''
-            bar.removeEventListener('transitionend', reset)
+          bar.className = 'is-done'
+          bar.addEventListener('transitionend', function onEnd(e) {
+            // Wait for the opacity fade to complete before resetting
+            if (e.propertyName === 'opacity') {
+              bar.className = ''
+              bar.removeEventListener('transitionend', onEnd)
+            }
+          })
+          // Clean up any lingering submit-button spinners
+          document.querySelectorAll('.btn-loading').forEach(function (btn) {
+            btn.classList.remove('btn-loading')
+            var sp = btn.querySelector('.btn-spinner')
+            if (sp) sp.remove()
           })
         }
 
@@ -90,7 +103,6 @@ const jsonLdItems = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : []
           var form = event.target
           if (!form || form.method?.toLowerCase() === 'get') return
           start()
-          // Add spinner to submit button
           var btn = form.querySelector('[type="submit"]')
           if (btn && !btn.classList.contains('btn-loading')) {
             btn.classList.add('btn-loading')

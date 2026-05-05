@@ -6,6 +6,17 @@ interface Props {
 }
 
 const { items } = Astro.props
+
+// JSON-LD needs absolute URLs (passed via breadcrumbJsonLd), but <a href> must
+// use only the pathname so links work in dev, staging, and production without
+// hardcoding the origin.
+function toPath(url: string): string {
+  try {
+    return new URL(url).pathname
+  } catch {
+    return url
+  }
+}
 ---
 
 <nav class="font-mono text-[11px] font-semibold uppercase tracking-[0.5px] text-ink-3" aria-label="Breadcrumb">
@@ -14,7 +25,7 @@ const { items } = Astro.props
       items.map((item, index) => (
         <li class="flex items-center gap-2">
           {index > 0 && <span class="opacity-50" aria-hidden="true">/</span>}
-          <a class={index === items.length - 1 ? 'text-ink no-underline' : 'text-ink-3 no-underline hover:text-canopy'} href={item.url}>
+          <a class={index === items.length - 1 ? 'text-ink no-underline' : 'text-ink-3 no-underline hover:text-canopy'} href={toPath(item.url)}>
             {item.name}
           </a>
         </li>

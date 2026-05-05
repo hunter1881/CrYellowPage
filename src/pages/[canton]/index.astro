@@ -4,7 +4,7 @@ import StatsStrip from '@components/directory/StatsStrip.astro'
 import Breadcrumbs from '@components/seo/Breadcrumbs.astro'
 import BaseLayout from '@layouts/BaseLayout.astro'
 import { getCategoriesByDistrictId } from '@lib/queries/categories'
-import { getCantonBySlug, getCantonStaticPaths, getDistrictsByCantonId } from '@lib/queries/geography'
+import { getCantonBySlug, getCantonStaticPathsAll, getDistrictsByCantonId } from '@lib/queries/geography'
 import { getProviderCountByDistrictIds } from '@lib/queries/providers'
 import { absoluteUrl } from '@lib/site'
 import { breadcrumbJsonLd } from '@lib/seo/breadcrumb'
@@ -13,7 +13,7 @@ import { placeJsonLd } from '@lib/seo/place'
 export const prerender = true
 
 export async function getStaticPaths() {
-  return getCantonStaticPaths()
+  return getCantonStaticPathsAll()
 }
 
 const cantonSlug = Astro.params.canton ?? ''

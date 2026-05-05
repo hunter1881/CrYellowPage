@@ -149,6 +149,52 @@ export async function getCantonStaticPaths(): Promise<Array<{ params: { canton: 
     .map((canton) => ({ params: { canton: canton.slug } }))
 }
 
+/**
+ * Static paths for CANTON landing pages — all cantons that exist in the DB.
+ * No provider filter: a canton page must exist regardless of whether it has
+ * verified providers yet (it shows an empty-state or district list).
+ */
+export async function getCantonStaticPathsAll(): Promise<Array<{ params: { canton: string } }>> {
+  if (!isSupabaseConfigured) {
+    return [{ params: { canton: mockCanton.slug } }]
+  }
+
+  const cantons = await getCantons()
+  return cantons.map((canton) => ({ params: { canton: canton.slug } }))
+}
+
+/**
+ * Static paths for DISTRICT landing pages — all districts that exist in the DB.
+ * No provider filter: a district page must exist for every district so the
+ * geographic hierarchy is navigable even before providers are added.
+ */
+export async function getDistrictStaticPathsAll(): Promise<
+  Array<{ params: { canton: string; distrito: string } }>
+> {
+  if (!isSupabaseConfigured) {
+    return mockDistricts.map((district) => ({
+      params: { canton: mockCanton.slug, distrito: district.slug },
+    }))
+  }
+
+  const [cantons, districtsResult] = await Promise.all([
+    getCantons(),
+    supabase.from('districts').select('id, canton_id, slug'),
+  ])
+
+  if (districtsResult.error) {
+    logger.error('getDistrictStaticPathsAll', { error: districtsResult.error })
+    return []
+  }
+
+  const cantonSlugById = new Map(cantons.map((canton) => [canton.id, canton.slug]))
+
+  return (districtsResult.data ?? []).flatMap((district) => {
+    const cantonSlug = cantonSlugById.get(district.canton_id)
+    return cantonSlug ? [{ params: { canton: cantonSlug, distrito: district.slug } }] : []
+  })
+}
+
 export async function getDistrictStaticPaths(): Promise<
   Array<{ params: { canton: string; distrito: string } }>
 > {

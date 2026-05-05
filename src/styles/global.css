@@ -131,24 +131,31 @@
     height: 2px;
     width: 0%;
     background: #0e5a3f;
-    transition:
-      width 200ms ease,
-      opacity 300ms ease;
+    opacity: 0;
     pointer-events: none;
+    /* No default transition — JS controls each phase */
   }
 
+  /* Phase 1: instant snap so even 50ms navigations show feedback */
+  #page-progress.is-start {
+    opacity: 1;
+    width: 8%;
+  }
+
+  /* Phase 2: slow creep from 8% → 85% */
   #page-progress.is-loading {
     opacity: 1;
     width: 85%;
-    transition: width 8s cubic-bezier(0.1, 0.05, 0, 1);
+    transition: width 8s cubic-bezier(0.04, 0.6, 0.15, 0.98);
   }
 
+  /* Phase 3: complete and fade */
   #page-progress.is-done {
     opacity: 0;
     width: 100%;
     transition:
-      width 100ms ease,
-      opacity 400ms ease 150ms;
+      width 150ms ease-out,
+      opacity 350ms ease 150ms;
   }
 
   /* ── Button loading spinner ── */

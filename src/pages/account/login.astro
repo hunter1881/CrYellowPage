@@ -29,7 +29,8 @@ if (Astro.request.method === 'POST') {
   if (!email || !email.includes('@')) {
     errorMessage = 'Ingresá un correo electrónico válido.'
   } else {
-    const redirectTo = absoluteUrl('/account/', Astro.site)
+    // Use the current request's origin so the link works in dev, staging, and prod
+    const redirectTo = new URL('/account/', Astro.url.origin).href
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: { emailRedirectTo: redirectTo },

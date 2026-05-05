@@ -1,12 +1,13 @@
 ---
 import CategoryGrid from '@components/directory/CategoryGrid.astro'
 import DistrictLinkList from '@components/directory/DistrictLinkList.astro'
+import EmptyState from '@components/directory/EmptyState.astro'
 import ProviderSignupCard from '@components/directory/ProviderSignupCard.astro'
 import StatsStrip from '@components/directory/StatsStrip.astro'
 import Breadcrumbs from '@components/seo/Breadcrumbs.astro'
 import BaseLayout from '@layouts/BaseLayout.astro'
 import { getCategoriesWithCountsByDistrictId } from '@lib/queries/categories'
-import { getDistrictBySlugs, getDistrictsByCantonId, getDistrictStaticPaths } from '@lib/queries/geography'
+import { getDistrictBySlugs, getDistrictsByCantonId, getDistrictStaticPathsAll } from '@lib/queries/geography'
 import { absoluteUrl } from '@lib/site'
 import { breadcrumbJsonLd } from '@lib/seo/breadcrumb'
 import { placeJsonLd } from '@lib/seo/place'
@@ -14,7 +15,7 @@ import { placeJsonLd } from '@lib/seo/place'
 export const prerender = true
 
 export async function getStaticPaths() {
-  return getDistrictStaticPaths()
+  return getDistrictStaticPathsAll()
 }
 
 const cantonSlug = Astro.params.canton ?? ''
@@ -86,9 +87,17 @@ const introEs = `Seleccione una categoría para comparar proveedores verificados
     <div class="order-1 md:order-2">
       <div class="mb-4 flex items-baseline justify-between">
         <h2 class="text-xl font-semibold tracking-[-0.3px]">Categorías en este distrito</h2>
-        <span class="civic-meta">{categories.length} categorías</span>
+        {categories.length > 0 && <span class="civic-meta">{categories.length} categorías</span>}
       </div>
-      <CategoryGrid categories={categories} basePath={`/${district.canton.slug}/${district.slug}`} />
+      {categories.length > 0 ? (
+        <CategoryGrid categories={categories} basePath={`/${district.canton.slug}/${district.slug}`} />
+      ) : (
+        <EmptyState
+          titleEs={`Aún no hay categorías en ${district.name}`}
+          bodyEs={`Este distrito todavía está creciendo. Si ofrece un servicio en ${district.name}, puede registrar su negocio y aparecer aquí.`}
+          actionHref="/register-provider"
+        />
+      )}
 
       <div class="mt-8 rounded-civic border border-rule bg-surface-alt p-5">
         <p class="civic-meta">Distritos cercanos</p>
