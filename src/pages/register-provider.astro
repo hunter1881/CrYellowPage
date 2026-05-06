@@ -2,7 +2,7 @@
 import { actions, isInputError } from 'astro:actions'
 import Alert from '@components/ui/Alert.astro'
 import ProviderRegistrationForm from '@components/directory/ProviderRegistrationForm.astro'
-import BaseLayout from '@layouts/BaseLayout.astro'
+import DirectoryLayout from '@layouts/DirectoryLayout.astro'
 import { getCategories } from '@lib/queries/categories'
 import { getCantonsWithDistricts } from '@lib/queries/geography'
 import { getPaymentMethods } from '@lib/queries/paymentMethods'
@@ -17,22 +17,15 @@ const result = Astro.getActionResult(actions.registerProvider)
 const inputErrors = isInputError(result?.error) ? result.error.fields : {}
 ---
 
-<BaseLayout
+<DirectoryLayout
   title="Registrar proveedor | DirectorioLocal CR"
   description="Registre su negocio local para aparecer en DirectorioLocal CR por cantón, distrito y categoría."
   canonical={canonical}
+  meta={t('register.forProviders')}
+  heading={t('register.title')}
+  intro={t('register.subheading')}
+  headerPy="py-8"
 >
-  <section class="border-b border-rule bg-surface">
-    <div class="mx-auto max-w-6xl px-4 py-8 md:px-6">
-      <p class="civic-meta">{t('register.forProviders')}</p>
-      <h1 class="mt-2 max-w-3xl text-3xl font-semibold leading-tight tracking-[-0.6px] text-ink md:text-[40px]">
-        {t('register.title')}
-      </h1>
-      <p class="mt-3 max-w-2xl text-sm leading-6 text-ink-2">
-        {t('register.subheading')}
-      </p>
-    </div>
-  </section>
 
   <section class="mx-auto grid max-w-6xl gap-6 px-4 py-8 md:grid-cols-[1fr_320px] md:px-6">
     <div>
@@ -60,4 +53,4 @@ const inputErrors = isInputError(result?.error) ? result.error.fields : {}
       </div>
     </aside>
   </section>
-</BaseLayout>
+</DirectoryLayout>

@@ -2,6 +2,7 @@
 import EmptyState from '@components/directory/EmptyState.astro'
 import FilterPanel from '@components/directory/FilterPanel.astro'
 import ProviderCard from '@components/directory/ProviderCard.astro'
+import PillLink from '@components/ui/PillLink.astro'
 import Breadcrumbs from '@components/seo/Breadcrumbs.astro'
 import BaseLayout from '@layouts/BaseLayout.astro'
 import { getCategoriesByDistrictId, getCategoryBySlug } from '@lib/queries/categories'
@@ -156,12 +157,9 @@ const intro = tpl('listing.intro', { district: district.name, canton: district.c
               <div class="flex flex-wrap items-center gap-2">
                 <span class="civic-meta shrink-0">{t('district.nearbySectionHeading')}:</span>
                 {nearbyDistrictLinks.map((nearbyDistrict) => (
-                  <a
-                    class="shrink-0 rounded-full border border-rule bg-surface px-3 py-1.5 text-xs font-semibold text-ink-2 no-underline hover:border-canopy hover:text-canopy"
-                    href={`/${district.canton.slug}/${nearbyDistrict.slug}/`}
-                  >
+                  <PillLink href={`/${district.canton.slug}/${nearbyDistrict.slug}/`}>
                     {nearbyDistrict.name}
-                  </a>
+                  </PillLink>
                 ))}
               </div>
             )}
@@ -169,12 +167,9 @@ const intro = tpl('listing.intro', { district: district.name, canton: district.c
               <div class="flex flex-wrap items-center gap-2">
                 <span class="civic-meta shrink-0">{t('listing.relatedHeading')}:</span>
                 {relatedCategoryLinks.map((relatedCategory) => (
-                  <a
-                    class="shrink-0 rounded-full border border-rule bg-surface px-3 py-1.5 text-xs font-semibold text-ink-2 no-underline hover:border-canopy hover:text-canopy"
-                    href={`/${district.canton.slug}/${district.slug}/${relatedCategory.slug}/`}
-                  >
+                  <PillLink href={`/${district.canton.slug}/${district.slug}/${relatedCategory.slug}/`}>
                     {relatedCategory.name}
-                  </a>
+                  </PillLink>
                 ))}
               </div>
             )}

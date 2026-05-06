@@ -6,31 +6,64 @@ interface Props {
   cantonSlug: string
   districts: District[]
   activeDistrictSlug?: string
+  cantonName?: string
+  counts?: Map<string, number>
 }
 
-const { cantonSlug, districts, activeDistrictSlug } = Astro.props
+const { cantonSlug, districts, activeDistrictSlug, cantonName, counts } = Astro.props
 ---
 
-<div>
-  <div class="civic-meta border-b border-rule pb-2">
-    {t('district.listHeading')}
+<div class="rounded-civic-lg border border-rule bg-surface shadow-civic">
+  <div class="px-[18px] pt-[18px]">
+    {cantonName && (
+      <div class="mb-2.5 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.6px] text-ink-3">
+        <span class="text-canopy" style="font-family: ui-monospace, monospace;">03</span>
+        <span class="h-px w-4 bg-rule"></span>
+        {t('district.listHeading')} · {cantonName}
+      </div>
+    )}
+    {!cantonName && (
+      <div class="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.6px] text-ink-3">
+        {t('district.listHeading')}
+      </div>
+    )}
   </div>
-  <div class="divide-y divide-rule-soft">
+  <div class="px-[18px] pb-[18px]">
     {
-      districts.map((district) => (
+      districts.map((district, i) => (
         <a
           class:list={[
-            'flex items-center justify-between gap-3 py-3 text-sm no-underline',
-            district.slug === activeDistrictSlug ? 'font-semibold text-canopy' : 'text-ink hover:text-canopy',
+            'district-lnk flex items-center justify-between py-2.5 no-underline transition-colors',
+            i < districts.length - 1 ? 'border-b border-rule-soft' : '',
+            district.slug === activeDistrictSlug ? 'font-semibold' : '',
           ]}
+          style={district.slug === activeDistrictSlug ? 'color: #0E5A3F;' : ''}
           href={`/${cantonSlug}/${district.slug}/`}
         >
-          <span>{district.name}</span>
-          <span class="font-mono text-[11px] uppercase tracking-[0.5px] text-ink-3">
-            {t('district.view')}
-          </span>
+          {district.slug === activeDistrictSlug && (
+            <span class="mr-2 inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full bg-canopy"></span>
+          )}
+          <span class="flex-1 text-[13.5px] text-ink">{district.name}</span>
+          {counts !== undefined ? (
+            <span class="ml-2 rounded-full px-2 py-0.5 text-[12px] text-ink-3" style="background: #EBE8DD;">
+              {counts.get(district.id) ?? 0}
+            </span>
+          ) : (
+            <span class="text-[11px] uppercase tracking-[0.5px] text-ink-3" style="font-family: ui-monospace, monospace;">
+              {t('district.view')}
+            </span>
+          )}
         </a>
       ))
     }
   </div>
 </div>
+
+<style>
+  .district-lnk:not([style*='color']) span.flex-1 {
+    color: #0A0F0C;
+  }
+  .district-lnk:hover span.flex-1 {
+    color: #0E5A3F;
+  }
+</style>

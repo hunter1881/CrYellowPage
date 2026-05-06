@@ -1,0 +1,67 @@
+---
+/**
+ * Layout for directory pages (canton, district, listing, register).
+ * Wraps BaseLayout and renders the standard page header automatically.
+ * The main content goes into <slot />.
+ */
+import BaseLayout from '@layouts/BaseLayout.astro'
+import PageHeader from '@components/layout/PageHeader.astro'
+import type { BreadcrumbItem } from '@lib/seo/breadcrumb'
+
+interface StatItem {
+  label: string
+  value: string | number
+}
+
+interface Props {
+  // BaseLayout props
+  title: string
+  description: string
+  canonical: string
+  jsonLd?: unknown | unknown[]
+  image?: string
+  locationLabel?: string
+
+  // PageHeader props
+  breadcrumbs?: BreadcrumbItem[]
+  meta: string
+  heading: string
+  intro: string
+  stats?: StatItem[]
+  headerPy?: string
+}
+
+const {
+  title,
+  description,
+  canonical,
+  jsonLd,
+  image,
+  locationLabel,
+  breadcrumbs,
+  meta,
+  heading,
+  intro,
+  stats,
+  headerPy,
+} = Astro.props
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  jsonLd={jsonLd}
+  image={image}
+  locationLabel={locationLabel}
+>
+  <PageHeader
+    breadcrumbs={breadcrumbs}
+    meta={meta}
+    heading={heading}
+    intro={intro}
+    stats={stats}
+    py={headerPy}
+  />
+  <slot />
+</BaseLayout>

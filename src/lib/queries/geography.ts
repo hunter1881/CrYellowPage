@@ -130,7 +130,9 @@ export async function getCantonStaticPaths(): Promise<Array<{ params: { canton: 
     return []
   }
 
-  const districtIds = [...new Set((providers ?? []).map((provider) => provider.district_id))]
+  const districtIds = [...new Set(
+    (providers ?? []).map((provider) => provider.district_id).filter((id): id is string => id !== null)
+  )]
   if (districtIds.length === 0) return []
 
   const { data: districts, error: districtsError } = await supabase
@@ -217,7 +219,9 @@ export async function getDistrictStaticPaths(): Promise<
     return []
   }
 
-  const districtIds = [...new Set((providers ?? []).map((provider) => provider.district_id))]
+  const districtIds = [...new Set(
+    (providers ?? []).map((provider) => provider.district_id).filter((id): id is string => id !== null)
+  )]
   if (districtIds.length === 0) return []
 
   const [cantons, districtsResult] = await Promise.all([
@@ -289,7 +293,7 @@ export async function getFirstActiveDistrict(): Promise<DistrictWithCanton | nul
   const { data: district, error: districtError } = await supabase
     .from('districts')
     .select('id, canton_id, name, slug')
-    .eq('id', providerRow.district_id)
+    .eq('id', providerRow.district_id!)
     .maybeSingle()
 
   if (districtError) {

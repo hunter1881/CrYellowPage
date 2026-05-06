@@ -50,7 +50,7 @@ const districtsLabel = (count: number) =>
   canonical={canonical}
   jsonLd={jsonLd}
 >
-  <section class="border-b border-rule bg-surface">
+  <section class="border-b border-rule bg-surface-alt">
     <div class="mx-auto max-w-6xl px-4 py-8 md:px-6 md:py-12">
       <h1 class="mb-5 text-3xl font-bold leading-tight tracking-[-0.6px] text-ink md:text-[42px]">
         {t('home.tagline')}
@@ -111,19 +111,22 @@ const districtsLabel = (count: number) =>
         // Re-render district list for the selected canton
         const aside = document.getElementById('home-district-aside')
         const i18nHeading = aside?.dataset.i18nHeading ?? ''
-        const i18nView = aside?.dataset.i18nView ?? ''
-        const heading = `<div class="civic-meta border-b border-rule pb-2">${i18nHeading}</div>`
-        const links = canton.districts.map((d) => {
+        const links = canton.districts.map((d, i) => {
           const active = d.slug === opt.ds
-          const cls = active
-            ? 'flex items-center justify-between gap-3 py-3 text-sm no-underline font-semibold text-canopy'
-            : 'flex items-center justify-between gap-3 py-3 text-sm no-underline text-ink hover:text-canopy'
-          return `<a class="${cls}" href="/${canton.slug}/${d.slug}/">
-            <span>${d.name}</span>
-            <span class="font-mono text-[11px] uppercase tracking-[0.5px] text-ink-3">${i18nView}</span>
+          const border = i < canton.districts.length - 1 ? 'border-b border-rule-soft' : ''
+          const activeStyle = active ? 'color:#0E5A3F;' : ''
+          const dot = active ? '<span class="mr-2 inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full bg-canopy"></span>' : ''
+          return `<a class="district-lnk flex items-center py-2.5 no-underline transition-colors ${border}" style="${activeStyle}" href="/${canton.slug}/${d.slug}/">
+            ${dot}<span class="flex-1 text-[13.5px] text-ink">${d.name}</span>
+            <span class="ml-2 font-mono text-[11px] uppercase tracking-[0.5px] text-ink-3" style="font-family:ui-monospace,monospace;">ver</span>
           </a>`
         }).join('')
-        listContainer.innerHTML = `<div>${heading}<div class="divide-y divide-rule-soft">${links}</div></div>`
+        const eyebrow = `<div class="mb-2.5 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.6px] text-ink-3">
+          <span class="text-canopy" style="font-family:ui-monospace,monospace;">03</span>
+          <span class="h-px w-4 bg-rule" style="display:inline-block;height:1px;width:16px;background:#DDD9CC;"></span>
+          ${i18nHeading} · ${canton.name}
+        </div>`
+        listContainer.innerHTML = `<div class="rounded-civic-lg border border-rule bg-surface shadow-civic"><div class="px-[18px] pt-[18px]">${eyebrow}</div><div class="px-[18px] pb-[18px]">${links}</div></div>`
       })
     </script>
 

@@ -1,5 +1,4 @@
 ---
-import Button from '@components/ui/Button.astro'
 import { t } from '@lib/i18n'
 
 interface Props {
@@ -10,14 +9,37 @@ const { compact = false } = Astro.props
 ---
 
 <aside id="provider-signup" class={compact ? '' : 'order-2 md:order-1'}>
-  <div class="civic-meta border-b border-rule pb-2">{t('signup.forProviders')}</div>
-  <div class="mt-4 rounded-civic border border-canopy bg-canopy-soft p-4">
-    <p class="civic-meta text-canopy-ink">{t('signup.question')}</p>
-    <p class="mt-2 text-sm leading-6 text-ink-2">
+  <div
+    class="relative overflow-hidden rounded-civic-lg p-5 text-white"
+    style="background: #0E1F18;"
+  >
+    {/* Radial glow accent */}
+    <div
+      class="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full"
+      style="background: radial-gradient(circle, #16C97A25, transparent 70%);"
+    ></div>
+
+    <div
+      class="relative mb-2 text-[11px] font-semibold uppercase tracking-[0.5px]"
+      style="color: #16C97A;"
+    >
+      {t('signup.forProviders')}
+    </div>
+    <p class="relative mb-2.5 text-[18px] font-semibold leading-tight tracking-[-0.3px]">
+      {t('signup.question')}
+    </p>
+    <p class="relative mb-4 text-[13px] leading-normal" style="color: rgba(255,255,255,.7);">
       {t('signup.description')}
     </p>
-    <Button variant="primary" href="/register-provider/" class="mt-4">
+    <a
+      href="/register-provider/"
+      class="relative inline-flex items-center gap-1.5 rounded-full px-4 py-2.5 text-[13px] font-semibold no-underline transition-opacity hover:opacity-90"
+      style="background: #16C97A; color: #0E1F18;"
+    >
       {t('signup.cta')}
-    </Button>
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+        <path d="M2.5 6h7m-3-3 3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
   </div>
 </aside>
