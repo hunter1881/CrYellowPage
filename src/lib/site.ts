@@ -1,4 +1,4 @@
-export const siteName = 'DirectorioLocal CR'
+export const siteName = 'El Contactico'
 export const defaultDescription =
   'Encuentre proveedores locales verificados por cantón, distrito y categoría en Costa Rica.'
 export const defaultDescriptionEn =
@@ -17,6 +17,6 @@ export const defaultDescriptionEn =
  * This function should only be used for canonical URLs and JSON-LD.
  */
 export function absoluteUrl(path: string, site: URL | undefined): string {
-  const base = site?.href ?? import.meta.env.PUBLIC_SITE_URL ?? 'https://directoriolocal.cr'
+  const base = site?.href ?? import.meta.env.PUBLIC_SITE_URL ?? 'https://elcontactico.cr'
   return new URL(path, base).href
 }

@@ -106,7 +106,7 @@ function Header({ theme, t, lang, onLang, onNav, onMenuOpen, current, isMobile }
             letterSpacing: -0.3,
             lineHeight: 1.1,
             fontFamily: theme.fontDisplay || theme.font,
-          }}>DirectorioLocal<span style={{ color: theme.brand }}>.cr</span></div>
+          }}>El Contactico</div>
         </a>
         <div style={{ flex: 1 }} />
         {!isMobile && (
@@ -665,7 +665,7 @@ function Footer({ theme, lang }) {
     }}>
       <div style={{ maxWidth: 1180, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 24 }}>
         <div>
-          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 6, color: theme.ink, fontFamily: theme.fontDisplay || theme.font }}>DirectorioLocal.cr</div>
+          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 6, color: theme.ink, fontFamily: theme.fontDisplay || theme.font }}>El Contactico</div>
           <div style={{ fontSize: 12, color: theme.ink3, lineHeight: 1.5 }}>
             {lang === 'es' ? 'El directorio de servicios verificados de Costa Rica, organizado por cantón y distrito.' : 'Costa Rica\'s verified services directory, organized by canton and district.'}
           </div>
@@ -696,7 +696,7 @@ function Footer({ theme, lang }) {
         </div>
       </div>
       <div style={{ borderTop: `1px solid ${theme.rule}`, marginTop: 24, paddingTop: 16, fontSize: 12, color: theme.ink3, display: 'flex', justifyContent: 'space-between' }}>
-        <span>© 2026 DirectorioLocal.cr</span>
+        <span>© 2026 El Contactico</span>
         <span>{lang === 'es' ? 'Hecho en Costa Rica 🇨🇷' : 'Made in Costa Rica 🇨🇷'}</span>
       </div>
     </footer>

@@ -1,4 +1,4 @@
-# QA system — DirectorioLocal CR
+# QA system — El Contactico
 
 Persistent test artifacts for the `qa-tester` agent. The agent (defined in `.claude/agents/qa-tester.md`, `.github/agents/qa-tester.agent.md`, `.agents/agents/qa-tester.toml`) reads from this folder, runs tests against the live dev/preview site using Playwright MCP and Chrome DevTools MCP, and writes results back here.
 

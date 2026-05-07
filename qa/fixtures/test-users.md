@@ -14,7 +14,7 @@ Never paste real production credentials here. This file is committed to the repo
 
 | Field | Value |
 |---|---|
-| Email | `qa-provider@directoriolocal.test` |
+| Email | `qa-provider@elcontactico.test` |
 | Auth | Magic link (no password) |
 | `auth.users.id` | _(filled after first sign-up)_ |
 | Provider name | "QA Test Provider" |
@@ -27,7 +27,7 @@ Never paste real production credentials here. This file is committed to the repo
 
 | Field | Value |
 |---|---|
-| Email | `qa-pending@directoriolocal.test` |
+| Email | `qa-pending@elcontactico.test` |
 | Auth | Magic link |
 | Provider name | "QA Pending Application" |
 | District | `vuelta-de-jorco` |
@@ -38,7 +38,7 @@ Never paste real production credentials here. This file is committed to the repo
 
 | Field | Value |
 |---|---|
-| Email | `qa-reviewer@directoriolocal.test` |
+| Email | `qa-reviewer@elcontactico.test` |
 | Auth | Magic link |
 | Notes | Used for review-submission tests. Should NOT be able to read other users' draft providers (RLS test). |
 

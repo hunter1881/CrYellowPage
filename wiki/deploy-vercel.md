@@ -101,12 +101,12 @@ npx vercel --prod
 
 ## Dominio personalizado
 
-Cuando se quiera cambiar a `directoriolocal.cr`:
+Cuando se quiera cambiar a `elcontactico.cr`:
 
 1. Vercel Dashboard → Settings → Domains
-2. Agregar `directoriolocal.cr`
+2. Agregar `elcontactico.cr`
 3. Configurar los DNS en el registrador:
    - `A` record: `76.76.21.21`
    - `CNAME www`: `cname.vercel-dns.com`
-4. Actualizar `PUBLIC_SITE_URL` a `https://directoriolocal.cr`
+4. Actualizar `PUBLIC_SITE_URL` a `https://elcontactico.cr`
 5. Redeploy para que Astro use la nueva `site` config

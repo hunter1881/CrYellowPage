@@ -3,7 +3,7 @@ name: astro-seo
 description: SEO templates and patterns for Astro pages in this directory. Use me when creating or editing pages that need meta tags, JSON-LD, or structured data.
 ---
 
-# SEO templates for DirectorioLocal CR
+# SEO templates for El Contactico
 
 ## Base layout with SEO (src/layouts/BaseLayout.astro)
 ```astro

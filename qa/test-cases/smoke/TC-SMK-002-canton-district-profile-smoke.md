@@ -49,7 +49,7 @@ Walk all three pre-rendered page types (canton landing, district landing, provid
 
 ### Expected
 - HTTP 200, no redirect
-- `<title>` mentions "Aserrí" and "DirectorioLocal", < 60 chars
+- `<title>` mentions "Aserírí" and "El Contactico", < 60 chars
 - `<meta name="description">` present, 50–160 chars, mentions Aserrí
 - `<link rel="canonical">` equals `http://localhost:4321/aserri/` (or production domain on preview)
 - Exactly one `<h1>`; text contains "Aserrí"

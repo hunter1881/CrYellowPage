@@ -114,7 +114,7 @@ async function handleIncomingMessage(fromPhone: string, body: string): Promise<v
     const code = await createPhoneOtp(provider.id, provider.phone)
     await sendWhatsAppText(
       fromPhone,
-      `¡Hola! Tu código de verificación para DirectorioLocal CR es:\n\n*${code}*\n\nVálido por 10 minutos. No lo compartas.`,
+      `¡Hola! Tu código de verificación para El Contactico es:\n\n*${code}*\n\nVálido por 10 minutos. No lo compartas.`,
     )
   } catch (err) {
     logger.error('whatsapp.webhook.handleIncomingMessage', { providerId, error: String(err) })

@@ -1,4 +1,4 @@
-// Sistema de diseño - 3 direcciones visuales para DirectorioLocal CR
+// Sistema de diseño - 3 direcciones visuales para El Contactico
 // A. Civic directory · B. Friendly marketplace · C. Premium verified
 
 window.THEMES = {

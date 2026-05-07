@@ -1,4 +1,4 @@
-# Wiki — DirectorioLocal CR
+# Wiki — El Contactico
 
 Documentación técnica del proyecto. Léela antes de hacer cambios grandes o si hay que reconstruir algo desde cero.
 

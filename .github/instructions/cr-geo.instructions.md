@@ -2,7 +2,7 @@
 applyTo: "src/lib/slug.ts,src/lib/queries/geography.ts,supabase/seed.sql,supabase/migrations/**"
 ---
 
-# Costa Rica geography for DirectorioLocal
+# Costa Rica geography for El Contactico
 
 ## Slug format
 - No accents, no ñ, no special characters

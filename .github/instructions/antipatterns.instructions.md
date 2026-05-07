@@ -3,7 +3,7 @@ applyTo: "**"
 description: "Antipatterns to never introduce — concrete before/after examples"
 ---
 
-# Antipatterns — DirectorioLocal CR
+# Antipatterns — El Contactico
 
 Concrete patterns to **never** introduce. Each entry shows the ❌ wrong pattern and the ✅ correct pattern. Use as a checklist during code review.
 

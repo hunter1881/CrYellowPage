@@ -1,4 +1,4 @@
-# CrYellowPage / DirectorioLocal CR
+# CrYellowPage / El Contactico
 
 Hyperlocal services directory for Costa Rica, built to index providers by province, canton, district, and service category.
 

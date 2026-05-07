@@ -3,7 +3,7 @@ name: cr-geo
 description: Costa Rica geographic data, official INEC seed generation, administrative hierarchy, and location slugs. Use me when working with locations, URL slugs, geography migrations, seed data, or canton/district routing.
 ---
 
-# Costa Rica geography for DirectorioLocal
+# Costa Rica geography for El Contactico
 
 ## Administrative model
 

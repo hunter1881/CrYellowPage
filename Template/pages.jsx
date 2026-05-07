@@ -809,7 +809,7 @@ function ProviderPage({ theme, t, lang, isMobile, p, onNav, onContact }) {
               {p.finSemana && <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>{window.Icon.check(11)} {lang === 'es' ? 'Atiende fines de semana' : 'Open weekends'}</div>}
             </div>
             <div style={{ marginTop: 12, fontSize: 11, color: theme.ink3, lineHeight: 1.5, paddingTop: 10, borderTop: `1px solid ${theme.ruleSoft}` }}>
-              {lang === 'es' ? 'Identidad confirmada por DirectorioLocal el 14/03/2025.' : 'Identity confirmed by DirectorioLocal on 03/14/2025.'}
+              {lang === 'es' ? 'Identidad confirmada por El Contactico el 14/03/2025.' : 'Identity confirmed by El Contactico on 03/14/2025.'}
             </div>
           </div>
           <button style={{

@@ -1,4 +1,4 @@
-# Architecture rules — DirectorioLocal CR
+# Architecture rules — El Contactico
 
 This is the source of truth for architectural decisions. All other agent and rule files defer to this when there's any conflict. Verified against current Astro 6 and Supabase docs (2026).
 

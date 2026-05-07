@@ -1,4 +1,4 @@
-# Master test plan — DirectorioLocal CR
+# Master test plan — El Contactico
 
 This is the **coverage matrix**. The `qa-tester` agent reads this file before any run to know what's already covered, what's missing, and what's risky.
 

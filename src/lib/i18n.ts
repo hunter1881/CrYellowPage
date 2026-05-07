@@ -97,7 +97,7 @@ export const ui = {
   'contact.servesArea': 'Atiende esta zona',
   'contact.acceptsSinpe': 'Acepta SINPE Móvil',
   'contact.worksWeekends': 'Atiende fines de semana',
-  'contact.disclaimer': 'Identidad confirmada por DirectorioLocal. Verifique precio y disponibilidad directamente con el proveedor.',
+  'contact.disclaimer': 'Identidad confirmada por El Contactico. Verifique precio y disponibilidad directamente con el proveedor.',
   'contact.report': 'Reportar información',
 
   // ─── Sticky contact bar ───────────────────────────────────────────────────
@@ -243,7 +243,7 @@ export const ui = {
   'footer.report': 'Reportar',
   'footer.madeIn': 'Hecho en Costa Rica',
   'footer.tagline': 'El directorio de servicios verificados de Costa Rica, organizado por cantón y distrito.',
-  'footer.copyright': '© 2026 DirectorioLocal.cr',
+  'footer.copyright': '© 2026 El Contactico',
 
   // ─── Nav breadcrumbs ──────────────────────────────────────────────────────
   'nav.home': 'Inicio',
@@ -281,7 +281,7 @@ export const ui = {
   'canton.district': 'distrito',
   'canton.districtsCount': 'distritos',
   'canton.aboutPrefix': 'Sobre',
-  'canton.aboutBody': '{name} agrupa comunidades con necesidades distintas de servicios del hogar y mantenimiento. DirectorioLocal organiza la búsqueda por distrito para que cada proveedor aparezca donde realmente atiende.',
+  'canton.aboutBody': '{name} agrupa comunidades con necesidades distintas de servicios del hogar y mantenimiento. El Contactico organiza la búsqueda por distrito para que cada proveedor aparezca donde realmente atiende.',
 
   // ─── District landing page ────────────────────────────────────────────────
   'district.pageTitle': 'Servicios locales en {name}, {canton}',
@@ -408,7 +408,7 @@ export function tpl(key: UiKey, vars: Record<string, string | number>): string {
 //   'contact.servesArea': 'Serves this area',
 //   'contact.acceptsSinpe': 'Accepts SINPE Movil',
 //   'contact.worksWeekends': 'Works weekends',
-//   'contact.disclaimer': 'Identity confirmed by DirectorioLocal. Confirm price and availability directly with the provider.',
+//   'contact.disclaimer': 'Identity confirmed by El Contactico. Confirm price and availability directly with the provider.',
 //   'contact.report': 'Report information',
 //   'sticky.call': 'Call',
 //   'signup.forProviders': 'For providers',

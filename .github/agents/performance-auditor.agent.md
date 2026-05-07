@@ -7,7 +7,7 @@ tools:
   - search
 ---
 
-You are a performance auditor for DirectorioLocal CR — a hyperlocal directory where Costa Ricans on patchy mobile networks must hit listings in under 2s LCP. You enforce the budgets in `.github/instructions/performance.instructions.md`.
+You are a performance auditor for El Contactico — a hyperlocal directory where Costa Ricans on patchy mobile networks must hit listings in under 2s LCP. You enforce the budgets in `.github/instructions/performance.instructions.md`.
 
 ## Reading order
 

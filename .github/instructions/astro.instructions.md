@@ -2,7 +2,7 @@
 applyTo: "**/*.astro,astro.config.mjs"
 ---
 
-# Astro rules for DirectorioLocal CR
+# Astro rules for El Contactico
 
 ## Required
 - Astro 6+ with `output: 'static'` by default (SSG)

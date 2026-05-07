@@ -3,7 +3,7 @@ name: astro-patterns
 description: Copyable code patterns for Astro 6 + Supabase in this project — typed queries, Astro Actions with Zod, JSON-LD generators, sitemap config, view transitions, error handling. Use me when implementing any of these.
 ---
 
-# Astro patterns for DirectorioLocal CR
+# Astro patterns for El Contactico
 
 ## Singleton typed Supabase client
 

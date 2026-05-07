@@ -3,7 +3,7 @@ applyTo: "src/lib/queries/**,src/actions/**,src/lib/supabase.ts"
 description: "Concrete Supabase query rules — selects, filters, batching, RLS, pagination"
 ---
 
-# Query rules — DirectorioLocal CR
+# Query rules — El Contactico
 
 Concrete rules for writing Supabase queries. Every query in this codebase must satisfy all of them.
 

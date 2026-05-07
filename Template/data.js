@@ -1,4 +1,4 @@
-// Datos compartidos para DirectorioLocal CR
+// Datos compartidos para El Contactico
 window.CR_DATA = {
   cantonActual: { slug: 'aserri', nombre: 'Aserrí', provincia: 'San José' },
   distritoActual: { slug: 'vuelta-de-jorco', nombre: 'Vuelta de Jorco' },

@@ -4,7 +4,7 @@ import vercel from '@astrojs/vercel'
 
 // In dev, don't set `site` so Astro.site resolves to localhost automatically.
 // In production, PUBLIC_SITE_URL must be set in the deployment environment.
-const site = process.env.PUBLIC_SITE_URL ?? (process.env.NODE_ENV === 'production' ? 'https://directoriolocal.cr' : undefined)
+const site = process.env.PUBLIC_SITE_URL ?? (process.env.NODE_ENV === 'production' ? 'https://elcontactico.cr' : undefined)
 const supabaseHost = process.env.PUBLIC_SUPABASE_URL
   ? new URL(process.env.PUBLIC_SUPABASE_URL).hostname
   : 'example.supabase.co'

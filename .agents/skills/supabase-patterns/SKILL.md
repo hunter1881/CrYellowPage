@@ -3,7 +3,7 @@ name: supabase-patterns
 description: Patterns and code examples for working with Supabase in this project. Use me when you need queries, auth, storage, or migrations.
 ---
 
-# Supabase patterns for DirectorioLocal CR
+# Supabase patterns for El Contactico
 
 ## Current schema shape
 

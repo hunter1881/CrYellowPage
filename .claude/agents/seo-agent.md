@@ -20,7 +20,7 @@ For the home: WebSite with SearchAction
 
 ## Required meta tags on every page
 ```html
-<title>{name} in {district}, {canton} - DirectorioLocal CR</title>
+<title>{name} in {district}, {canton} - El Contactico</title>
 <meta name="description" content="Find {category} in {district}. Direct contact, no middlemen.">
 <meta property="og:title" content="...">
 <meta property="og:description" content="...">

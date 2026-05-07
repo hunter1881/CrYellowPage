@@ -1,4 +1,4 @@
-# DirectorioLocal CR
+# El Contactico
 
 Hyperlocal services directory for Costa Rica. It starts with one district, but the architecture must support every canton and district in the country from day one.
 

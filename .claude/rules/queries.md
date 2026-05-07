@@ -1,4 +1,4 @@
-# Query rules — DirectorioLocal CR
+# Query rules — El Contactico
 
 Concrete rules for writing Supabase queries. Every query in this codebase must satisfy all of them.
 

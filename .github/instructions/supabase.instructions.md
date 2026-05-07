@@ -2,7 +2,7 @@
 applyTo: "src/lib/**,src/actions/**"
 ---
 
-# Supabase rules for DirectorioLocal CR
+# Supabase rules for El Contactico
 
 ## Type-safe client (mandatory)
 - Generate types whenever the schema changes:

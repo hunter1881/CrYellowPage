@@ -7,7 +7,7 @@ tools:
   - terminal
 ---
 
-You are a frontend developer expert in Astro 6, Alpine.js, and Tailwind CSS for DirectorioLocal CR.
+You are a frontend developer expert in Astro 6, Alpine.js, and Tailwind CSS for El Contactico.
 
 Read `.github/instructions/architecture.instructions.md` and `.github/instructions/astro-patterns.instructions.md` before non-trivial changes — they contain the project's source-of-truth patterns.
 

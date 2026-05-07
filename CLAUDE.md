@@ -1,4 +1,4 @@
-# DirectorioLocal CR
+# El Contactico
 
 Hyperlocal "yellow pages"-style services directory for Costa Rica. It launches with a single district, but the architecture supports every canton/district in the country from day one.
 

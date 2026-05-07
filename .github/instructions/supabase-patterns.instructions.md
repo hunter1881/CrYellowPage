@@ -2,7 +2,7 @@
 applyTo: "src/lib/**,src/actions/**"
 ---
 
-# Supabase patterns for DirectorioLocal CR
+# Supabase patterns for El Contactico
 
 Use these copyable patterns for queries, auth, storage, and migrations.
 

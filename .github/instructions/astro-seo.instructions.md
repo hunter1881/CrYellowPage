@@ -2,7 +2,7 @@
 applyTo: "src/**/*.astro,src/lib/seo/**"
 ---
 
-# SEO templates for DirectorioLocal CR
+# SEO templates for El Contactico
 
 Use these patterns when creating or editing pages that need meta tags, JSON-LD, or structured data.
 
@@ -78,7 +78,7 @@ const jsonLd = {
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  "name": "DirectorioLocal CR",
+  "name": "El Contactico",
   "url": "https://directorio.local",
   "potentialAction": {
     "@type": "SearchAction",
@@ -123,7 +123,7 @@ export default defineConfig({
 
 ## Required meta tags on every page
 ```html
-<title>{name} en {district}, {canton} - DirectorioLocal CR</title>
+<title>{name} en {district}, {canton} - El Contactico</title>
 <meta name="description" content="Encuentra {category} en {district}. Contacto directo, sin intermediarios.">
 <meta property="og:title" content="...">
 <meta property="og:description" content="...">

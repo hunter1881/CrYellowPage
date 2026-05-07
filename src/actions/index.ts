@@ -194,7 +194,7 @@ export const server = {
 
       const code = await createPhoneOtp(provider.id, provider.phone)
 
-      const message = `Tu código de verificación para DirectorioLocal CR es: *${code}*\nVálido por 10 minutos.`
+      const message = `Tu código de verificación para El Contactico es: *${code}*\nVálido por 10 minutos.`
 
       // Try free path first (requires open CSW), then fall back to template
       const sentFree = await sendWhatsAppText(provider.phone, message)

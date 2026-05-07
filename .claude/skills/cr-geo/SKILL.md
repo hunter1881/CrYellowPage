@@ -3,7 +3,7 @@ name: cr-geo
 description: Costa Rica geographic data: cantons, districts, and how to handle slugs. Use me when working with locations, URL slugs, or geographic data inserts.
 ---
 
-# Costa Rica geography for DirectorioLocal
+# Costa Rica geography for El Contactico
 
 ## Slug format
 - No accents, no ñ, no special characters

@@ -1,4 +1,4 @@
-# Performance rules — DirectorioLocal CR
+# Performance rules — El Contactico
 
 This is a hyperlocal directory. **Speed is a SEO ranking signal and a UX requirement** — Costa Ricans on patchy mobile networks must get the listing in <2s LCP. These rules turn "fast" into a default.
 

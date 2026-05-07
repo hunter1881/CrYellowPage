@@ -2,7 +2,7 @@
 applyTo: "**"
 ---
 
-# Architecture rules — DirectorioLocal CR
+# Architecture rules — El Contactico
 
 This is the source of truth for architectural decisions. Verified against Astro 6 and Supabase docs (2026).
 

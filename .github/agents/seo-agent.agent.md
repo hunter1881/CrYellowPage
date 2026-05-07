@@ -31,7 +31,7 @@ This is a services directory for Costa Rica. Users search Google for things like
 
 ## Required meta tags on every page
 ```html
-<title>{name} en {district}, {canton} - DirectorioLocal CR</title>
+<title>{name} en {district}, {canton} - El Contactico</title>
 <meta name="description" content="Encuentra {category} en {district}. Contacto directo, sin intermediarios.">
 <meta property="og:title" content="...">
 <meta property="og:description" content="...">

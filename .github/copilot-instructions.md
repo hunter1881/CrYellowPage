@@ -1,4 +1,4 @@
-# DirectorioLocal CR — GitHub Copilot Instructions
+# El Contactico — GitHub Copilot Instructions
 
 Hyperlocal services directory for Costa Rica. Launches with a single district; architecture supports every canton/district in the country from day one.
 

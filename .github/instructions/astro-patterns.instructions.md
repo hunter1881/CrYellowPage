@@ -2,7 +2,7 @@
 applyTo: "src/**/*.astro,src/lib/**,src/actions/**"
 ---
 
-# Astro patterns for DirectorioLocal CR
+# Astro patterns for El Contactico
 
 Use these copyable patterns when implementing Astro 6 + Supabase features.
 

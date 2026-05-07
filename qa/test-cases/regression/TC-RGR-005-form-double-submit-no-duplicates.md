@@ -46,7 +46,7 @@ Duplicate pending registrations:
 ### Phase A — Rapid double-click (Layer 1 alone)
 
 1. Navigate to `/register-provider`
-2. Fill all fields with valid data, email = `dup-test-1@directoriolocal.test`
+2. Fill all fields with valid data, email = `dup-test-1@elcontactico.test`
 3. Capture the submit button via `mcp__playwright__browser_evaluate` and bind a click counter
 4. Click submit twice in rapid succession (within 50ms — use `mcp__playwright__browser_click` twice without delay)
 5. Wait for navigation to complete
@@ -56,7 +56,7 @@ Duplicate pending registrations:
 ### Phase B — `form.requestSubmit()` × 2 (the original bug repro)
 
 6. Navigate to `/register-provider` (fresh — no cookies/state from Phase A)
-7. Fill all fields, email = `dup-test-2@directoriolocal.test`
+7. Fill all fields, email = `dup-test-2@elcontactico.test`
 8. Inject and run via `mcp__playwright__browser_evaluate`:
    ```js
    () => {
@@ -71,7 +71,7 @@ Duplicate pending registrations:
 
 ### Phase C — Direct API double-POST (Layer 1 bypassed; Layers 2+3 must catch it)
 
-10. Construct two identical POST requests via `fetch()` to the action endpoint with the same payload (email = `dup-test-3@directoriolocal.test`):
+10. Construct two identical POST requests via `fetch()` to the action endpoint with the same payload (email = `dup-test-3@elcontactico.test`):
     ```js
     () => {
       const formData = new FormData()
@@ -92,7 +92,7 @@ Duplicate pending registrations:
 ### Phase D — Re-application after rejection (the partial-index semantics)
 
 12. As a service-role admin, find the row from Phase A and update `status = 'rejected'`
-13. Submit a new registration with the same email (`dup-test-1@directoriolocal.test`)
+13. Submit a new registration with the same email (`dup-test-1@elcontactico.test`)
 
 **Expected**: HTTP 200, new row created. The partial index `WHERE status = 'pending'` only constrains pending rows — once the previous one moves to `rejected`, the email is freed up. Confirms intended UX.
 
@@ -108,7 +108,7 @@ Total rows created across all phases: 4 (Phases A/B/C contribute 1 each, Phase D
 ```sql
 select id, email, business_name, status, created_at
 from provider_registrations
-where email like 'dup-test-%@directoriolocal.test'
+where email like 'dup-test-%@elcontactico.test'
 order by created_at;
 ```
 
@@ -116,10 +116,10 @@ order by created_at;
 
 | Phase | Email | Notes |
 |---|---|---|
-| A | `dup-test-1@directoriolocal.test` | One row, status=pending → moved to rejected during Phase D |
-| B | `dup-test-2@directoriolocal.test` | One row, status=pending |
-| C | `dup-test-3@directoriolocal.test` | One row, status=pending |
-| D | `dup-test-1@directoriolocal.test` | New row after re-application; status=pending |
+| A | `dup-test-1@elcontactico.test` | One row, status=pending → moved to rejected during Phase D |
+| B | `dup-test-2@elcontactico.test` | One row, status=pending |
+| C | `dup-test-3@elcontactico.test` | One row, status=pending |
+| D | `dup-test-1@elcontactico.test` | New row after re-application; status=pending |
 
 Delete via service-role after run completes.
 

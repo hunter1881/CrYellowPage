@@ -37,7 +37,7 @@ Verify the home page renders with all critical sections for SEO and conversion: 
 ## Expected result
 
 - HTTP 200, no redirect
-- `<title>` contains "DirectorioLocal" and is under 60 chars
+- `<title>` contains "El Contactico" and is under 60 chars
 - `<meta name="description">` present, between 50 and 160 chars
 - `<link rel="canonical">` present, equals page URL
 - Exactly **one** `<h1>` visible
