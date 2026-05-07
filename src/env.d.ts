@@ -21,6 +21,12 @@ interface ImportMeta {
   readonly env: ImportMetaEnv
 }
 
+declare namespace App {
+  interface Locals {
+    user?: { id: string; email?: string } | null
+  }
+}
+
 // Alpine.js v3 ships without a bundled declaration file — declare minimal shape here
 declare module 'alpinejs' {
   const Alpine: {
