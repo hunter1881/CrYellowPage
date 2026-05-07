@@ -201,12 +201,19 @@ export const ui = {
 
   // ─── Login page ───────────────────────────────────────────────────────────
   'login.meta': 'Panel de proveedor',
-  'login.title': 'Accedé a tu cuenta',
-  'login.subtitle': 'Te enviamos un enlace mágico al correo. Sin contraseña.',
-  'login.checkEmail': '¡Revisá tu correo!',
-  'login.emailLabel': 'Correo electrónico',
-  'login.sendLink': 'Enviar enlace mágico',
-  'login.noProfile': '¿Aún no tenés perfil? ',
+  'login.title': 'Ingresá a tu cuenta',
+  'login.subtitle': 'Te enviamos un código de 6 dígitos por WhatsApp. Sin contraseña.',
+  'login.phoneLabel': 'Tu número de WhatsApp',
+  'login.phonePlaceholder': '8888-8888',
+  'login.phoneHint': 'El mismo número que usás en WhatsApp',
+  'login.sendCode': 'Enviar código por WhatsApp',
+  'login.codeSent': '¡Código enviado!',
+  'login.codeSentBody': 'Revisá tu WhatsApp. El código vence en 10 minutos.',
+  'login.codeLabel': 'Código de 6 dígitos',
+  'login.codePlaceholder': '123456',
+  'login.verify': 'Verificar',
+  'login.changePhone': '← Cambiar número',
+  'login.noProfile': '¿Aun no tenés perfil? ',
   'login.registerService': 'Registrá tu servicio',
 
   // ─── Edit profile page ────────────────────────────────────────────────────
@@ -318,10 +325,11 @@ export const ui = {
   'search.emptyBody': 'Probá con otras palabras o navegá por categoría desde la página principal.',
 
   // ─── Login error / success messages ──────────────────────────────────────
-  'login.validEmailError': 'Ingresá un correo electrónico válido.',
-  'login.sendError': 'No pudimos enviar el enlace. Intentá de nuevo.',
-  'login.successBodyPrefix': 'Enviamos un enlace a',
-  'login.successBodySuffix': 'Revisá tu correo.',
+  'login.invalidPhone': 'Ingresá un número válido (ej: 8888-8888).',
+  'login.sendWhatsAppError': 'No pudimos enviar el código por WhatsApp. Intentá de nuevo.',
+  'login.invalidCode': 'Código incorrecto o vencido. Intentá de nuevo.',
+  'login.codeExpired': 'El código venció. Solicitá uno nuevo.',
+  'login.authError': 'Ocurrió un error al crear la sesión. Intentá de nuevo.',
 
   // ─── Badge ────────────────────────────────────────────────────────────────
   'badge.verified': 'Verificado',

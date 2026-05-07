@@ -48,7 +48,6 @@ const cantonData = cantons.map((canton) => ({
   <div class="grid gap-4 md:grid-cols-2">
     <Input label={t('form.businessName')} name="businessName" required minlength="3" maxlength="120" error={errorFor('businessName')} />
     <Input label={t('form.contactPerson')} name="contactName" required minlength="3" maxlength="120" error={errorFor('contactName')} />
-    <Input label="Email" name="email" type="email" required maxlength="160" error={errorFor('email')} />
     <Input label={t('form.phone')} name="phone" required type="tel" placeholder="8888-8888" error={errorFor('phone')} />
     <Input
       label={`WhatsApp`}

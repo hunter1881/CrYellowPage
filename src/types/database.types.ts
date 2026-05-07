@@ -305,8 +305,9 @@ export type Database = {
           created_at: string
           description: string
           district_id: string | null
-          email: string
+          email: string | null
           id: string
+          owner_id: string | null
           phone: string
           service_areas: Json | null
           source_locale: string
@@ -323,8 +324,9 @@ export type Database = {
           created_at?: string
           description: string
           district_id?: string | null
-          email: string
+          email?: string | null
           id?: string
+          owner_id?: string | null
           phone: string
           service_areas?: Json | null
           source_locale?: string
@@ -341,8 +343,9 @@ export type Database = {
           created_at?: string
           description?: string
           district_id?: string | null
-          email?: string
+          email?: string | null
           id?: string
+          owner_id?: string | null
           phone?: string
           service_areas?: Json | null
           source_locale?: string
@@ -594,6 +597,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      whatsapp_auth_otps: {
+        Row: {
+          code: string
+          created_at: string
+          expires_at: string
+          id: string
+          phone: string
+          used: boolean
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          phone: string
+          used?: boolean
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          phone?: string
+          used?: boolean
+        }
+        Relationships: []
       }
     }
     Views: {

@@ -55,11 +55,10 @@ export const server = {
           'Teléfono inválido. Formato: 8888-8888 o +506 8888-8888.',
         ),
       whatsapp: optionalTrimmedString,
-      email: looseString()
-        .transform((s) => s.trim())
-        .pipe(
-          z.email('Correo electrónico inválido.').max(160, 'Correo electrónico demasiado largo.'),
-        ),
+      email: z.preprocess(
+        (v) => (typeof v === 'string' && v.trim().length > 0 ? v.trim() : null),
+        z.string().email('Correo electrónico inválido.').max(160).nullable(),
+      ),
       serviceAreaJson: z.preprocess(
         (val) => {
           if (typeof val !== 'string') return []

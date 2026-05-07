@@ -16,7 +16,7 @@ export interface ProviderRegistrationInput {
   contactName: string
   phone: string
   whatsapp?: string | null
-  email: string
+  email?: string | null
   serviceAreas: ServiceAreaInput[]
   categoryIds: string[]
   description: string
@@ -80,7 +80,7 @@ export async function createProviderRegistration(input: ProviderRegistrationInpu
     contact_name: input.contactName,
     phone: input.phone,
     whatsapp: input.whatsapp || null,
-    email: input.email,
+    email: input.email ?? null,
     district_id: null,
     category_ids: input.categoryIds,
     description: input.description,
@@ -104,7 +104,7 @@ export async function createProviderRegistration(input: ProviderRegistrationInpu
     if (error.code === '23505') {
       throw new ActionError({
         code: 'CONFLICT',
-        message: 'Ya tenemos una solicitud pendiente con este correo electrónico.',
+        message: 'Ya tenemos una solicitud pendiente con este número de teléfono.',
       })
     }
     logger.error('createProviderRegistration.insert', { serviceAreas: input.serviceAreas, error })

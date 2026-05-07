@@ -35,7 +35,7 @@ const waVerifyLink = provider && waPhone
 const { data: registration } = await supabase
   .from('provider_registrations')
   .select('id, business_name, status, created_at')
-  .eq('email', user.email ?? '')
+  .eq('owner_id', user.id)
   .order('created_at', { ascending: false })
   .limit(1)
   .maybeSingle()

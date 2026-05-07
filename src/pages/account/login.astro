@@ -4,41 +4,89 @@ import Button from '@components/ui/Button.astro'
 import Input from '@components/ui/Input.astro'
 import BaseLayout from '@layouts/BaseLayout.astro'
 import { createSupabaseServerClient } from '@lib/supabaseServer'
+import { createLoginOtp, verifyLoginOtpAndGetToken, linkRegistrationToUser } from '@lib/queries/authOtp'
+import { sendWhatsAppText, sendOtpTemplate } from '@lib/whatsapp'
 import { absoluteUrl } from '@lib/site'
 import { t } from '@lib/i18n'
 
 export const prerender = false
 
+// SSR client with cookie management — must be created before any auth checks
 const supabase = createSupabaseServerClient(Astro.request, Astro.response.headers)
 const { data: { user } } = await supabase.auth.getUser()
 
-// Already logged in → redirect to dashboard
-if (user) {
-  return Astro.redirect('/account/')
-}
+if (user) return Astro.redirect('/account/')
 
 const canonical = absoluteUrl('/account/login/', Astro.site)
 
+// CR phone regex — matches "8888-8888", "88888888", "+506 8888-8888"
+const PHONE_RE = /^(?:\+506\s?)?\d{4}-?\d{4}$/
+
+type Step = 'phone' | 'code'
+let step: Step = 'phone'
+let sentToPhone = ''
 let errorMessage: string | null = null
-let successMessage: string | null = null
 
 if (Astro.request.method === 'POST') {
-  const formData = await Astro.request.formData()
-  const email = String(formData.get('email') ?? '').trim().toLowerCase()
+  const form = await Astro.request.formData()
+  const action = String(form.get('_action') ?? '').trim()
 
-  if (!email || !email.includes('@')) {
-    errorMessage = t('login.validEmailError')
-  } else {
-    // Use the current request's origin so the link works in dev, staging, and prod
-    const redirectTo = new URL('/account/', Astro.url.origin).href
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: redirectTo },
-    })
-    if (error) {
-      errorMessage = t('login.sendError')
+  // ── Step 1: request an OTP ──────────────────────────────────────────────
+  if (action === 'request') {
+    const rawPhone = String(form.get('phone') ?? '').trim()
+
+    if (!PHONE_RE.test(rawPhone)) {
+      errorMessage = t('login.invalidPhone')
     } else {
-      successMessage = email
+      try {
+        const code = await createLoginOtp(rawPhone)
+        const msg = `Tu código de acceso a El Contactico es: *${code}*\nVálido por 10 minutos. No lo compartás con nadie.`
+        const sent = await sendWhatsAppText(rawPhone, msg)
+        if (!sent) await sendOtpTemplate(rawPhone, code)
+        sentToPhone = rawPhone
+        step = 'code'
+      } catch {
+        errorMessage = t('login.sendWhatsAppError')
+      }
+    }
+
+  // ── Step 2: verify the OTP and create a session ─────────────────────────
+  } else if (action === 'verify') {
+    const rawPhone = String(form.get('phone') ?? '').trim()
+    const code = String(form.get('code') ?? '').replace(/\D/g, '')
+
+    sentToPhone = rawPhone
+    step = 'code'
+
+    if (!/^\d{6}$/.test(code)) {
+      errorMessage = t('login.invalidCode')
+    } else {
+      const otpResult = await verifyLoginOtpAndGetToken(rawPhone, code)
+
+      if (!otpResult.ok) {
+        const msgs: Record<typeof otpResult.reason, string> = {
+          not_found: t('login.invalidCode'),
+          expired: t('login.codeExpired'),
+          wrong_code: t('login.invalidCode'),
+          auth_error: t('login.authError'),
+        }
+        errorMessage = msgs[otpResult.reason]
+      } else {
+        // Exchange the token_hash for a real session via the SSR client.
+        // @supabase/ssr writes the session cookies to Astro.response.headers.
+        const { data: sessionData, error: sessionErr } = await supabase.auth.verifyOtp({
+          type: 'magiclink',
+          token_hash: otpResult.tokenHash,
+        })
+
+        if (sessionErr || !sessionData.user) {
+          errorMessage = t('login.authError')
+        } else {
+          // Link any pending registrations submitted from this phone to the auth user
+          await linkRegistrationToUser(rawPhone, sessionData.user.id)
+          return Astro.redirect('/account/')
+        }
+      }
     }
   }
 }
@@ -51,40 +99,70 @@ if (Astro.request.method === 'POST') {
 >
   <section class="flex min-h-[60vh] items-center justify-center px-4 py-12">
     <div class="w-full max-w-sm">
+
       <div class="mb-8 text-center">
         <p class="civic-meta">{t('login.meta')}</p>
         <h1 class="mt-2 text-2xl font-semibold tracking-[-0.5px] text-ink">
           {t('login.title')}
         </h1>
-        <p class="mt-2 text-sm text-ink-2">
-          {t('login.subtitle')}
-        </p>
+        <p class="mt-2 text-sm text-ink-2">{t('login.subtitle')}</p>
       </div>
-
-      {successMessage && (
-        <Alert variant="success" class="mb-5">
-          <p class="font-semibold">{t('login.checkEmail')}</p>
-          {`${t('login.successBodyPrefix')} ${successMessage}. ${t('login.successBodySuffix')}`}
-        </Alert>
-      )}
 
       {errorMessage && (
         <Alert variant="error" class="mb-5">{errorMessage}</Alert>
       )}
 
-      {!successMessage && (
+      {step === 'phone' && (
         <form class="civic-card grid gap-4 p-5" method="POST">
-          <Input label={t('login.emailLabel')} name="email" type="email" required placeholder="you@email.com" />
-          <Button type="submit" full class="py-3">{t('login.sendLink')}</Button>
+          <input type="hidden" name="_action" value="request" />
+          <Input
+            label={t('login.phoneLabel')}
+            name="phone"
+            type="tel"
+            required
+            placeholder={t('login.phonePlaceholder')}
+            hint={t('login.phoneHint')}
+            autocomplete="tel"
+            inputmode="numeric"
+          />
+          <Button type="submit" full class="py-3">{t('login.sendCode')}</Button>
         </form>
+      )}
+
+      {step === 'code' && (
+        <>
+          <Alert variant="success" class="mb-5">
+            <p class="font-semibold">{t('login.codeSent')}</p>
+            <p>{t('login.codeSentBody')}</p>
+          </Alert>
+          <form class="civic-card grid gap-4 p-5" method="POST">
+            <input type="hidden" name="_action" value="verify" />
+            <input type="hidden" name="phone" value={sentToPhone} />
+            <Input
+              label={t('login.codeLabel')}
+              name="code"
+              type="text"
+              required
+              placeholder={t('login.codePlaceholder')}
+              inputmode="numeric"
+              autocomplete="one-time-code"
+              maxlength="6"
+            />
+            <Button type="submit" full class="py-3">{t('login.verify')}</Button>
+          </form>
+          <p class="mt-3 text-center text-xs text-ink-3">
+            <a class="underline hover:text-ink" href="/account/login/">{t('login.changePhone')}</a>
+          </p>
+        </>
       )}
 
       <p class="mt-5 text-center text-xs text-ink-3">
         {t('login.noProfile')}
-        <a class="underline hover:text-ink" href="/register-provider">
+        <a class="underline hover:text-ink" href="/register-provider/">
           {t('login.registerService')}
         </a>
       </p>
+
     </div>
   </section>
 </BaseLayout>
