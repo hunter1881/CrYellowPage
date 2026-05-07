@@ -22,9 +22,14 @@ const canonical = absoluteUrl('/account/', Astro.site)
 // Load the provider owned by this user (if any)
 const { data: provider } = await supabase
   .from('providers')
-  .select('id, name, verified, description, phone, created_at, district_id')
+  .select('id, name, verified, phone_verified, description, phone, created_at, district_id')
   .eq('owner_id', user.id)
   .maybeSingle()
+
+const waPhone = import.meta.env.PUBLIC_WHATSAPP_BUSINESS_PHONE ?? ''
+const waVerifyLink = provider && waPhone
+  ? `https://wa.me/${waPhone}?text=VERIFICAR+${provider.id}`
+  : null
 
 // Load pending registration (if any)
 const { data: registration } = await supabase
@@ -72,6 +77,68 @@ const { data: registration } = await supabase
             }
           </div>
           <p class="text-sm leading-6 text-ink-2">{provider.description ?? '—'}</p>
+          {/* Phone verification widget */}
+          {!provider.phone_verified && (
+            <phone-verify
+              data-provider-id={provider.id}
+              data-wa-link={waVerifyLink ?? ''}
+              class="mt-4 block rounded-lg border border-amber-200 bg-amber-50 p-4"
+            >
+              <p class="mb-2 text-sm font-medium text-amber-800">Verificá tu número de teléfono</p>
+              <p class="mb-3 text-xs text-amber-700">
+                Verificar tu número acelera la activación de tu perfil en el directorio.
+              </p>
+              <div class="flex flex-col gap-2" data-step="start">
+                <a
+                  data-wa-btn
+                  href={waVerifyLink ?? '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center gap-2 rounded-md bg-[#25D366] px-4 py-2 text-sm font-medium text-white hover:bg-[#1fbb58]"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.533 5.858L.054 23.61a.75.75 0 0 0 .916.916l5.752-1.479A11.953 11.953 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75a9.75 9.75 0 0 1-4.953-1.35l-.355-.212-3.678.945.963-3.565-.232-.369A9.75 9.75 0 1 1 12 21.75z"/></svg>
+                  Enviar código por WhatsApp
+                </a>
+                <button
+                  data-show-input
+                  type="button"
+                  class="text-left text-xs text-amber-700 underline hover:text-amber-900"
+                >
+                  Ya envié el mensaje, ingresar código
+                </button>
+              </div>
+              <div class="hidden flex-col gap-2" data-step="code">
+                <p class="text-xs text-amber-700">Ingresá el código de 6 dígitos que te llegó por WhatsApp:</p>
+                <div class="flex gap-2">
+                  <input
+                    data-code-input
+                    type="text"
+                    inputmode="numeric"
+                    pattern="[0-9]{6}"
+                    maxlength="6"
+                    placeholder="123456"
+                    class="w-28 rounded-md border border-amber-300 bg-white px-3 py-2 text-center text-sm font-mono tracking-widest focus:outline-none focus:ring-2 focus:ring-amber-400"
+                  />
+                  <button
+                    data-verify-btn
+                    type="button"
+                    class="rounded-md bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50"
+                  >
+                    Verificar
+                  </button>
+                </div>
+                <p data-error-msg class="hidden text-xs text-red-600"></p>
+              </div>
+            </phone-verify>
+          )}
+
+          {provider.phone_verified && (
+            <div class="mt-4 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-5 w-5 text-green-600"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143z" clip-rule="evenodd" /></svg>
+              <span class="text-sm font-medium text-green-800">Teléfono verificado</span>
+            </div>
+          )}
+
           <div class="mt-4 flex flex-wrap gap-2">
             <Button variant="outline" href={`/account/edit/${provider.id}`} class="gap-2">
               {t('account.editProfile')}
@@ -117,3 +184,56 @@ const { data: registration } = await supabase
     </div>
   </section>
 </BaseLayout>
+
+<script>
+  import { actions } from 'astro:actions'
+
+  class PhoneVerify extends HTMLElement {
+    connectedCallback() {
+      const providerId = this.dataset.providerId ?? ''
+      const stepStart = this.querySelector<HTMLElement>('[data-step="start"]')
+      const stepCode = this.querySelector<HTMLElement>('[data-step="code"]')
+      const showInputBtn = this.querySelector<HTMLButtonElement>('[data-show-input]')
+      const codeInput = this.querySelector<HTMLInputElement>('[data-code-input]')
+      const verifyBtn = this.querySelector<HTMLButtonElement>('[data-verify-btn]')
+      const errorMsg = this.querySelector<HTMLElement>('[data-error-msg]')
+
+      showInputBtn?.addEventListener('click', () => {
+        stepStart?.classList.add('hidden')
+        stepCode?.classList.remove('hidden')
+        stepCode?.classList.add('flex')
+        codeInput?.focus()
+      })
+
+      verifyBtn?.addEventListener('click', async () => {
+        const code = codeInput?.value.trim() ?? ''
+        if (!/^\d{6}$/.test(code)) {
+          if (errorMsg) {
+            errorMsg.textContent = 'Ingresá los 6 dígitos del código.'
+            errorMsg.classList.remove('hidden')
+          }
+          return
+        }
+
+        if (verifyBtn) verifyBtn.disabled = true
+
+        const { data, error } = await actions.verifyPhoneOtp({ providerId, code })
+
+        if (error || !data?.verified) {
+          const msg = (error as { message?: string } | null)?.message ?? 'Código incorrecto. Intentá de nuevo.'
+          if (errorMsg) {
+            errorMsg.textContent = msg
+            errorMsg.classList.remove('hidden')
+          }
+          if (verifyBtn) verifyBtn.disabled = false
+          return
+        }
+
+        // Success — reload so the server-rendered badge updates
+        window.location.reload()
+      })
+    }
+  }
+
+  if (!customElements.get('phone-verify')) customElements.define('phone-verify', PhoneVerify)
+</script>

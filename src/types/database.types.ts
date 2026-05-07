@@ -192,6 +192,44 @@ export type Database = {
         }
         Relationships: []
       }
+      phone_otp_codes: {
+        Row: {
+          code: string
+          created_at: string
+          expires_at: string
+          id: string
+          phone: string
+          provider_id: string
+          used: boolean
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          phone: string
+          provider_id: string
+          used?: boolean
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          phone?: string
+          provider_id?: string
+          used?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "phone_otp_codes_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       provider_categories: {
         Row: {
           category_id: string
@@ -323,6 +361,41 @@ export type Database = {
           },
         ]
       }
+      provider_reports: {
+        Row: {
+          created_at: string
+          details: string | null
+          id: string
+          provider_id: string
+          reason: string
+          reporter_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          provider_id: string
+          reason: string
+          reporter_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          provider_id?: string
+          reason?: string
+          reporter_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_reports_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       provider_service_areas: {
         Row: {
           canton_id: string | null
@@ -381,6 +454,7 @@ export type Database = {
           name: string
           owner_id: string | null
           phone: string
+          phone_verified: boolean
           photo_url: string | null
           response_time_minutes: number | null
           updated_at: string
@@ -400,6 +474,7 @@ export type Database = {
           name: string
           owner_id?: string | null
           phone: string
+          phone_verified?: boolean
           photo_url?: string | null
           response_time_minutes?: number | null
           updated_at?: string
@@ -419,6 +494,7 @@ export type Database = {
           name?: string
           owner_id?: string | null
           phone?: string
+          phone_verified?: boolean
           photo_url?: string | null
           response_time_minutes?: number | null
           updated_at?: string

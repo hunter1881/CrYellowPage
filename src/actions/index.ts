@@ -4,6 +4,10 @@ import { createProviderRegistration } from '@lib/queries/providerRegistrations'
 import type { ServiceAreaInput } from '@lib/queries/providerRegistrations'
 import { selectedIncludesSinpe } from '@lib/queries/paymentMethods'
 import { insertReview } from '@lib/queries/reviews'
+import { createPhoneOtp, verifyPhoneOtp } from '@lib/queries/verification'
+import { insertProviderReport } from '@lib/queries/reports'
+import { sendWhatsAppText, sendOtpTemplate } from '@lib/whatsapp'
+import { supabase } from '@lib/supabase'
 
 // JS .trim() does not strip Unicode format characters (U+200B zero-width space,
 // U+200C/D zero-width joiners, etc.). A name of 3 zero-width spaces would pass
@@ -138,6 +142,138 @@ export const server = {
       }
 
       return { providerId: input.providerId }
+    },
+  }),
+
+  // ── Phone verification ────────────────────────────────────────────────────
+
+  /**
+   * Generates an OTP and sends it via WhatsApp.
+   *
+   * Strategy (zero-cost when possible):
+   *   1. Try sending a plain-text message (free, within an open customer-service window).
+   *   2. If not sent, fall back to an authentication template (~$0.025/msg for CR).
+   *
+   * The free path relies on the user having messaged the business number first —
+   * the webhook handler in /api/whatsapp-webhook.ts opens that CSW automatically.
+   */
+  requestPhoneVerification: defineAction({
+    accept: 'json',
+    input: z.object({
+      providerId: z.string().uuid('ID de proveedor inválido.'),
+    }),
+    handler: async (input, ctx) => {
+      const userId = ctx.locals.user?.id
+
+      // Verify ownership: provider must belong to the logged-in user
+      const { data: provider, error } = await supabase
+        .from('providers')
+        .select('id, phone, phone_verified')
+        .eq('id', input.providerId)
+        .maybeSingle()
+
+      if (error || !provider) {
+        throw new ActionError({ code: 'NOT_FOUND', message: 'Proveedor no encontrado.' })
+      }
+
+      if (userId) {
+        const { data: owned } = await supabase
+          .from('providers')
+          .select('id')
+          .eq('id', input.providerId)
+          .eq('owner_id', userId)
+          .maybeSingle()
+        if (!owned) {
+          throw new ActionError({ code: 'FORBIDDEN', message: 'No tenés permiso para verificar este perfil.' })
+        }
+      }
+
+      if (provider.phone_verified) {
+        return { sent: false, alreadyVerified: true }
+      }
+
+      const code = await createPhoneOtp(provider.id, provider.phone)
+
+      const message = `Tu código de verificación para DirectorioLocal CR es: *${code}*\nVálido por 10 minutos.`
+
+      // Try free path first (requires open CSW), then fall back to template
+      const sentFree = await sendWhatsAppText(provider.phone, message)
+      if (!sentFree) {
+        await sendOtpTemplate(provider.phone, code)
+      }
+
+      return { sent: true, alreadyVerified: false }
+    },
+  }),
+
+  /**
+   * Validates the 6-digit OTP entered by the provider.
+   * On success the Postgres trigger sets verified=true automatically.
+   */
+  verifyPhoneOtp: defineAction({
+    accept: 'json',
+    input: z.object({
+      providerId: z.string().uuid('ID de proveedor inválido.'),
+      code: z
+        .string()
+        .trim()
+        .regex(/^\d{6}$/, 'El código debe ser de 6 dígitos.'),
+    }),
+    handler: async (input) => {
+      const result = await verifyPhoneOtp(input.providerId, input.code)
+
+      if (!result.ok) {
+        const messages: Record<typeof result.reason, string> = {
+          not_found: 'No encontramos un código activo. Solicitá uno nuevo.',
+          expired: 'El código expiró. Solicitá uno nuevo.',
+          used: 'Este código ya fue utilizado. Solicitá uno nuevo.',
+          wrong_code: 'Código incorrecto. Revisá el mensaje en WhatsApp.',
+        }
+        throw new ActionError({
+          code: 'BAD_REQUEST',
+          message: messages[result.reason],
+        })
+      }
+
+      return { verified: true }
+    },
+  }),
+
+  // ── Community reports ─────────────────────────────────────────────────────
+
+  /**
+   * Submits a community report against a provider.
+   * The Postgres trigger auto-hides the provider after 3 fraud/fake_info reports.
+   */
+  reportProvider: defineAction({
+    accept: 'form',
+    input: z.object({
+      providerId: z.string().uuid('Proveedor inválido.'),
+      reason: z.enum(['fraud', 'fake_info', 'no_show', 'bad_quality', 'spam', 'other'], {
+        message: 'Motivo inválido.',
+      }),
+      details: z
+        .string()
+        .trim()
+        .max(500, 'Máximo 500 caracteres.')
+        .optional()
+        .transform((v) => (v && v.length > 0 ? v : null)),
+    }),
+    handler: async (input, ctx) => {
+      const reporterId = ctx.locals.user?.id ?? null
+
+      const result = await insertProviderReport({
+        providerId: input.providerId,
+        reason: input.reason,
+        details: input.details,
+        reporterId,
+      })
+
+      if (!result.ok) {
+        throw new ActionError({ code: 'INTERNAL_SERVER_ERROR', message: 'No se pudo enviar el reporte.' })
+      }
+
+      return { reported: true }
     },
   }),
 }
